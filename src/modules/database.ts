@@ -1,8 +1,3 @@
-/**
- Author: Ethereal
- CreateTime: 2022/6/12
- */
-// @ts-ignore
 import { createClient, RedisClient } from "redis";
 import { Logger } from "log4js";
 import FileManagement from "./file";
@@ -59,7 +54,6 @@ export default class Database implements DatabaseMethod {
     constructor( port: number, auth_pass, logger: Logger, file: FileManagement ) {
         const host: string = process.env.docker === "yes" ? "redis" : "localhost";
 
-        // @ts-ignore
         this.client = createClient(port, host, { auth_pass });
         this.client.on("connect", async () => {
             logger.info("Redis 数据库已连接");

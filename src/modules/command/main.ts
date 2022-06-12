@@ -144,7 +144,7 @@ export default class Command {
             const commands: BasicConfig[] = [];
             for ( let name of Object.keys(PluginRawConfigs) ) {
                 const raws: ConfigType[] = PluginRawConfigs[ name ];
-                const cmd: BasicConfig[] = await Plugin.parse(bot, raws, name);
+                const cmd: BasicConfig[] = Plugin.parse(bot, raws, name);
                 commands.push(...cmd);
             }
             this.add(commands);

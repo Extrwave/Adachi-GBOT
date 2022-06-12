@@ -2,6 +2,6 @@
  Author: Ethereal
  CreateTime: 2022/6/12
  */
-import { APAS } from "@modules/bot";
+import { Adachi } from "@modules/bot";
 
-export default new APAS(__dirname).run();
+export default new Adachi(__dirname).run();

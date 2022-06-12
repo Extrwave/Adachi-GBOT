@@ -63,6 +63,7 @@ export default class MsgManager implements MsgManagementMethod {
                     msg_id: msg_id
                 });
             } else {
+                content.msg_id = msg_id;
                 await client.directMessageApi.postDirectMessage(guildId, content);
             }
         }
@@ -73,12 +74,13 @@ export default class MsgManager implements MsgManagementMethod {
         const client = this.client;
         return async function ( content: MessageToCreate | string ) {
             if ( typeof content === 'string' ) {
-                await client.directMessageApi.postDirectMessage(channelID, {
+                await client.messageApi.postMessage(channelID, {
                     content: content,
                     msg_id: msg_id
                 });
             } else {
-                await client.directMessageApi.postDirectMessage(channelID, content);
+                content.msg_id = msg_id;
+                await client.messageApi.postMessage(channelID, content);
             }
         }
     }
@@ -90,7 +92,7 @@ export function removeStringPrefix( string: string, prefix: string ): string {
 }
 
 export function isPrivateMessage( data: Message ): boolean {
-    if ( data.msg.direct_message ) {
+    if ( data.eventType === 'DIRECT_MESSAGE_CREATE' ) {
         return true;
     } else {
         return false;
@@ -98,7 +100,7 @@ export function isPrivateMessage( data: Message ): boolean {
 }
 
 export function isGroupMessage( data: Message ): boolean {
-    if ( data.msg.direct_message ) {
+    if ( data.eventType === 'MESSAGE_CREATE' ) {
         return true;
     } else {
         return false;

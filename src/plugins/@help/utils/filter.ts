@@ -1,4 +1,3 @@
-import { GroupMessageEventData } from "oicq";
 import { AuthLevel } from "@modules/management/auth";
 import { BasicConfig, InputParameter } from "@modules/command/main";
 import Database from "@modules/database";
@@ -14,20 +13,20 @@ function getMessageType( msg: m.Message ): m.MessageType {
     }
 }
 
-async function getLimited( id: number, type: string, redis: Database ): Promise<string[]> {
+async function getLimited( id: string, type: string, redis: Database ): Promise<string[]> {
     const dbKey: string = `adachi.${ type }-command-limit-${ id }`;
     return await redis.getList(dbKey);
 }
 
 export async function filterUserUsableCommand( i: InputParameter ): Promise<BasicConfig[]> {
-    const userID: number = i.messageData.user_id;
+    const userID: string = i.messageData.msg.author.id;
     const type: m.MessageType = getMessageType(i.messageData);
     if ( type === m.MessageType.Unknown ) {
         return [];
     }
 
     const auth: AuthLevel = await i.auth.get(userID);
-    let commands: BasicConfig[] = await i.command
+    let commands: BasicConfig[] = i.command
         .get(auth, type === m.MessageType.Group
             ? m.MessageScope.Group : m.MessageScope.Private)
         .filter(el => el.display);
@@ -38,7 +37,7 @@ export async function filterUserUsableCommand( i: InputParameter ): Promise<Basi
         return commands;
     }
 
-    const groupID: number = ( <GroupMessageEventData>i.messageData ).group_id;
+    const groupID: string = ( <m.Message>i.messageData ).msg.channel_id;
     const groupLimit: string[] = await getLimited(groupID, "group", i.redis);
     commands = commands.filter(el => !groupLimit.includes(el.cmdKey));
     return commands;

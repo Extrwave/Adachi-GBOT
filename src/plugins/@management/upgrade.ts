@@ -46,7 +46,7 @@ async function updateBot( {
                               sendMessage,
                               logger
                           }: InputParameter ): Promise<void> {
-    const isForce = messageData.raw_message === "-f";
+    const isForce = messageData.msg.content === "-f";
     const command = !isForce ? "git checkout HEAD package*.json && git pull --no-rebase" : "git reset --hard && git pull --no-rebase";
 
     const execPromise = execHandle(command).then(( stdout: string ) => {

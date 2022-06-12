@@ -2,54 +2,64 @@
  Author: Ethereal
  CreateTime: 2022/6/12
  */
-import {
-    createOpenAPI,
-    createWebsocket,
-    IOpenAPI,
-} from "qq-guild-bot";
-import * as log from 'log4js';
-import BotConfig from "@modules/config";
-import FileManagement from "@modules/file";
-import MsgManagement, * as msg from "@modules/message";
-import Database from "@modules/database";
-import MsgManager from '@modules/message'
-import Authorization from '@modules/management/auth'
-import Command, { BasicConfig, MatchResult } from '@modules/command/main'
+import * as sdk from "qq-guild-bot";
+import * as log from "log4js";
+import moment from "moment";
+import BotConfig from "./config";
+import Database from "./database";
+import Interval from "./management/interval";
+import FileManagement from "./file";
+import Plugin from "./plugin";
+import WebConfiguration from "./logger";
+import WebConsole from "@web-console/backend";
+import RefreshConfig from "./management/refresh";
+import { BasicRenderer } from "@modules/renderer";
+import Command, { BasicConfig, MatchResult } from "./command/main";
+import Authorization, { AuthLevel } from "./management/auth";
+import MsgManagement, * as msg from "./message";
+import MsgManager, { Message, MessageScope, SendFunc } from "./message";
+import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
+import { unlinkSync } from "fs";
 
 
 export interface BOT {
     readonly redis: Database;
     readonly config: BotConfig;
-    readonly client: IOpenAPI;
+    readonly client: sdk.IOpenAPI;
     readonly ws;
     readonly logger: log.Logger;
+    readonly interval: Interval;
     readonly file: FileManagement;
     readonly auth: Authorization;
     readonly message: MsgManagement;
     readonly command: Command;
-    // readonly refresh: RefreshConfig;
-    // readonly renderer: BasicRenderer;
+    readonly refresh: RefreshConfig;
+    readonly renderer: BasicRenderer;
 }
 
-export class APAS {
+export class Adachi {
     public readonly bot: BOT;
 
     constructor( root: string ) {
         /* 初始化运行环境 */
         const file = new FileManagement(root);
-        APAS.setEnv(file);
+        Adachi.setEnv(file);
 
         /* 初始化应用模块 */
         const config = new BotConfig(file);
+        new WebConfiguration(config);
+        if ( config.webConsole.enable ) {
+            new WebConsole(config);
+        }
         /* 创建client实例*/
-        const client = createOpenAPI({
+        const client = sdk.createOpenAPI({
             appID: config.appID,
             token: config.token,
             sandbox: config.sandbox
         });
         // 创建 websocket 连接
-        const ws = createWebsocket({
+        const ws = sdk.createWebsocket({
             appID: config.appID,
             token: config.token,
             sandbox: config.sandbox
@@ -62,35 +72,44 @@ export class APAS {
         });
 
         const redis = new Database(config.dbPort, config.dbPassword, logger, file);
-        const message = new MsgManager(config, client);
+        const interval = new Interval(config, redis);
         const auth = new Authorization(config, redis);
+        const message = new MsgManager(config, client);
         const command = new Command(file);
-        // const refresh = new RefreshConfig( file, command );
-        // const renderer = new BasicRenderer();
+        const refresh = new RefreshConfig(file, command);
+        const renderer = new BasicRenderer();
 
         this.bot = {
             client, ws, file, redis,
             logger, message, auth, command,
-            config,
-            // command, refresh, renderer
+            config, refresh, renderer, interval
         };
-        // refresh.registerRefreshableFunc(renderer);
+
+        refresh.registerRefreshableFunc(renderer);
     }
 
     public run(): BOT {
-        const logger = this.bot.logger;
-        logger.info("BOT启动成功")
-        /* 事件监听 */
-        this.bot.ws.on("GUILD_MESSAGES", ( data ) => {
-            this.parseGroupMsg(data);
+        Plugin.load(this.bot).then(commands => {
+            this.bot.command.add(commands);
+            /* 事件监听 */
+            //频道消息
+            this.bot.ws.on("GUILD_MESSAGES", ( data ) => {
+                this.parseGroupMsg(this)(data);
+            });
+            //私聊消息
+            this.bot.ws.on("DIRECT_MESSAGE", ( data ) => {
+                this.parsePrivateMsg(this)(data);
+            });
+            //登陆成功消息
+            this.bot.ws.on("READY", ( data ) => {
+                this.botOnline(data);
+            });
+            this.bot.logger.info("事件监听启动成功");
         });
-        this.bot.ws.on("DIRECT_MESSAGE", ( data ) => {
-            this.parsePrivateMsg(data);
-        });
-        this.bot.ws.on("READY", ( data ) => {
-            this.botOnline(data);
-        });
-        this.bot.logger.info("事件监听启动成功");
+
+        scheduleJob("0 59 */1 * * *", this.hourlyCheck(this));
+        scheduleJob("0 0 4 ? * WED", this.clearImageCache(this));
+
         return this.bot;
     }
 
@@ -104,12 +123,15 @@ export class APAS {
         /* Created by http://patorjk.com/software/taag  */
         /* Font Name: Big                               */
         const greet =
-            `   _____ __________  _____    _________        __________ ___________________
-  /  _  \\\\______   \\/  _  \\  /   _____/        \\______   \\\\_____  \\__    ___/
- /  /_\\  \\|     ___/  /_\\  \\ \\_____  \\   ______ |    |  _/ /   |   \\|    |   
-/    |    \\    |  /    |    \\/        \\ /_____/ |    |   \\/    |    \\    |   
-\\____|__  /____|  \\____|__  /_______  /         |______  /\\_______  /____|   
-        \\/                \\/        \\/                 \\/         \\/         `
+            `====================================================================
+                _            _     _        ____   ____ _______
+       /\\      | |          | |   (_)      |  _ \\ / __ \\__   __|
+      /  \\   __| | __ _  ___| |__  _ ______| |_) | |  | | | |
+     / /\\ \\ / _\` |/ _\` |/ __| '_ \\| |______|  _ <| |  | | | |
+    / ____ \\ (_| | (_| | (__| | | | |      | |_) | |__| | | |
+   /_/    \\_\\__,_|\\__,_|\\___|_| |_|_|      |____/ \\____/  |_|
+ 
+====================================================================`
         console.log(greet);
 
         file.createDir("database", "root");
@@ -131,7 +153,7 @@ export class APAS {
     /* 正则检测处理消息 */
     private async execute(
         messageData: msg.Message,
-        sendMessage: msg.SendFunc,
+        sendMessage: SendFunc,
         cmdSet: BasicConfig[],
         limits: string[],
         unionRegExp: RegExp,
@@ -139,6 +161,9 @@ export class APAS {
     ): Promise<void> {
         const content: string = messageData.msg.content;
 
+        if ( this.bot.refresh.isRefreshing || !unionRegExp.test(content) ) {
+            return;
+        }
 
         const usable: BasicConfig[] = cmdSet.filter(el => !limits.includes(el.cmdKey));
         for ( let cmd of usable ) {
@@ -160,7 +185,7 @@ export class APAS {
             });
 
             /* 数据统计与收集 */
-            const userID: string = messageData.msg.id;
+            const userID: string = messageData.msg.author.id;
             const groupID: string = msg.isGroupMessage(messageData) ? messageData.msg.channel_id : "-1";
             await this.bot.redis.addSetMember(`adachi.user-used-groups-${ userID }`, groupID);
             await this.bot.redis.incHash("adachi.hour-stat", userID.toString(), 1);
@@ -169,23 +194,118 @@ export class APAS {
         }
     }
 
-
-    private async parseGroupMsg( param ) {
-        this.bot.logger.info(param);
-        await this.bot.client.messageApi.postMessage(param.msg.guild_id, {
-            content: param.msg.content,
-            msg_id: param.msg.id
-        });
+    /* 清除缓存图片 */
+    private clearImageCache( that: Adachi ) {
+        const bot = that.bot;
+        return function () {
+            const files: string[] = bot.file.getDirFiles("data/image", "root");
+            files.forEach(f => {
+                const path: string = bot.file.getFilePath(
+                    `data/image/${ f }`, "root"
+                );
+                unlinkSync(path);
+            });
+            bot.logger.info("图片缓存已清空");
+        }
     }
 
-    private async parsePrivateMsg( param ) {
-        this.bot.logger.info(param);
-        await this.bot.client.directMessageApi.postDirectMessage(param.msg.guild_id, {
-            content: param.msg.content,
-            msg_id: param.msg.id
-        });
+    /* 处理私聊事件 */
+    private parsePrivateMsg( that: Adachi ) {
+        const bot = that.bot;
+        return async function ( messageData: Message ) {
+            const authorName = messageData.msg.author.username;
+            const userID = messageData.msg.author.id;
+            const msgID = messageData.msg.id;
+            const content = messageData.msg.content;
+            const guildId: string = messageData.msg.guild_id;
+            const auth: AuthLevel = await bot.auth.get(userID);
+            const limit: string[] = await bot.redis.getList(`adachi.user-command-limit-${ userID }`);
+            const sendMessage: SendFunc = await bot.message.sendPrivateMessage(
+                guildId, msgID
+            );
+            const cmdSet: BasicConfig[] = bot.command.get(auth, MessageScope.Private);
+            const unionReg: RegExp = bot.command.getUnion(auth, MessageScope.Private);
+            await that.execute(messageData, sendMessage, cmdSet, limit, unionReg, true);
+            bot.logger.info(`[Author: ${ authorName }][UserID: ${ userID }]: ${ content }`);
+        }
     }
 
+    /* 处理群聊事件 */
+    private parseGroupMsg( that: Adachi ) {
+        const bot = that.bot;
+        return async function ( messageData: Message ) {
+            that.checkAtBOT(messageData);
+            const authorName = messageData.msg.author.username;
+            const channelID = messageData.msg.channel_id;
+            const userID = messageData.msg.author.id;
+            const msgID = messageData.msg.id;
+            const content = messageData.msg.content;
+
+            // const isBanned: boolean = await bot.redis.existListElement(
+            //     "adachi.banned-group", channelID
+            // );
+
+            const channelInfo = <sdk.IChannel>( await bot.client.channelApi.channel(channelID) ).data;
+            const auth: AuthLevel = await bot.auth.get(userID);
+            const gLim: string[] = await bot.redis.getList(`adachi.group-command-limit-${ channelID }`);
+            const uLim: string[] = await bot.redis.getList(`adachi.user-command-limit-${ userID }`);
+            const sendMessage: msg.SendFunc = bot.message.sendGuildMessage(
+                channelID, msgID);
+            const cmdSet: BasicConfig[] = bot.command.get(auth, MessageScope.Group);
+            const unionReg: RegExp = bot.command.getUnion(auth, MessageScope.Group);
+            await that.execute(messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false);
+            bot.logger.info(`[Author: ${ authorName }][Channel: ${ channelInfo.name }]: ${ content }`);
+        }
+    }
+
+    /*去掉消息中的@信息*/
+    private checkAtBOT( msg: Message ): boolean {
+        const atBOTReg: RegExp = new RegExp(`^ *<@!.*>`);
+        const content: string = msg.msg.content;
+
+        if ( atBOTReg.test(content) ) {
+            msg.msg.content = content
+                .replace(atBOTReg, "")
+                .trim();
+            return true;
+        }
+        return false;
+    }
+
+    /* 数据统计 与 超量使用监看 */
+    private hourlyCheck( that: Adachi ):
+        JobCallback {
+        const bot = that.bot;
+        return function (): void {
+            bot.redis.getHash("adachi.hour-stat").then(async data => {
+                const cmdOverusedUser: string[] = [];
+                const threshold: number = bot.config.countThreshold;
+                Object.keys(data).forEach(key => {
+                    if ( parseInt(data[ key ]) > threshold ) {
+                        cmdOverusedUser.push(key);
+                    }
+                });
+
+                const length: number = cmdOverusedUser.length;
+                if ( length !== 0 ) {
+                    const msg: string =
+                        `上个小时内有 ${ length } 个用户指令使用次数超过了阈值` +
+                        [ "", ...cmdOverusedUser.map(el => `${ el }: ${ data[ el ] }次`) ]
+                            .join("\n  - ");
+                    // await bot.message.sendMaster(msg);
+                    /*频道限制BOT主动推送消息次数*/
+                    bot.logger.info(msg);
+                }
+                await bot.redis.deleteKey("adachi.hour-stat");
+            });
+
+            bot.redis.getHash("adachi.command-stat").then(async data => {
+                const hourID: string = moment().format("yy/MM/DD/HH");
+                await bot.redis.deleteKey("adachi.command-stat");
+                await bot.redis.setString(`adachi.command-stat-${ hourID }`, JSON.stringify(data));
+            });
+        }
+    }
 
     private botOnline( param ) {
         if ( param.msg.user.status === 1 ) {

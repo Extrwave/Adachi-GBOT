@@ -21,7 +21,7 @@ export default class Authorization implements AuthorizationMethod {
     private readonly redis: Database;
 
     constructor( config: BotConfig, redis: Database ) {
-        this.master = config.master; //待修改
+        this.master = config.master;
         this.redis = redis;
     }
 

@@ -4,8 +4,6 @@ import { InputParameter, Order } from "@modules/command";
 import Command from "@modules/command/main";
 import FileManagement from "@modules/file";
 import { filterUserUsableCommand } from "../utils/filter";
-import { readFileSync } from "fs";
-import { resolve } from "path"
 
 
 function getVersion( file: FileManagement ): string {
@@ -102,28 +100,22 @@ export async function main( i: InputParameter ): Promise<void> {
     const masterID = bot.config.master; //BOT主人
     const userId = i.messageData.msg.author.id; //发送者UID
 
-    if ( type === "private" && userId === masterID ) {
-        const title: string = `打工七 v${ getVersion(i.file) }`;
-        const commands = await filterUserUsableCommand(i);
-        if ( commands.length === 0 ) {
-            await i.sendMessage("没有可用的指令");
-            return;
-        }
+    const title: string = `打工七 v${ getVersion(i.file) }`;
+    const commands = await filterUserUsableCommand(i);
+    if ( commands.length === 0 ) {
+        await i.sendMessage("没有可用的指令");
+        return;
+    }
 
-        let ID: number = 0;
-        if ( i.messageData.msg.content === "-k" ) {
-            const keys: string = commands.reduce(( pre, cur ) => {
-                return pre + `\n${ ++ID }. ${ cur.getCmdKey() }`;
-            }, "");
-            await i.sendMessage(title + keys);
-        } else {
-            const msgList: string[] = commands.map(el => `${ ++ID }. ${ el.getDesc() }`);
-            // await i.sendMessage(await getHelpMessage(title, msgList, i), false);
-        }
+    let ID: number = 0;
+    if ( i.messageData.msg.content === "-k" ) {
+        const keys: string = commands.reduce(( pre, cur ) => {
+            return pre + `\n${ ++ID }. ${ cur.getCmdKey() }`;
+        }, "");
+        await i.sendMessage(title + keys);
     } else {
-        const imageDir = resolve(__dirname, "../image/help.png");
-        const base64 = readFileSync(imageDir).toString("base64")
-        const image = `[CQ:image,file=base64://${ base64 }]`;
-        await i.sendMessage(image);
+        const msgList: string[] = commands.map(el => `${ ++ID }. ${ el.getDesc() }`);
+        const helpMsg = await getHelpMessage(title, msgList, i);
+        await i.sendMessage(helpMsg + "", false);
     }
 }
