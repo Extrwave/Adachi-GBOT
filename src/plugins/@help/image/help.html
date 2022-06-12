@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="help.css"/>
+    <link rel="shortcut icon" href="#"/>
+</head>
+
+<body>
+<div class="container" id="container">
+    <div class="head_box">
+        <div class="id_text">Adachi-Bot</div>
+        <h2 class="day_text">打工七 - v2.2.5</h2>
+        <img class="genshin_logo" src="./icon/genshin.png"/>
+    </div>
+    <div class="logo">
+        <div class="dec">参数提示：[ ]表示必填，( )表示选填，| 代表选择</div>
+        <div class="dec">私人服务需要提供你的米游社CK才能使用</div>
+    </div>
+    <!-- 开始前文字 -->
+    <div class="data_box">
+        <!-- 左上角标志 -->
+        <div class="tab_lable">基本服务</div>
+        <div class="list">
+
+            <div class="item">
+                <img class="icon" src="icon/record.png"/>
+                <div class="title">
+                    <div class="text">#指令</div>
+                    <div class="dec">获取七七所有服务项目</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/bind.png"/>
+                <div class="title">
+                    <div class="text">#绑定UID [ ]</div>
+                    <div class="dec">让七七知道你身份，参数：UID</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wiki.png"/>
+                <div class="title">
+                    <div class="text">#今日材料</div>
+                    <div class="dec">获取每日天赋，武器材料</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wiki.png"/>
+                <div class="title">
+                    <div class="text">#今日事宜</div>
+                    <div class="dec">获取玄学的原神黄历</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/weapon.png"/>
+                <div class="title">
+                    <div class="text">#信息查询 [ ]</div>
+                    <div class="dec">参数：角色名 | 武器名</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/role.png"/>
+                <div class="title">
+                    <div class="text">#角色攻略 [ ]</div>
+                    <div class="dec">参数：角色名字</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/draw.png"/>
+                <div class="title">
+                    <div class="text">#御神签</div>
+                    <div class="dec">抽取一个御神签</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/team.png"/>
+                <div class="title">
+                    <div class="text">#他人主页 [ ]</div>
+                    <div class="dec">参数：UID | @他人</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wish.png"/>
+                <div class="title">
+                    <div class="text">#十连抽卡 ( )</div>
+                    <div class="dec">模拟抽卡，参数：次数 | until</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wish.png"/>
+                <div class="title">
+                    <div class="text">#切换卡池 [ ]</div>
+                    <div class="dec">参数：角色 | 武器 | 常驻 | 角色2</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wish.png"/>
+                <div class="title">
+                    <div class="text">#切换定轨 ( )</div>
+                    <div class="dec">0为取消定轨，参数：0 | 1 | 2</div>
+                </div>
+            </div>
+
+            <div class="item">
+                <img class="icon" src="icon/wish.png"/>
+                <div class="title">
+                    <div class="text">#抽卡记录链接 [ ]</div>
+                    <div class="dec">(私聊) 参数：记录URL</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wish.png"/>
+                <div class="title">
+                    <div class="text">#抽卡分析 ( )</div>
+                    <div class="dec">参数：1，2</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/wish.png"/>
+                <div class="title">
+                    <div class="text">#抽卡分析历史 ( )</div>
+                    <div class="dec">参数：1，2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="data_box">
+        <!-- 左上角标志 -->
+        <div class="tab_lable">私人服务</div>
+        <div class="list">
+
+            <div class="item">
+                <img class="icon" src="icon/bind.png"/>
+                <div class="title">
+                    <div class="text">#添加授权</div>
+                    <div class="dec">(私聊)</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/bind.png"/>
+                <div class="title">
+                    <div class="text">#验证授权 [ ]</div>
+                    <div class="dec">(私聊) 参数：获取的CK</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/bind.png"/>
+                <div class="title">
+                    <div class="text">#更新授权 [ ] [ ]</div>
+                    <div class="dec">(私聊) 两个参数：序号，新的CK</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/bind.png"/>
+                <div class="title">
+                    <div class="text">#取消授权 [ ]</div>
+                    <div class="dec">(私聊) 参数：序号</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/list.png"/>
+                <div class="title">
+                    <div class="text">#账户序号</div>
+                    <div class="dec">开启多个私人服务使用需要</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/list.png"/>
+                <div class="title">
+                    <div class="text">#账户序号排序 [ ]</div>
+                    <div class="dec">参数：新的序号列表</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/switch.png"/>
+                <div class="title">
+                    <div class="text">#签到开关 [ ]</div>
+                    <div class="dec">开关米游社签到，参数：序号</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/switch.png"/>
+                <div class="title">
+                    <div class="text">#树脂推送开关 [ ]</div>
+                    <div class="dec">开关树脂推送，参数：序号</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/shuzhi.png"/>
+                <div class="title">
+                    <div class="text">#树脂查询</div>
+                    <div class="dec">获取个人便签详情页面</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/shuzhi.png"/>
+                <div class="title">
+                    <div class="text">#树脂量推送 [ ] [ ]</div>
+                    <div class="dec">两个参数：序号，树脂量</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/abyss.png"/>
+                <div class="title">
+                    <div class="text">#本期深渊 ( ) ( -l )</div>
+                    <div class="dec">参数：序号，-l 表示原版样式</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/abyss.png"/>
+                <div class="title">
+                    <div class="text">#上期深渊 ( ) ( -l )</div>
+                    <div class="dec">参数：序号，-l 表示原版样式</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/role.png"/>
+                <div class="title">
+                    <div class="text">#我的主页 ( )</div>
+                    <div class="dec">参数：序号</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/role.png"/>
+                <div class="title">
+                    <div class="text">#我的角色 ( ) [ ]</div>
+                    <div class="dec">两个参数：序号，角色名</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/electro.png"/>
+                <div class="title">
+                    <div class="text">#开启云原神签到 [ ]</div>
+                    <div class="dec">参数：token</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/electro.png"/>
+                <div class="title">
+                    <div class="text">#取消云原神签到</div>
+                    <div class="dec">取消云原神签到</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/ledger.png"/>
+                <div class="title">
+                    <div class="text">#旅行札记 ( ) [ ]</div>
+                    <div class="dec">两个参数：序号，月份</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="data_box">
+        <!-- 左上角标志 -->
+        <div class="tab_lable">娱乐服务</div>
+        <div class="list">
+            <div class="item">
+                <img class="icon" src="icon/chat.png"/>
+                <div class="title">
+                    <div class="text">@七七 | 七七</div>
+                    <div class="dec">@七七可以随缘聊天</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/music.png"/>
+                <div class="title">
+                    <div class="text">#点歌</div>
+                    <div class="dec">参数：歌名</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/music.png"/>
+                <div class="title">
+                    <div class="text">#切换音源 [ ]</div>
+                    <div class="dec">(管理员) 参数：网易 | QQ</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/image.png"/>
+                <div class="title">
+                    <div class="text">#搜图 [ ]</div>
+                    <div class="dec">参数：图片</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/bilibili.png"/>
+                <div class="title">
+                    <div class="text">#订阅新闻 ( )</div>
+                    <div class="dec">参数：网易|头条|新浪|原神</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/bilibili.png"/>
+                <div class="title">
+                    <div class="text">#取消订阅新闻 ( )</div>
+                    <div class="dec">参数：网易|头条|新浪|原神</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/setting.png"/>
+                <div class="title">
+                    <div class="text">#更新配置</div>
+                    <div class="dec">(管理员)</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/setting.png"/>
+                <div class="title">
+                    <div class="text">#热更新</div>
+                    <div class="dec">(管理员)</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/setting.png"/>
+                <div class="title">
+                    <div class="text">#封禁 | #解禁 [ ]</div>
+                    <div class="dec">(管理员) 参数：uQQ | g群号</div>
+                </div>
+            </div>
+            <div class="item">
+                <img class="icon" src="icon/setting.png"/>
+                <div class="title">
+                    <div class="text">#取消他人授权</div>
+                    <div class="dec">(管理员) 参数：QQ号</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 结尾描述 -->
+    <div class="logo">Modify - 七七</div>
+</div>
+</body>
