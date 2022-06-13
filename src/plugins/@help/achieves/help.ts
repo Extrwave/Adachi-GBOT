@@ -13,7 +13,7 @@ function getVersion( file: FileManagement ): string {
 }
 
 function messageStyle( title: string, list: string[], command: Command ): Sendable | string {
-    const DETAIL = <Order>command.getSingle("adachi.detail");
+    const DETAIL = <Order>command.getSingle( "adachi-detail" );
     list.push("", `使用 ${ DETAIL.getHeaders()[ 0 ] }+序号 获取提示`,);
     list.push("[ ] 必填, ( ) 选填, | 选择");
     return [ title, ...list ].join("\n");
