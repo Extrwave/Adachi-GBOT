@@ -3,16 +3,16 @@ import { OrderConfig, SwitchConfig } from "@modules/command";
 import { PluginSetting } from "@modules/plugin";
 
 const manager: SwitchConfig = {
-    type: "switch",
-    mode: "divided",
-    cmdKey: "adachi.manager",
-    desc: [ "", "[ID]" ],
-    header: "",
-    regexp: [ "\\d+" ],
-    onKey: "manager",
-    offKey: "unmanaged",
-    auth: AuthLevel.Master,
-    main: "manager"
+	type: "switch",
+	mode: "divided",
+	cmdKey: "adachi-manager",
+	desc: [ "", "[ID]" ],
+	header: "",
+	regexp: [ "\\d+" ],
+	onKey: "manager",
+	offKey: "unmanaged",
+	auth: AuthLevel.Master,
+	main: "manager"
 };
 
 // const ban: SwitchConfig = {
@@ -60,14 +60,14 @@ const manager: SwitchConfig = {
 // };
 
 const refresh: OrderConfig = {
-    type: "order",
-    cmdKey: "adachi.hot-update-config",
-    desc: [ "", "" ],
-    headers: [ "refresh" ],
-    regexps: [],
-    auth: AuthLevel.Master,
-    main: "refresh",
-    detail: "该指令用于重新加载在 /config 目录中的部分配置文件（setting 不会重新加载）"
+	type: "order",
+	cmdKey: "adachi-hot-update-config",
+	desc: [ "", "" ],
+	headers: [ "refresh" ],
+	regexps: [],
+	auth: AuthLevel.Master,
+	main: "refresh",
+	detail: "该指令用于重新加载在 /config 目录中的部分配置文件（setting 不会重新加载）"
 }
 
 // const upgrade: OrderConfig = {

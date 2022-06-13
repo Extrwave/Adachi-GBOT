@@ -95,16 +95,21 @@ export class Adachi {
             //频道消息
             this.bot.ws.on("GUILD_MESSAGES", ( data ) => {
                 this.parseGroupMsg(this)(data);
-            });
-            //私聊消息
-            this.bot.ws.on("DIRECT_MESSAGE", ( data ) => {
-                this.parsePrivateMsg(this)(data);
-            });
-            //登陆成功消息
-            this.bot.ws.on("READY", ( data ) => {
-                this.botOnline(data);
-            });
-            this.bot.logger.info("事件监听启动成功");
+            } );
+	        //私聊消息
+	        this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
+		        this.parsePrivateMsg( this )( data );
+	        } );
+	        //登陆成功消息
+	        this.bot.ws.on( "READY", ( data ) => {
+		        this.botOnline( data );
+	        } );
+	        this.bot.logger.info( "事件监听启动成功" );
+	        //获取频道信息
+	        this.bot.client.meApi.meGuilds().then( async r => {
+		        const guildID = r.data[1].id;
+		        await this.bot.redis.setString( `adachi.guild-id`, guildID );
+	        } );
         });
 
         scheduleJob("0 59 */1 * * *", this.hourlyCheck(this));
@@ -309,7 +314,7 @@ export class Adachi {
 
     private botOnline( param ) {
         if ( param.msg.user.status === 1 ) {
-            this.bot.logger.info("BOT启动成功")
+	        this.bot.logger.info( "BOT启动成功" );
         }
     }
 }

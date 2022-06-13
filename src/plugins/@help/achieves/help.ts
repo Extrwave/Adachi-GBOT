@@ -96,10 +96,6 @@ async function getHelpMessage(
 
 export async function main( i: InputParameter ): Promise<void> {
 
-    const type = i.messageData.msg.direct_message ? "private" : "group";  //消息类型
-    const masterID = bot.config.master; //BOT主人
-    const userId = i.messageData.msg.author.id; //发送者UID
-
     const title: string = `打工七 v${ getVersion(i.file) }`;
     const commands = await filterUserUsableCommand(i);
     if ( commands.length === 0 ) {
@@ -110,9 +106,9 @@ export async function main( i: InputParameter ): Promise<void> {
     let ID: number = 0;
     if ( i.messageData.msg.content === "-k" ) {
         const keys: string = commands.reduce(( pre, cur ) => {
-            return pre + `\n${ ++ID }. ${ cur.getCmdKey() }`;
+            return pre + ` \n${ ++ID }. ${ cur.getCmdKey() }`;
         }, "");
-        await i.sendMessage(title + keys);
+	    await i.sendMessage( title + keys, false );
     } else {
         const msgList: string[] = commands.map(el => `${ ++ID }. ${ el.getDesc() }`);
         const helpMsg = await getHelpMessage(title, msgList, i);

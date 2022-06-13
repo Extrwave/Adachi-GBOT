@@ -3,7 +3,7 @@ import { OrderConfig } from "@modules/command";
 
 const echo: OrderConfig = {
     type: "order",
-    cmdKey: "ethreal-plugins.echo",
+    cmdKey: "ethreal-plugins-echo",
     desc: [ "", "[任意内容]" ],
     headers: [ "echo" ],
     regexps: [ ".+" ],

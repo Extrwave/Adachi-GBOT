@@ -1,5 +1,5 @@
 const template =
-    `<div class="home-content">
+`<div class="home-content">
 	<p>欢迎使用 Adachi-BOT 的网页控制台</p>
 	<p>这是一个正在进行初步测试的功能模块</p>
 	<p>本功能旨在简化指令式繁琐的管理模式</p>
@@ -19,9 +19,9 @@ const template =
 	<p>但还是更建议你在 PC 上使用本功能</p>
 </div>`;
 
-const {defineComponent} = Vue;
+const { defineComponent } = Vue;
 
-export default defineComponent({
-    name: "Home",
-    template
-});
+export default defineComponent( {
+	name: "Home",
+	template
+} );
