@@ -9,8 +9,8 @@ export async function main(
 	const param: string = messageData.msg.content;
 	const userID: string = messageData.msg.author.id;
 	
-	const dbKey: string = `silvery-star.epitomized-path-${ userID }`;
-	const weaponDBKey: string = `silvery-star.wish-weapon-${ userID }`;
+	const dbKey: string = `silvery-star-epitomized-path-${ userID }`;
+	const weaponDBKey: string = `silvery-star-wish-weapon-${ userID }`;
 	
 	const nowWeaponID: string = wishClass.getWeaponID();
 	const upWeapon: string[] | undefined = wishClass.getUpWeapon();

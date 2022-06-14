@@ -10,9 +10,9 @@ type WishStatistic = WishResult & {
 export async function main(
 	{ sendMessage, messageData, redis, logger }: InputParameter
 ): Promise<void> {
-	const userID: number = messageData.user_id;
-	const nickname: string = messageData.sender.nickname;
-	const param: string = messageData.raw_message;
+	const userID: string = messageData.msg.author.id;
+	const nickname: string = messageData.msg.author.username;
+	const param: string = messageData.msg.content;
 	
 	const wishLimitNum = config.wishLimitNum;
 	if ( wishLimitNum < 99 && ( /^\d+$/.test( param ) && parseInt( param ) > wishLimitNum ) ) {
@@ -20,7 +20,7 @@ export async function main(
 		return;
 	}
 	
-	let choice: string | null = await redis.getString( `silvery-star.wish-choice-${ userID }` );
+	let choice: string | null = await redis.getString( `silvery-star-wish-choice-${ userID }` );
 	
 	// 限制抽卡次数小于一次大保底时禁用 until
 	if ( param === "until" ) {
@@ -33,10 +33,10 @@ export async function main(
 	
 	if ( choice.length === 0 ) {
 		choice = "角色"
-		await redis.setString( `silvery-star.wish-choice-${ userID }`, "角色" );
-		await redis.setHash( `silvery-star.wish-indefinite-${ userID }`, { five: 1, four: 1 } );
-		await redis.setHash( `silvery-star.wish-character-${ userID }`, { five: 1, four: 1, isUp: 0 } );
-		await redis.setHash( `silvery-star.wish-weapon-${ userID }`, { five: 1, four: 1, isUp: 0, epit: 0 } );
+		await redis.setString( `silvery-star-wish-choice-${ userID }`, "角色" );
+		await redis.setHash( `silvery-star-wish-indefinite-${ userID }`, { five: 1, four: 1 } );
+		await redis.setHash( `silvery-star-wish-character-${ userID }`, { five: 1, four: 1, isUp: 0 } );
+		await redis.setHash( `silvery-star-wish-weapon-${ userID }`, { five: 1, four: 1, isUp: 0, epit: 0 } );
 	}
 	
 	const data: WishTotalSet | null = await wishClass.get( userID, choice, param );
@@ -51,7 +51,7 @@ export async function main(
 	
 	/* 单次十连 */
 	if ( data.total === 10 ) {
-		await redis.setString( `silvery-star.wish-result-${ userID }`, JSON.stringify( {
+		await redis.setString( `silvery-star-wish-result-${ userID }`, JSON.stringify( {
 			type: choice,
 			data: data.result,
 			name: nickname
@@ -92,7 +92,7 @@ export async function main(
 	const charSet = getSet( "角色" );
 	const weaponSet = getSet( "武器" );
 	
-	await redis.setHash( `silvery-star.wish-statistic-${ userID }`, {
+	await redis.setHash( `silvery-star-wish-statistic-${ userID }`, {
 		character: JSON.stringify( charSet ),
 		weapon: JSON.stringify( weaponSet ),
 		total: data.total,

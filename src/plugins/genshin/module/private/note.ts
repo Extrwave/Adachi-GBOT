@@ -57,8 +57,8 @@ export class NoteService implements Service {
 				"可能是因为米游社数据未公开或米游社内未开启实时便笺";
 		} else {
 			const auth: AuthLevel = await bot.auth.get( this.parent.setting.userID );
-			const SET_TIME = <Order>bot.command.getSingle( "silvery-star.note-set-time", auth );
-			const TOGGLE_NOTE = <Order>bot.command.getSingle( "silvery-star.private-toggle-note", auth );
+			const SET_TIME = <Order>bot.command.getSingle( "silvery-star-note-set-time", auth );
+			const TOGGLE_NOTE = <Order>bot.command.getSingle( "silvery-star-private-toggle-note", auth );
 			
 			return "实时便笺功能已开启：\n" +
 				"树脂数量达到 120 和 155 时和探索结束会进行私聊推送\n" +

@@ -20,8 +20,8 @@ export class SlipClass {
 		} );
 	}
 	
-	public async get( userID: number ): Promise<string> {
-		const dbKey: string = `by-ha.slip-save-${ userID }`;
+	public async get( userID: string ): Promise<string> {
+		const dbKey: string = `by-ha-slip-save-${ userID }`;
 		const today: string = moment().format( "yy-MM-DD" );
 		
 		const data: Record<string, string> = await bot.redis.getHash( dbKey );

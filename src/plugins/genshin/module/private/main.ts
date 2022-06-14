@@ -192,7 +192,7 @@ export class PrivateClass {
 		const auth: AuthLevel = await bot.auth.get( userID );
 		if ( privateID > list.length || privateID === 0 ) {
 			const PRIVATE_LIST = <Order>bot.command.getSingle(
-				"silvery-star.private-list", auth
+				"silvery-star-private-list", auth
 			);
 			return `无效的序号，请使用 ${ PRIVATE_LIST.getHeaders()[0] } 检查，序号为前面数字，不是UID`;
 		} else {
@@ -207,7 +207,7 @@ export class PrivateClass {
 	public async addPrivate( uid: string, cookie: string, userID: string ): Promise<string> {
 		const list: Private[] = this.getUserPrivateList( userID );
 		const auth: AuthLevel = await bot.auth.get( userID );
-		const PRIVATE_UPGRADE = <Order>bot.command.getSingle( "silvery-star.private-replace", auth );
+		const PRIVATE_UPGRADE = <Order>bot.command.getSingle( "silvery-star-private-replace", auth );
 		if ( list.some( el => el.setting.uid === uid ) ) {
 			return `UID${ uid } 的私人服务已经申请` + `如需更新请使用『${ PRIVATE_UPGRADE.getHeaders()[0] }』指令`;
 		}

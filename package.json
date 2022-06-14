@@ -16,7 +16,7 @@
     "log4js": "^6.3.0",
     "md5-typescript": "^1.0.5",
     "moment": "^2.29.3",
-    "node-fetch": "^3.2.6",
+    "node-fetch": "^2.6.1",
     "node-schedule": "^2.1.0",
     "npm-lifecycle": "^3.1.5",
     "object-immutable-set": "^1.0.0",

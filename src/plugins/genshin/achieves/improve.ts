@@ -5,7 +5,7 @@ import { renderer } from "../init";
 export async function main(
 	{ sendMessage, messageData, redis, logger }: InputParameter
 ): Promise<void> {
-	const userID: number = messageData.user_id;
+	const userID: string = messageData.msg.author.id;
 	const data: string | null = await redis.getString( `silvery-star.artifact-${ userID }` );
 	
 	if ( data === null ) {

@@ -14,7 +14,7 @@ export async function main(
 	const newCookie: string = info.slice( 1 ).join( " " );
 	
 	const auth: AuthLevel = await bot.auth.get( userID );
-	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star.private-subscribe", auth );
+	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	if ( accounts.length === 0 ) {
@@ -22,7 +22,7 @@ export async function main(
 		return;
 	} else if ( id > accounts.length || id === 0 ) {
 		const PRIVATE_LIST = <Order>bot.command.getSingle(
-			"silvery-star.private-list", AuthLevel.User
+			"silvery-star-private-list", AuthLevel.User
 		);
 		await sendMessage( `无效的序号，请使用 ${ PRIVATE_LIST.getHeaders()[0] } 检查，序号为前面数字，不是UID` );
 		return;

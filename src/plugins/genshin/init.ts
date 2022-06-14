@@ -50,11 +50,11 @@ function loadConfig( file: FileManagement ): GenshinConfig {
 /* 删除好友后清除订阅服务 */
 async function decreaseFriend( userId: string, { redis }: BOT ) {
 	await privateClass.delBatchPrivate( userId );
-	await redis.deleteKey( `silvery-star.daily-sub-${ userId }` );
+	await redis.deleteKey( `silvery-star-daily-sub-${ userId }` );
 }
 
 export async function subs( { redis }: BOT ): Promise<SubInfo[]> {
-	const dailySub: string[] = await redis.getKeysByPrefix( "silvery-star.daily-sub-" );
+	const dailySub: string[] = await redis.getKeysByPrefix( "silvery-star-daily-sub-" );
 	const dailySubUsers: string[] = dailySub.map( el => {
 		return <string>el.split( "-" ).pop();
 	} );

@@ -5,7 +5,7 @@ import { PluginSetting } from "@modules/plugin";
 
 const bind: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.bind",
+	cmdKey: "silvery-star-bind",
 	desc: [ "", "[UID]" ],
 	headers: [ "bind" ],
 	regexps: [ "\\d{9}" ],
@@ -14,7 +14,7 @@ const bind: OrderConfig = {
 
 const uidQuery: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.uid-query",
+	cmdKey: "silvery-star-uid-query",
 	desc: [ "", "[UID|@]" ],
 	headers: [ "uid" ],
 	regexps: [
@@ -27,7 +27,7 @@ const uidQuery: OrderConfig = {
 
 const getArtifact: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.art",
+	cmdKey: "silvery-star-art",
 	desc: [ "", "(秘境ID)" ],
 	headers: [ "art" ],
 	regexps: [ "\\d*" ],
@@ -36,7 +36,7 @@ const getArtifact: OrderConfig = {
 
 const impArtifact: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.imp",
+	cmdKey: "silvery-star-imp",
 	desc: [ "", "" ],
 	headers: [ "imp" ],
 	regexps: [],
@@ -45,7 +45,7 @@ const impArtifact: OrderConfig = {
 
 const domain: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.dom",
+	cmdKey: "silvery-star-dom",
 	desc: [ "", "" ],
 	headers: [ "dom" ],
 	regexps: [],
@@ -54,7 +54,7 @@ const domain: OrderConfig = {
 
 const wish: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.wish",
+	cmdKey: "silvery-star-wish",
 	desc: [ "", "(次数|until)" ],
 	headers: [ "wish", "w" ],
 	regexps: [ "(\\d{1,2}|until)?" ],
@@ -65,7 +65,7 @@ const wish: OrderConfig = {
 
 const epitomizedPath: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.epitomized-path",
+	cmdKey: "silvery-star-epitomized-path",
 	desc: [ "", "(0|1|2)" ],
 	headers: [ "epit" ],
 	regexps: [ "(0|1|2)?" ],
@@ -76,7 +76,7 @@ const epitomizedPath: OrderConfig = {
 
 const choosePool: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.choose-pool",
+	cmdKey: "silvery-star-choose-pool",
 	desc: [ "", "[角色|武器|常驻|角色2]" ],
 	headers: [ "choose", "t" ],
 	regexps: [ "(角色|武器|常驻|角色2)" ],
@@ -85,7 +85,7 @@ const choosePool: OrderConfig = {
 
 const information: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.information",
+	cmdKey: "silvery-star-information",
 	desc: [ "", "[角色|武器名|圣遗物] (-skill)" ],
 	headers: [ "info" ],
 	regexps: [ "[\\w\\u4e00-\\u9fa5]+", "(-skill)?" ],
@@ -96,7 +96,7 @@ const information: OrderConfig = {
 
 const slip: OrderConfig = {
 	type: "order",
-	cmdKey: "by-ha.slip",
+	cmdKey: "by-ha-slip",
 	desc: [ "", "" ],
 	headers: [ "s" ],
 	regexps: [],
@@ -106,7 +106,7 @@ const slip: OrderConfig = {
 const alias: SwitchConfig = {
 	type: "switch",
 	mode: "single",
-	cmdKey: "silvery-star.alias-customize",
+	cmdKey: "silvery-star-alias-customize",
 	desc: [ "", "#{OPT} [本名] [别名]" ],
 	header: "alias",
 	regexp: [ "#{OPT}", "[\\u4e00-\\u9fa5]+", "[\\w\\u4e00-\\u9fa5]+" ],
@@ -123,7 +123,7 @@ const alias: SwitchConfig = {
 const daily: SwitchConfig = {
 	type: "switch",
 	mode: "single",
-	cmdKey: "silvery-star.daily",
+	cmdKey: "silvery-star-daily",
 	desc: [ "", "#{OPT} [角色|武器名|群号]" ],
 	header: "sub",
 	regexp: [ "#{OPT}", "[\\w\\u4e00-\\u9fa5]+" ],
@@ -137,7 +137,7 @@ const daily: SwitchConfig = {
 
 const today: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.today",
+	cmdKey: "silvery-star-today",
 	desc: [ "", "" ],
 	headers: [ "today" ],
 	regexps: [],
@@ -146,7 +146,7 @@ const today: OrderConfig = {
 
 const guide: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.guide",
+	cmdKey: "silvery-star-guide",
 	desc: [ "", "[角色名]" ],
 	headers: [ "guide" ],
 	regexps: [ "[\\w\\u4e00-\\u9fa5]+" ],
@@ -155,7 +155,7 @@ const guide: OrderConfig = {
 
 const almanac: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.almanac",
+	cmdKey: "silvery-star-almanac",
 	desc: [ "", "" ],
 	headers: [ "alm" ],
 	regexps: [],
@@ -165,7 +165,7 @@ const almanac: OrderConfig = {
 /* 授权服务指令 */
 const privateSubscribe: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-subscribe",
+	cmdKey: "silvery-star-private-subscribe",
 	desc: [ "", "" ],
 	headers: [ "ps" ],
 	regexps: [],
@@ -177,7 +177,7 @@ const privateSubscribe: OrderConfig = {
 
 const privateConfirm: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-confirm",
+	cmdKey: "silvery-star-private-confirm",
 	desc: [ "", "" ],
 	headers: [ "confirm" ],
 	regexps: [ ".+" ],
@@ -189,7 +189,7 @@ const privateConfirm: OrderConfig = {
 
 const privateSubList: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-list",
+	cmdKey: "silvery-star-private-list",
 	desc: [ "", "" ],
 	headers: [ "pl" ],
 	regexps: [],
@@ -199,7 +199,7 @@ const privateSubList: OrderConfig = {
 
 const privateCancel: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-cancel",
+	cmdKey: "silvery-star-private-cancel",
 	desc: [ "", "[序号]" ],
 	headers: [ "pc" ],
 	regexps: [ "\\d+" ],
@@ -210,7 +210,7 @@ const privateCancel: OrderConfig = {
 
 const privateRemove: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-remove",
+	cmdKey: "silvery-star-private-remove",
 	desc: [ "", "[qq]" ],
 	headers: [ "remove" ],
 	regexps: [ "\\d+" ],
@@ -222,7 +222,7 @@ const privateRemove: OrderConfig = {
 
 const privateReplace: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-replace",
+	cmdKey: "silvery-star-private-replace",
 	desc: [ "", "[序号] [cookie]" ],
 	headers: [ "pr" ],
 	regexps: [ "\\d+", ".+" ],
@@ -235,7 +235,7 @@ const privateReplace: OrderConfig = {
 
 const privateReorder: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-reorder",
+	cmdKey: "silvery-star-private-reorder",
 	desc: [ "", "[新序号列表]" ],
 	headers: [ "reorder" ],
 	regexps: [ "(\\s|\\d)+" ],
@@ -247,7 +247,7 @@ const privateReorder: OrderConfig = {
 
 const privateNowNote: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.now-note",
+	cmdKey: "silvery-star-now-note",
 	desc: [ "", "" ],
 	headers: [ "note" ],
 	regexps: [],
@@ -256,7 +256,7 @@ const privateNowNote: OrderConfig = {
 
 const privateNoteEvent: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.note-set-time",
+	cmdKey: "silvery-star-note-set-time",
 	desc: [ "", "[序号] [树脂量]" ],
 	headers: [ "nt" ],
 	regexps: [ "[\\d ]+" ],
@@ -268,7 +268,7 @@ const privateNoteEvent: OrderConfig = {
 
 const privateMysSetAppoint: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-set-appoint",
+	cmdKey: "silvery-star-private-set-appoint",
 	desc: [ "", "[序号] [角色名]" ],
 	headers: [ "appoint" ],
 	regexps: [ "\\d+", "[\\w\\u4e00-\\u9fa5]+" ],
@@ -279,7 +279,7 @@ const privateMysSetAppoint: OrderConfig = {
 
 const privateMysQuery: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-mys",
+	cmdKey: "silvery-star-private-mys",
 	desc: [ "", "(序号)" ],
 	headers: [ "mys" ],
 	regexps: [ "(\\d+)?" ],
@@ -289,7 +289,7 @@ const privateMysQuery: OrderConfig = {
 const privateAbyssQuery: SwitchConfig = {
 	type: "switch",
 	mode: "divided",
-	cmdKey: "silvery-star.private-abyss",
+	cmdKey: "silvery-star-private-abyss",
 	desc: [ "", "(序号) (-l)" ],
 	header: "",
 	regexp: [ "(\\d+)?", "(-l)?" ],
@@ -303,7 +303,7 @@ const privateAbyssQuery: SwitchConfig = {
 
 const privateCharQuery: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-character",
+	cmdKey: "silvery-star-private-character",
 	desc: [ "", "(序号) [角色名]" ],
 	headers: [ "char" ],
 	regexps: [ "(\\d+)?", "[\\w\\u4e00-\\u9fa5]+" ],
@@ -314,7 +314,7 @@ const privateCharQuery: OrderConfig = {
 
 const privateToggleSign: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-toggle-sign",
+	cmdKey: "silvery-star-private-toggle-sign",
 	desc: [ "", "[序号]" ],
 	headers: [ "signin" ],
 	regexps: [ "\\d+" ],
@@ -325,7 +325,7 @@ const privateToggleSign: OrderConfig = {
 
 const privateToggleNote: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-toggle-note",
+	cmdKey: "silvery-star-private-toggle-note",
 	desc: [ "", "[序号]" ],
 	headers: [ "tnote" ],
 	regexps: [ "\\d+" ],
@@ -336,7 +336,7 @@ const privateToggleNote: OrderConfig = {
 
 const privateLedger: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.private-ledger",
+	cmdKey: "silvery-star-private-ledger",
 	desc: [ "", "(序号) [月份]" ],
 	headers: [ "led" ],
 	regexps: [ "(\\d+)?", "(\\d+)?" ],

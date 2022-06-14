@@ -7,7 +7,7 @@ import { privateClass } from "#genshin/init";
 async function getPrivateList( userID: string ): Promise<string> {
 	const settings: UserInfo[] = privateClass.getUserInfoList( userID );
 	const auth: AuthLevel = await bot.auth.get( userID );
-	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star.private-subscribe", auth );
+	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	if ( settings.length === 0 ) {
 		return `配置尚未完成\n请私聊本七发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用`;
 	}

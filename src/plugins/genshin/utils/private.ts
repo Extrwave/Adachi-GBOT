@@ -30,10 +30,10 @@ export async function getPrivateAccount( userID: string, idMsg: string, auth: Au
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	const a: AuthLevel = await auth.get( userID );
 	if ( accounts.length === 0 ) {
-		const PRIVATE_SUBSCRIBE = <Order>bot.command.getSingle( "silvery-star.private-subscribe", a );
+		const PRIVATE_SUBSCRIBE = <Order>bot.command.getSingle( "silvery-star-private-subscribe", a );
 		return `配置尚未完成\n请私聊本七发送『${ PRIVATE_SUBSCRIBE.getHeaders()[0] }』启用`;
 	} else if ( accounts.length - 1 < id || id === -1 ) {
-		const PRIVATE_LIST = <Order>bot.command.getSingle( "silvery-star.private-list", a );
+		const PRIVATE_LIST = <Order>bot.command.getSingle( "silvery-star-private-list", a );
 		return `无效的序号，请使用 ${ PRIVATE_LIST.getHeaders()[0] } 检查，序号为前面数字，不是UID`;
 	}
 	

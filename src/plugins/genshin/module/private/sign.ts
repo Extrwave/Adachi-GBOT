@@ -39,7 +39,7 @@ export class SignInService implements Service {
 	}
 	
 	public async initTest(): Promise<string> {
-		const TOGGLE_SIGN = <Order>bot.command.getSingle( "silvery-star.private-toggle-sign" );
+		const TOGGLE_SIGN = <Order>bot.command.getSingle( "silvery-star-private-toggle-sign" );
 		return `米游社签到功能已放行，请使用「${ TOGGLE_SIGN.getHeaders()[0] }+序号」开启本功能`;
 	}
 	

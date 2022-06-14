@@ -80,8 +80,8 @@ export async function main(
 	const header = ( <OrderMatchResult>matchResult ).header;
 	const a: AuthLevel = await auth.get( userID );
 	
-	const CONFIRM = <Order>command.getSingle( "silvery-star.private-confirm", a );
-	const SUBSCRIBE = <Order>command.getSingle( "silvery-star.private-subscribe", a );
+	const CONFIRM = <Order>command.getSingle( "silvery-star-private-confirm", a );
+	const SUBSCRIBE = <Order>command.getSingle( "silvery-star-private-subscribe", a );
 	
 	if ( SUBSCRIBE.getHeaders().includes( header ) ) {
 		const msg: string = subscribe( userID, sendMessage, a, CONFIRM );

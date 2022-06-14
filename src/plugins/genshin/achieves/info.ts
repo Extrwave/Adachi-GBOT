@@ -6,7 +6,7 @@ import { renderer, typeData } from "#genshin/init";
 export async function main(
 	{ sendMessage, messageData, logger, redis }: InputParameter
 ): Promise<void> {
-	const rawMessage: string = messageData.raw_message;
+	const rawMessage: string = messageData.msg.content;
 	
 	// 是否为技能详情页
 	const isSkillPage = rawMessage.includes( "-skill" );

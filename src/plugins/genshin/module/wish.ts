@@ -102,12 +102,12 @@ class Wish {
 	private readonly epit: string;
 	private tempData: Record<string, number> = {};
 	
-	constructor( fn: probFn, table: WishDetail, type: string, id: number ) {
+	constructor( fn: probFn, table: WishDetail, type: string, id: string ) {
 		this.probFunc = fn;
 		this.table = table;
 		this.type = type;
-		this.dbKey = `silvery-star.wish-${ type }-${ id }`;
-		this.epit = `silvery-star.epitomized-path-${ id }`;
+		this.dbKey = `silvery-star-wish-${ type }-${ id }`;
+		this.epit = `silvery-star-epitomized-path-${ id }`;
 	}
 	
 	public async init(): Promise<Wish> {
@@ -318,9 +318,9 @@ export class WishClass {
 		return [ fn, table, wishType ];
 	}
 	
-	private async getCheckFn( method: wishMethod, userID: number ): Promise<checkFn> {
+	private async getCheckFn( method: wishMethod, userID: string ): Promise<checkFn> {
 		if ( method[2] === "weapon" ) {
-			const epitKey: string = `silvery-star.epitomized-path-${ userID }`;
+			const epitKey: string = `silvery-star-epitomized-path-${ userID }`;
 			const user: number = await EpitomizedPath.getUser( epitKey );
 			if ( user === 0 ) {
 				return ( res: WishResult ) => res.rank === 5;
@@ -336,7 +336,7 @@ export class WishClass {
 		}
 	}
 	
-	public async get( userID: number, choice: string, param: string ): Promise<WishTotalSet | null> {
+	public async get( userID: string, choice: string, param: string ): Promise<WishTotalSet | null> {
 		const method = this.getWishMethod( choice );
 		if ( method ) {
 			const wish: Wish = await new Wish( ...method, userID ).init();

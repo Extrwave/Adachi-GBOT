@@ -11,12 +11,12 @@ interface UIDResult {
 }
 
 function isAt( message: string ): string | undefined {
-	const res: RegExpExecArray | null = /\[cq:at,qq=(?<id>\d+)/.exec( message );
+	const res: RegExpExecArray | null = /\<!@(?<id>\d+)/.exec( message );
 	return res?.groups?.id;
 }
 
 async function getUID(
-	data: string, userID: number, redis: Database, atID?: string
+	data: string, userID: string, redis: Database, atID?: string
 ): Promise<UIDResult> {
 	if ( data === "" ) {
 		const uid: string = await redis.getString( `silvery-star.user-bind-uid-${ userID }` );
@@ -36,9 +36,9 @@ export async function main(
 ): Promise<void> {
 	
 	
-	const data: string = messageData.raw_message;
+	const data: string = messageData.msg.content;
 	const atID: string | undefined = isAt( data );
-	const userID: number = messageData.user_id;
+	const userID: string = messageData.msg.author.id;
 	
 	const { info, stranger } = await getUID( data, userID, redis, atID );
 	if ( typeof info === "string" ) {
@@ -48,7 +48,7 @@ export async function main(
 	
 	const uid: number = info;
 	const server: string = getRegion( uid.toString()[0] );
-	const target: number = atID ? parseInt( atID ) : userID;
+	const target: string = atID ? atID : userID;
 	
 	//对他人主页缓存优化
 	const dbKey: string = `extr-wave-uid-query-`;
@@ -58,9 +58,9 @@ export async function main(
 		await sendMessage( image );
 	} else {
 		try {
-			const targetInfo = await client.getStrangerInfo( target );
-			const nickname: string = targetInfo.status === "ok"
-				? targetInfo.data.nickname : "";
+			const targetInfo = await client.guildApi.guildMember( await redis.getString( `adachi.guild-id` ), target );
+			const nickname: string = targetInfo.status === 200
+				? targetInfo.data.user.username : "";
 			await redis.setHash( `silvery-star.card-data-${ uid }`, {
 				nickname, uid, level: 0
 			} );

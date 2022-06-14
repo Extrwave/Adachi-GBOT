@@ -4,6 +4,7 @@ import { InputParameter, Order } from "@modules/command";
 import Command from "@modules/command/main";
 import FileManagement from "@modules/file";
 import { filterUserUsableCommand } from "../utils/filter";
+import * as http from "http";
 
 
 function getVersion( file: FileManagement ): string {
@@ -110,8 +111,9 @@ export async function main( i: InputParameter ): Promise<void> {
         }, "");
 	    await i.sendMessage( title + keys, false );
     } else {
-        const msgList: string[] = commands.map(el => `${ ++ID }. ${ el.getDesc() }`);
-        const helpMsg = await getHelpMessage(title, msgList, i);
-        await i.sendMessage(helpMsg + "", false);
+	    const msgList: string[] = commands.map( el => `${ ++ID }. ${ el.getDesc() }` );
+	    const helpMsg = await getHelpMessage( title, msgList, i );
+	    // await i.sendMessage(helpMsg + "", false);
+	    await i.sendMessage( { image: "http://cdn.ethreal.cn/img/help-1654016357.jpg" } )
     }
 }

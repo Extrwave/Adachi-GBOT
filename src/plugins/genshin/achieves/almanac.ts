@@ -12,7 +12,7 @@ export async function main(
 	scheduleJob( "0 1 4 * * *", async () => {
 		await redis.deleteKey( dbKey );
 		//自动获取今日事宜
-		await redis.setString( "silvery-star.almanac", almanacClass.get() );
+		await redis.setString( "silvery-star-almanac", almanacClass.get() );
 		const res: RenderResult = await renderer.asCqCode( "/almanac.html" );
 		
 		if ( res.code === "ok" ) {
@@ -29,7 +29,7 @@ export async function main(
 		await sendMessage( image );//返回缓存数据
 	} else {
 		//没有缓存图片，定时获取失败，重新获取并写入缓存
-		await redis.setString( "silvery-star.almanac", almanacClass.get() );
+		await redis.setString( "silvery-star-almanac", almanacClass.get() );
 		const res: RenderResult = await renderer.asCqCode( "/almanac.html" );
 		
 		if ( res.code === "ok" ) {

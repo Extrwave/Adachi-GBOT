@@ -3,7 +3,7 @@ import { getRealName, NameResult } from "../utils/name";
 import { checkGuideExist } from "../utils/api";
 
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
-	const name: string = messageData.raw_message;
+	const name: string = messageData.msg.content;
 	const result: NameResult = getRealName( name );
 	
 	let message: string;

@@ -50,16 +50,16 @@ export class DailySet {
 		}
 	}
 	
-	public async save( id: number ): Promise<void> {
+	public async save( id: string ): Promise<void> {
 		await bot.redis.setHash(
-			`silvery-star.daily-temp-${ id }`, {
+			`silvery-star-daily-temp-${ id }`, {
 				weapon: JSON.stringify( this.weaponSet ),
 				character: JSON.stringify( this.characterSet )
 			} );
 	}
 }
 
-async function getRenderResult( id: number ): Promise<RenderResult> {
+async function getRenderResult( id: string ): Promise<RenderResult> {
 	return await renderer.asCqCode( "/daily.html", { id } );
 }
 
@@ -79,7 +79,7 @@ export class DailyClass {
 		scheduleJob( "0 0 6 * * *", async () => {
 			const date: Date = new Date();
 			await bot.redis.deleteKey( `extr-wave-dailyMaterial` );
-			await this.getUserSubscription( 1678800780 );
+			await this.getUserSubscription( bot.config.master );
 			bot.logger.info( "每日材料已重新加载" );
 			
 			
@@ -92,15 +92,15 @@ export class DailyClass {
 			await this.getAllData( week, todayInfoSet );
 			
 			/* 群发订阅信息 */
-			const groupIDs: string[] = await bot.redis.getList( "silvery-star.daily-sub-group" );
+			const groupIDs: string[] = await bot.redis.getList( "silvery-star-daily-sub-group" );
 			
 			const groupData = new DailySet( this.allData );
 			let subMessage: string = "";
 			if ( week === 0 ) {
 				subMessage = "周日所有材料都可以刷取哦~";
 			} else {
-				await groupData.save( 0 );
-				const res: RenderResult = await getRenderResult( 0 );
+				await groupData.save( "0" );
+				const res: RenderResult = await getRenderResult( "0" );
 				if ( res.code === "ok" ) {
 					subMessage = res.data;
 				} else {
@@ -120,10 +120,10 @@ export class DailyClass {
 			}
 			
 			/* 私发订阅信息 */
-			const users: string[] = await bot.redis.getKeysByPrefix( "silvery-star.daily-sub-" );
+			const users: string[] = await bot.redis.getKeysByPrefix( "silvery-star-daily-sub-" );
 			
 			for ( let key of users ) {
-				const userID: number = parseInt( <string>key.split( "-" ).pop() );
+				const userID: string = <string>key.split( "-" ).pop();
 				const data: DailySet | undefined = await this.getUserSubList( userID );
 				if ( data === undefined ) {
 					continue;
@@ -174,8 +174,8 @@ export class DailyClass {
 		}
 	}
 	
-	private async getUserSubList( userID: number ): Promise<DailySet | undefined> {
-		const dbKey: string = `silvery-star.daily-sub-${ userID }`;
+	private async getUserSubList( userID: string ): Promise<DailySet | undefined> {
+		const dbKey: string = `silvery-star-daily-sub-${ userID }`;
 		const subList: string[] = await bot.redis.getList( dbKey );
 		if ( this.allData.length === 0 ) {
 			const date = new Date();
@@ -203,7 +203,7 @@ export class DailyClass {
 		return new DailySet( privateSub );
 	}
 	
-	public async getUserSubscription( userID: number ): Promise<string> {
+	public async getUserSubscription( userID: string ): Promise<string> {
 		const date: Date = new Date();
 		
 		let week: number = date.getDay();
@@ -237,7 +237,7 @@ export class DailyClass {
 	public async modifySubscription( userID: string, operation: boolean, name: string, isGroup: boolean ): Promise<string> {
 		/* 添加/删除群聊订阅 */
 		if ( isGroup ) {
-			const dbKey: string = "silvery-star.daily-sub-group";
+			const dbKey: string = "silvery-star-daily-sub-group";
 			const exist: boolean = await bot.redis.existListElement( dbKey, name );
 			
 			if ( exist === operation ) {
@@ -256,7 +256,7 @@ export class DailyClass {
 		
 		if ( result.definite ) {
 			const realName: string = <string>result.info;
-			const dbKey: string = `silvery-star.daily-sub-${ userID }`;
+			const dbKey: string = `silvery-star-daily-sub-${ userID }`;
 			const exist: boolean = await bot.redis.existListElement( dbKey, realName );
 			
 			if ( exist === operation ) {
