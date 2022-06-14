@@ -49,7 +49,8 @@ export class Adachi {
 		
 		/* 初始化应用模块 */
 		const config = new BotConfig( file );
-		new WebConfiguration( config );
+		/* 实例化Logger */
+		const logger = new WebConfiguration( config ).getLogger();
 		if ( config.webConsole.enable ) {
 			new WebConsole( config );
 		}
@@ -65,9 +66,6 @@ export class Adachi {
 			token: config.token,
 			sandbox: config.sandbox
 		} );
-		// 实例化logger
-		const logger = log.getLogger();
-		logger.level = config.logLevel;
 		process.on( "unhandledRejection", reason => {
 			logger.error( "消息错误：" + JSON.stringify( reason ) );
 		} );
