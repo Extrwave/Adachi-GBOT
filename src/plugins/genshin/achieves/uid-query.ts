@@ -11,7 +11,7 @@ interface UIDResult {
 }
 
 function isAt( message: string ): string | undefined {
-	const res: RegExpExecArray | null = /\<!@(?<id>\d+)/.exec( message );
+	const res: RegExpExecArray | null = /\<@!(?<id>\d+)/.exec( message );
 	return res?.groups?.id;
 }
 

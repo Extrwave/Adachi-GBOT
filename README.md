@@ -6,7 +6,7 @@
         <a href="https://github.com/SilveryStar/Adachi-Plugin" target="_blank">插件库</a> &nbsp;|&nbsp;
         <a href="https://github.com/SilveryStar/Adachi-BOT/issues/146">关于频道</a>
     </div>
-    <small>&gt; 原神Q群助手 &lt;</small>
+    <small>&gt; 原神Q频道助手 &lt;</small>
     <br>
     <small>&gt; 本项目为频道移植版, 相关文档待更新 &lt;</small>
     <div>
@@ -14,3 +14,14 @@
         <a href="https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&inviteCode=ZcZDq&from=246610&biz=ka ">~ Adachi-BOT交流频道 ~</a>
     </div>
 </div>
+
+<div align="center">
+<br>
+由于频道`BOT SDK`只支持`http/https`格式
+<br>
+大部分图片返回无法使用，等待后续解决
+<br>
+正在考虑使用官方`ARK`消息替代部分返回
+</div>
+
+

@@ -114,11 +114,11 @@ export class Adachi {
 							const channels: IChannel[] = response.data;
 							await this.bot.redis.setString( `adachi.guild-channels`, channels.length );
 						} else {
-							this.bot.logger.info( "子频道数量获取错误，部分功能会受到影响" );
+							this.bot.logger.error( "子频道数量获取错误，部分功能会受到影响" );
 						}
 						return;
 					}
-					this.bot.logger.info( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
+					this.bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
 				}
 			} );
 		} );
@@ -258,8 +258,10 @@ export class Adachi {
 			const content = messageData.msg.content;
 			
 			// const isBanned: boolean = await bot.redis.existListElement(
-			//     "adachi.banned-group", channelID
+			// 	"adachi.banned-group", channelID
 			// );
+			// if ( isBanned )
+			// 	return;
 			
 			const channelInfo = <sdk.IChannel>( await bot.client.channelApi.channel( channelID ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
@@ -276,7 +278,7 @@ export class Adachi {
 	
 	/*去掉消息中的@信息*/
 	private checkAtBOT( msg: Message ): boolean {
-		const atBOTReg: RegExp = new RegExp( `^ *<@!.*>` );
+		const atBOTReg: RegExp = new RegExp( `<@!\\d+>` );
 		const content: string = msg.msg.content;
 		
 		if ( atBOTReg.test( content ) ) {
