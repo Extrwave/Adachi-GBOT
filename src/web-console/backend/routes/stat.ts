@@ -5,16 +5,16 @@ import { parseZone } from "moment";
 import { formatMemories } from "../utils/format";
 
 interface DayData {
-    dayID: string;
-    data: { hour: string, detail: string }[];
+	dayID: string;
+	data: { hour: string, detail: string }[];
 }
 
 interface WeekData {
-    week: number;
-    data: DayData;
+	week: number;
+	data: DayData;
 }
 
-export default express.Router().get("/", async ( req, res ) => {
+export default express.Router().get( "/", async ( req, res ) => {
 	/* 前端传参为某周周日的日期 */
 	const date = new Date( <string>req.query.start );
 	
@@ -40,7 +40,7 @@ export default express.Router().get("/", async ( req, res ) => {
 		const userCount = userData.length;
 		
 		/* 群组数量 */
-		const groupCount = 1;
+		const groupCount: number = parseInt( await bot.redis.getString( `adachi.guild-channels` ) );
 		
 		/* 内存占用 */
 		const totalMem = formatMemories( totalmem(), "G" );
@@ -61,4 +61,4 @@ export default express.Router().get("/", async ( req, res ) => {
 	} catch ( error ) {
 		res.status( 500 ).send( { code: 500, data: {}, msg: "Server Error" } );
 	}
-});
+} );

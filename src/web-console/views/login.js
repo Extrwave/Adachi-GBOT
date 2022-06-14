@@ -14,7 +14,7 @@ const template =
 				</h2>
 			</div>
 			<div class="login-main-form">
-				<el-input v-model.number="number" placeholder="BOT 账号" maxlength="13" clearable @input="val => number = val.replace(/[^\\d]/g, '')" @keyup.enter="loginByPassword" />
+				<el-input v-model.number="number" placeholder="BOT 账号" maxlength="13" clearable @keyup.enter="loginByPassword" />
 				<el-input v-model.trim="password" placeholder="BOT 密码" maxlength="20" clearable show-password @keyup.enter="loginByPassword" />
           		<p class="remember-account">
           			<el-checkbox v-model="rememberAccount">记住账号</el-checkbox>
