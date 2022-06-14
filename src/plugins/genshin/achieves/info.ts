@@ -28,14 +28,14 @@ export async function main(
 				{ name: result.info, skill: isSkillPage }
 			);
 			if ( res.code === "ok" ) {
-				await sendMessage( res.data );
+				await sendMessage( { image: res.data } );
 			} else {
 				logger.error( res.error );
 				await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 			}
 		}
 	} else if ( result.info === "" ) {
-		await sendMessage( `暂无关于「${ name }」的信息，若确认名称输入无误，请前往 github.com/SilveryStar/Adachi-BOT 进行反馈` );
+		await sendMessage( `暂无关于「${ name }」的信息，若确认名称输入无误，请联系频道主进行反馈` );
 	} else {
 		await sendMessage( `未找到相关信息，是否要找：${ [ "", ...<string[]>result.info ].join( "\n  - " ) }` );
 	}

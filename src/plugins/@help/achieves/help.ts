@@ -113,7 +113,7 @@ export async function main( i: InputParameter ): Promise<void> {
     } else {
 	    const msgList: string[] = commands.map( el => `${ ++ID }. ${ el.getDesc() }` );
 	    const helpMsg = await getHelpMessage( title, msgList, i );
-	    // await i.sendMessage(helpMsg + "", false);
-	    await i.sendMessage( { image: "http://cdn.ethreal.cn/img/help-1654016357.jpg" } )
+	    await i.sendMessage( helpMsg + "", false );
+	    // await i.sendMessage( { image: "http://cdn.ethreal.cn/img/help-1654016357.jpg" } )
     }
 }

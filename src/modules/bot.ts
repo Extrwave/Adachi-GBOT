@@ -69,7 +69,7 @@ export class Adachi {
 		const logger = log.getLogger();
 		logger.level = config.logLevel;
 		process.on( "unhandledRejection", reason => {
-			logger.error( ( <Error>reason ).stack );
+			logger.error( "消息错误：" + JSON.stringify( reason ) );
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
