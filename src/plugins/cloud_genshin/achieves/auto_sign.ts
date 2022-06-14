@@ -16,9 +16,7 @@ export async function autoSign() {
 			const dbKey = "extr-wave-yys-sign." + userId;
 			bot.logger.info( `正在进行用户 ${ userId } 云原神签到` );
 			const guild = await bot.redis.getString( `adachi.guild-id` );
-			const sender = await bot.message.getPrivateSender( guild, userId );
-			const guild_id = sender.data.guild_id;
-			const channel_id = sender.data.channel_id;
+			const sendMessage = await bot.message.getPrivateSendFunc( guild, userId );
 			//获取用户信息填充header
 			headers["x-rpc-combo_token"] = await bot.redis.getHashField( dbKey, "token" );
 			headers["x-rpc-device_name"] = await bot.redis.getHashField( dbKey, "device_name" );
@@ -28,18 +26,15 @@ export async function autoSign() {
 			const message = await getWalletURL( headers );
 			const data = JSON.parse( message );
 			if ( data.retcode === 0 && data.message === "OK" ) {
-				await bot.client.directMessageApi.postDirectMessage( guild_id, {
-						content: `今日云原神签到成功\n` +
-							`畅玩卡状态：${ data.data.play_card.short_msg }\n` +
-							`当前米云币数量：${ data.data.coin.coin_num }\n` +
-							`当前剩余免费时间：${ data.data.free_time.free_time } / ${ data.data.free_time.free_time_limit }\n` +
-							`当前剩余总分钟数：${ data.data.total_time } `
-					}
+				await sendMessage(
+					`今日云原神签到成功\n` +
+					`畅玩卡状态：${ data.data.play_card.short_msg }\n` +
+					`当前米云币数量：${ data.data.coin.coin_num }\n` +
+					`当前剩余免费时间：${ data.data.free_time.free_time } / ${ data.data.free_time.free_time_limit }\n` +
+					`当前剩余总分钟数：${ data.data.total_time } `
 				);
 			} else {
-				await bot.client.directMessageApi.postDirectMessage( guild_id, {
-					content: data.message
-				} );
+				await sendMessage( data.message );
 			}
 		}
 	} );
