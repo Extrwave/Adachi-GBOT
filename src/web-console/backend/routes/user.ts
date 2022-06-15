@@ -125,7 +125,7 @@ export default express.Router()
 		}
 	} )
 
-/* 获取用户信息 */
+/* 获取用户信息，暂时只显示Master所在频道的用户 */
 async function getUserInfo( userID: string ): Promise<UserInfo> {
 	
 	const guildID = await bot.redis.getString( `adachi.guild-id` );

@@ -39,8 +39,8 @@ export default express.Router().get( "/", async ( req, res ) => {
 		const userData: string[] = await bot.redis.getKeysByPrefix( "adachi.user-used-groups-" );
 		const userCount = userData.length;
 		
-		/* 群组数量 */
-		const groupCount: number = parseInt( await bot.redis.getString( `adachi.guild-channels` ) );
+		/* 频道数量 */
+		const groupCount: number = parseInt( await bot.redis.getString( `adachi.guild-number` ) );
 		
 		/* 内存占用 */
 		const totalMem = formatMemories( totalmem(), "G" );

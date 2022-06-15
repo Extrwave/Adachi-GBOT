@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="http://cdn.ethreal.cn/img/QAvatar-1654016393.png" width="200"/>
+    <img src="https://docs.adachi.top/images/adachi.png" width="200"/>
     <h3>- Adachi-GBOT -</h3>
     <div>
         <a href="https://docs.adachi.top" target="_blank">官方文档</a> &nbsp;|&nbsp;
@@ -17,11 +17,13 @@
 
 <div align="center">
 <br>
-由于频道`BOT SDK`只支持`http/https`格式
+<small>由于频道BOT SDK只支持网络图片</small>
 <br>
-大部分图片返回无法使用，等待后续解决
+<small>大部分图片返回无法使用</small>
 <br>
-正在考虑使用官方`ARK`消息替代部分返回
+<small>此分支暂时停更，等待官方更新SDK</small>
+<br>
+<small>提前体验可以前往 ossdev 分支查看</small>
 </div>
 
 

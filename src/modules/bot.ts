@@ -21,7 +21,7 @@ import MsgManager, { Message, MessageScope, SendFunc } from "./message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import { unlinkSync } from "fs";
-import { IChannel, IGuild } from "qq-guild-bot";
+import { IGuild } from "qq-guild-bot";
 
 
 export interface BOT {
@@ -67,7 +67,7 @@ export class Adachi {
 			sandbox: config.sandbox
 		} );
 		process.on( "unhandledRejection", reason => {
-			logger.error( "消息错误：" + JSON.stringify( reason ) );
+			logger.error( "未知错误：" + JSON.stringify( reason ) );
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
@@ -90,32 +90,26 @@ export class Adachi {
 	public run(): BOT {
 		Plugin.load( this.bot ).then( commands => {
 			this.bot.command.add( commands );
+			//登陆成功消息
+			this.botOnline();
 			/* 事件监听 */
-			//频道消息
 			this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
 				this.parseGroupMsg( this )( data );
 			} );
-			//私聊消息
 			this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
 				this.parsePrivateMsg( this )( data );
 			} );
-			//登陆成功消息
-			this.bot.ws.on( "READY", ( data ) => {
-				this.botOnline( data );
-			} );
 			this.bot.logger.info( "事件监听启动成功" );
-			/*获取频道ID 暂时只支持私域频道BOT私人服务*/
+			
+			/*获取频道ID */
 			this.bot.client.meApi.meGuilds().then( async r => {
+				const guilds: IGuild[] = r.data;
+				await this.bot.redis.setString( `adachi.guild-number`, guilds.length );
+				if ( guilds.length <= 0 )
+					this.bot.logger.error( "频道信息获取错误..." );
 				for ( let guild of r.data ) {
 					if ( guild.owner_id === this.bot.config.master ) {
 						await this.bot.redis.setString( `adachi.guild-id`, guild.id );
-						const response = await this.bot.client.channelApi.channels( guild.id );
-						if ( response.status === 200 ) {
-							const channels: IChannel[] = response.data;
-							await this.bot.redis.setString( `adachi.guild-channels`, channels.length );
-						} else {
-							this.bot.logger.error( "子频道数量获取错误，部分功能会受到影响" );
-						}
 						return;
 					}
 					this.bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
@@ -257,12 +251,6 @@ export class Adachi {
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
-			// const isBanned: boolean = await bot.redis.existListElement(
-			// 	"adachi.banned-group", channelID
-			// );
-			// if ( isBanned )
-			// 	return;
-			
 			const channelInfo = <sdk.IChannel>( await bot.client.channelApi.channel( channelID ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
 			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ channelID }` );
@@ -325,8 +313,8 @@ export class Adachi {
 		}
 	}
 	
-	private botOnline( param ) {
-		if ( param.msg.user.status === 1 ) {
+	private botOnline() {
+		if ( this.bot.ws.alive ) {
 			this.bot.logger.info( "BOT启动成功" );
 		}
 	}
