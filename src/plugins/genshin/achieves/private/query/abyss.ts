@@ -34,8 +34,10 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: string, {
 	);
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
+	} else if ( res.code === "error" ) {
+		await sendMessage( res.error );
 	} else {
-		logger.error( res.error );
+		logger.error( res.err );
 		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 	}
 }
@@ -45,9 +47,6 @@ export async function main( i: InputParameter ): Promise<void> {
 	
 	const match = <SwitchMatchResult>matchResult;
 	const userID: string = messageData.msg.author.id;
-	
-	// 是否一图流显示
-	const isForwardMsg = match.match.includes( "-l" );
 	
 	const data: string = match.match.filter( m => m !== "-l" )[0] ?? "";
 	

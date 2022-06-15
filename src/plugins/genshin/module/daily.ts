@@ -107,9 +107,11 @@ export class DailyClass {
 				const res: RenderResult = await getRenderResult( "0" );
 				if ( res.code === "ok" ) {
 					subMessageImage = { content: "今日材料如下", image: res.data };
-				} else {
+				} else if ( res.code === "error" ) {
 					bot.logger.error( res.error );
-					bot.logger.info( "每日素材订阅图片渲染异常，请查看日志进行检查" );
+				} else {
+					bot.logger.error( res.err );
+					bot.logger.error( "每日素材订阅图片渲染异常，请查看日志进行检查" );
 				}
 			}
 			for ( let id of groupIDs ) {
@@ -135,8 +137,11 @@ export class DailyClass {
 				}
 				await data.save( userID );
 				const res: RenderResult = await getRenderResult( userID );
-				if ( res.code === "error" ) {
-					bot.logger.info( "每日素材订阅图片渲染异常，请查看日志进行检查" );
+				if ( res.code === "err" ) {
+					bot.logger.error( "每日素材订阅图片渲染异常，请查看日志进行检查" );
+					continue;
+				} else if ( res.code === "error" ) {
+					bot.logger.error( res.error );
 					continue;
 				}
 				const randomMinute: number = randomInt( 3, 59 );
@@ -224,8 +229,11 @@ export class DailyClass {
 		const res: RenderResult = await getRenderResult( userID );
 		if ( res.code === "ok" ) {
 			return res.data;
-		} else {
+		} else if ( res.code === "error" ) {
 			bot.logger.error( res.error );
+			return res.error;
+		} else {
+			bot.logger.error( res.err );
 			return "图片渲染异常，请联系持有者进行反馈";
 		}
 	}

@@ -16,7 +16,7 @@ function monthCheck( m: number ) {
 }
 
 export async function main(
-	{ sendMessage, messageData, auth, logger, redis }: InputParameter
+	{ sendMessage, messageData, auth, logger }: InputParameter
 ): Promise<void> {
 	const userID: string = messageData.msg.author.id;
 	const data = <RegExpExecArray>( /(\d+)? *(\d+)?/.exec( messageData.msg.content ) );
@@ -63,8 +63,10 @@ export async function main(
 	const res: RenderResult = await renderer.asUrlImage( "/ledger.html", { uid } );
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
+	} else if ( res.code === "error" ) {
+		await sendMessage( res.error );
 	} else {
-		logger.error( res.error );
+		logger.error( res.err );
 		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 	}
 }

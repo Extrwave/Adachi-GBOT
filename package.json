@@ -7,7 +7,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/redis": "^2.8.32",
-    "diff": "^5.1.0",
+    "diff": "^5.0.0",
     "express-jwt": "^6.1.0",
     "express-serve-static-core": "^0.1.1",
     "express-ws": "^5.0.2",
@@ -15,9 +15,9 @@
     "lodash": "^4.17.21",
     "log4js": "^6.3.0",
     "md5-typescript": "^1.0.5",
-    "moment": "^2.29.3",
+    "moment": "^2.29.1",
     "node-fetch": "^2.6.1",
-    "node-schedule": "^2.1.0",
+    "node-schedule": "^2.0.0",
     "npm-lifecycle": "^3.1.5",
     "object-immutable-set": "^1.0.0",
     "pm2": "^5.2.0",
@@ -29,7 +29,6 @@
     "ts-node": "^10.8.1",
     "tsconfig-paths": "^4.0.0",
     "typescript": "^4.7.3",
-    "ws": "^7.4.4",
     "yaml": "^1.10.2"
   },
   "devDependencies": {

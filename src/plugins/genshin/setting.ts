@@ -6,7 +6,7 @@ import { PluginSetting } from "@modules/plugin";
 const bind: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-bind",
-	desc: [ "", "[UID]" ],
+	desc: [ "米游社绑定", "[UID]" ],
 	headers: [ "bind" ],
 	regexps: [ "\\d{9}" ],
 	main: "achieves/bind"
@@ -15,7 +15,7 @@ const bind: OrderConfig = {
 const uidQuery: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-uid-query",
-	desc: [ "", "[UID|@]" ],
+	desc: [ "游戏查询", "[UID|@]" ],
 	headers: [ "uid" ],
 	regexps: [
 		[ "(\\d{9})?" ],
@@ -28,7 +28,7 @@ const uidQuery: OrderConfig = {
 const getArtifact: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-art",
-	desc: [ "", "(秘境ID)" ],
+	desc: [ "抽圣遗物", "(秘境ID)" ],
 	headers: [ "art" ],
 	regexps: [ "\\d*" ],
 	main: "achieves/artifact"
@@ -37,7 +37,7 @@ const getArtifact: OrderConfig = {
 const impArtifact: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-imp",
-	desc: [ "", "" ],
+	desc: [ "强化圣遗物", "" ],
 	headers: [ "imp" ],
 	regexps: [],
 	main: "achieves/improve"
@@ -46,7 +46,7 @@ const impArtifact: OrderConfig = {
 const domain: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-dom",
-	desc: [ "", "" ],
+	desc: [ "秘境查询", "" ],
 	headers: [ "dom" ],
 	regexps: [],
 	main: "achieves/domain"
@@ -55,7 +55,7 @@ const domain: OrderConfig = {
 const wish: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-wish",
-	desc: [ "", "(次数|until)" ],
+	desc: [ "祈愿抽卡", "(次数|until)" ],
 	headers: [ "wish", "w" ],
 	regexps: [ "(\\d{1,2}|until)?" ],
 	main: "achieves/wish",
@@ -66,7 +66,7 @@ const wish: OrderConfig = {
 const epitomizedPath: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-epitomized-path",
-	desc: [ "", "(0|1|2)" ],
+	desc: [ "神器定轨", "(0|1|2)" ],
 	headers: [ "epit" ],
 	regexps: [ "(0|1|2)?" ],
 	main: "achieves/epitomized",
@@ -77,7 +77,7 @@ const epitomizedPath: OrderConfig = {
 const choosePool: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-choose-pool",
-	desc: [ "", "[角色|武器|常驻|角色2]" ],
+	desc: [ "切换卡池", "[角色|武器|常驻|角色2]" ],
 	headers: [ "choose", "t" ],
 	regexps: [ "(角色|武器|常驻|角色2)" ],
 	main: "achieves/choose"
@@ -86,7 +86,7 @@ const choosePool: OrderConfig = {
 const information: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-information",
-	desc: [ "", "[角色|武器名|圣遗物] (-skill)" ],
+	desc: [ "信息查询", "[角色|武器名|圣遗物] (-skill)" ],
 	headers: [ "info" ],
 	regexps: [ "[\\w\\u4e00-\\u9fa5]+", "(-skill)?" ],
 	main: "achieves/info",
@@ -97,7 +97,7 @@ const information: OrderConfig = {
 const slip: OrderConfig = {
 	type: "order",
 	cmdKey: "by-ha-slip",
-	desc: [ "", "" ],
+	desc: [ "御神签", "" ],
 	headers: [ "s" ],
 	regexps: [],
 	main: "achieves/slip"
@@ -107,7 +107,7 @@ const alias: SwitchConfig = {
 	type: "switch",
 	mode: "single",
 	cmdKey: "silvery-star-alias-customize",
-	desc: [ "", "#{OPT} [本名] [别名]" ],
+	desc: [ "修改别名", "#{OPT} [本名] [别名]" ],
 	header: "alias",
 	regexp: [ "#{OPT}", "[\\u4e00-\\u9fa5]+", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/alias",
@@ -124,7 +124,7 @@ const daily: SwitchConfig = {
 	type: "switch",
 	mode: "single",
 	cmdKey: "silvery-star-daily",
-	desc: [ "", "#{OPT} [角色|武器名|群号]" ],
+	desc: [ "材料订阅", "#{OPT} [角色|武器名|群号]" ],
 	header: "sub",
 	regexp: [ "#{OPT}", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/daily",
@@ -138,7 +138,7 @@ const daily: SwitchConfig = {
 const today: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-today",
-	desc: [ "", "" ],
+	desc: [ "今日素材", "" ],
 	headers: [ "today" ],
 	regexps: [],
 	main: "achieves/today"
@@ -147,7 +147,7 @@ const today: OrderConfig = {
 const guide: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-guide",
-	desc: [ "", "[角色名]" ],
+	desc: [ "角色攻略", "[角色名]" ],
 	headers: [ "guide" ],
 	regexps: [ "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/guide"
@@ -156,7 +156,7 @@ const guide: OrderConfig = {
 const almanac: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-almanac",
-	desc: [ "", "" ],
+	desc: [ "原神黄历", "" ],
 	headers: [ "alm" ],
 	regexps: [],
 	main: "achieves/almanac"
@@ -166,19 +166,19 @@ const almanac: OrderConfig = {
 const privateSubscribe: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-subscribe",
-	desc: [ "", "" ],
+	desc: [ "添加授权服务", "" ],
 	headers: [ "ps" ],
 	regexps: [],
 	main: "achieves/private/subscribe",
 	scope: MessageScope.Private,
-	detail: "私人服务，一类通过使用个人 cookie 获取私密信息\n" +
+	detail: "授权服务，一类通过使用个人 cookie 获取私密信息\n" +
 		"目前包含实时便笺订阅功能，未来可能会添加新功能"
 };
 
 const privateConfirm: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-confirm",
-	desc: [ "", "" ],
+	desc: [ "验证授权服务", "" ],
 	headers: [ "confirm" ],
 	regexps: [ ".+" ],
 	display: false,
@@ -190,7 +190,7 @@ const privateConfirm: OrderConfig = {
 const privateSubList: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-list",
-	desc: [ "", "" ],
+	desc: [ "授权服务列表", "" ],
 	headers: [ "pl" ],
 	regexps: [],
 	main: "achieves/private/get-list",
@@ -200,30 +200,30 @@ const privateSubList: OrderConfig = {
 const privateCancel: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-cancel",
-	desc: [ "", "[序号]" ],
+	desc: [ "取消授权服务", "[序号]" ],
 	headers: [ "pc" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/cancel",
 	scope: MessageScope.Private,
-	detail: "序号使用『#我的序号』查看"
+	detail: "序号在授权服务列表查看"
 };
 
 const privateRemove: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-remove",
-	desc: [ "", "[qq]" ],
+	desc: [ "移除用户授权服务", "[id]" ],
 	headers: [ "remove" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/remove",
 	auth: AuthLevel.Master,
-	detail: "移除指定qq号所绑定的所有私人服务\n" +
+	detail: "移除指定ID号所绑定的所有授权服务\n" +
 		"移除后将会给对方发送提示信息"
 };
 
 const privateReplace: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-replace",
-	desc: [ "", "[序号] [cookie]" ],
+	desc: [ "更新授权服务", "[序号] [cookie]" ],
 	headers: [ "pr" ],
 	regexps: [ "\\d+", ".+" ],
 	ignoreCase: false,
@@ -236,19 +236,19 @@ const privateReplace: OrderConfig = {
 const privateReorder: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-reorder",
-	desc: [ "", "[新序号列表]" ],
+	desc: [ "排序服务列表", "[当前序号的新排序列表]" ],
 	headers: [ "reorder" ],
 	regexps: [ "(\\s|\\d)+" ],
 	main: "achieves/private/reorder",
 	scope: MessageScope.Private,
-	detail: "对当前的私人服务列表的顺序重新调整\n" +
-		"例如用户有 5 个订阅的私人服务账号，则新排序列表的格式为：5 2 3 1 4"
+	detail: "对当前的授权服务列表的顺序重新调整\n" +
+		"例如用户有 5 个订阅的授权服务账号，则新排序列表的格式为：5 2 3 1 4"
 };
 
 const privateNowNote: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-now-note",
-	desc: [ "", "" ],
+	desc: [ "实时便笺", "" ],
 	headers: [ "note" ],
 	regexps: [],
 	main: "achieves/private/note/now"
@@ -257,19 +257,19 @@ const privateNowNote: OrderConfig = {
 const privateNoteEvent: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-note-set-time",
-	desc: [ "", "[序号] [树脂量]" ],
+	desc: [ "便笺推送时间", "[序号] [树脂量]" ],
 	headers: [ "nt" ],
 	regexps: [ "[\\d ]+" ],
 	main: "achieves/private/note/set-time",
 	scope: MessageScope.Private,
 	detail: "用于设置 BOT 自动提醒时间点，树脂量可设置多个\n" +
-		"如: 60 90 120 160，数字间用空格隔开"
+		"如: 60 90 120 160，数字间用空格隔开，频道私信受限，无法正常推送"
 };
 
 const privateMysSetAppoint: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-set-appoint",
-	desc: [ "", "[序号] [角色名]" ],
+	desc: [ "指定头像", "[序号] [角色名]" ],
 	headers: [ "appoint" ],
 	regexps: [ "\\d+", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/private/query/appoint",
@@ -280,7 +280,7 @@ const privateMysSetAppoint: OrderConfig = {
 const privateMysQuery: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-mys",
-	desc: [ "", "(序号)" ],
+	desc: [ "游戏查询", "(序号)" ],
 	headers: [ "mys" ],
 	regexps: [ "(\\d+)?" ],
 	main: "achieves/private/query/mys"
@@ -290,32 +290,31 @@ const privateAbyssQuery: SwitchConfig = {
 	type: "switch",
 	mode: "divided",
 	cmdKey: "silvery-star-private-abyss",
-	desc: [ "", "(序号) (-l)" ],
+	desc: [ "深渊查询", "(序号) (-l)" ],
 	header: "",
 	regexp: [ "(\\d+)?", "(-l)?" ],
 	main: "achieves/private/query/abyss",
 	stop: false,
 	onKey: "caby",
 	offKey: "laby",
-	detail: "分别为查询上期与本期的深渊数据\n" +
-		"使用 -l 以转发消息方式显示每层详细图片"
+	detail: "分别为查询上期与本期的深渊数据\n"
 };
 
 const privateCharQuery: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-character",
-	desc: [ "", "(序号) [角色名]" ],
+	desc: [ "角色信息", "(序号) [角色名]" ],
 	headers: [ "char" ],
 	regexps: [ "(\\d+)?", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/private/query/character",
-	detail: "查询对应的私人服务的UID的游戏内角色信息\n" +
-		"默认查询查询 1 号私人服务UID"
+	detail: "查询对应的授权服务的UID的游戏内角色信息\n" +
+		"默认查询查询 1 号授权服务UID"
 };
 
 const privateToggleSign: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-toggle-sign",
-	desc: [ "", "[序号]" ],
+	desc: [ "米游社签到", "[序号]" ],
 	headers: [ "signin" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/sign-in/main",
@@ -326,7 +325,7 @@ const privateToggleSign: OrderConfig = {
 const privateToggleNote: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-toggle-note",
-	desc: [ "", "[序号]" ],
+	desc: [ "树脂提醒开关", "[序号]" ],
 	headers: [ "tnote" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/note/toggle",
@@ -337,7 +336,7 @@ const privateToggleNote: OrderConfig = {
 const privateLedger: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-ledger",
-	desc: [ "", "(序号) [月份]" ],
+	desc: [ "查看旅行札记", "(序号) [月份]" ],
 	headers: [ "led" ],
 	regexps: [ "(\\d+)?", "(\\d+)?" ],
 	main: "achieves/private/query/ledger",

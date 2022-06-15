@@ -7,7 +7,7 @@ import { getPrivateAccount } from "#genshin/utils/private";
 import { config, renderer } from "#genshin/init";
 
 export async function main(
-	{ sendMessage, messageData, auth, logger, redis }: InputParameter
+	{ sendMessage, messageData, auth, logger }: InputParameter
 ): Promise<void> {
 	const userID = messageData.msg.author.id;
 	const idMsg = messageData.msg.content;
@@ -39,8 +39,10 @@ export async function main(
 		} );
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
+	} else if ( res.code === "error" ) {
+		await sendMessage( res.error );
 	} else {
-		logger.error( res.error );
+		logger.error( res.err );
 		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 	}
 }

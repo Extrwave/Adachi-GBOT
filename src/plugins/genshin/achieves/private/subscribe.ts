@@ -7,7 +7,6 @@ import { scheduleJob } from "node-schedule";
 import { pull } from "lodash";
 import { getBaseInfo } from "#genshin/utils/api";
 import { privateClass } from "#genshin/init";
-import { userInfo } from "os";
 
 const tempSubscriptionList: string[] = [];
 
@@ -30,8 +29,7 @@ function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM: Order
 	
 	return `『${ userID }』你好 \n` + "请务必确保 BOT 持有者可信\n" +
 		`确定开启该功能，使用指令 「${ CONFIRM.getHeaders()[0] } cookie」来继续\n` +
-		"在群公告查看获取 cookie 的方法\n" +
-		"或者联系群主帮忙获取\n" +
+		"在频道公告查看获取 cookie 的方法\n" +
 		"请在 3 分钟内进行，超时会自动取消本次申请";
 }
 

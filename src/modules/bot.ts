@@ -21,7 +21,6 @@ import MsgManager, { Message, MessageScope, SendFunc } from "./message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import { unlinkSync } from "fs";
-import { IChannel, IGuild } from "qq-guild-bot";
 import Qiniuyun from "@modules/qiniuyun";
 
 
@@ -64,15 +63,16 @@ export class Adachi {
 			token: config.token,
 			sandbox: config.sandbox,
 		} );
+		// 创建 websocket 连接
 		const ws = sdk.createWebsocket( {
 				appID: config.appID,
 				token: config.token,
 				sandbox: config.sandbox
 			}
 		);
-		// 创建 websocket 连接
+		/* 捕获未知且未被 catch 的错误 */
 		process.on( "unhandledRejection", reason => {
-			logger.error( "消息错误：" + JSON.stringify( reason ) );
+			logger.error( "未知错误：" + JSON.stringify( reason ) );
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
@@ -95,32 +95,26 @@ export class Adachi {
 	public run(): BOT {
 		Plugin.load( this.bot ).then( commands => {
 			this.bot.command.add( commands );
+			//是否登陆成功
+			this.botOnline();
 			/* 事件监听 */
-			//频道消息
 			this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
 				this.parseGroupMsg( this )( data );
 			} );
-			//私聊消息
 			this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
 				this.parsePrivateMsg( this )( data );
 			} );
-			//登陆成功消息
-			this.bot.ws.on( "READY", ( data ) => {
-				this.botOnline( data );
-			} );
+			
 			this.bot.logger.info( "事件监听启动成功" );
-			/*获取频道ID 暂时只支持私域频道BOT私人服务*/
+			/* 获取频道ID 暂时只支持 Master 所在频道主动推送 */
 			this.bot.client.meApi.meGuilds().then( async r => {
-				for ( let guild of r.data ) {
+				const guilds: sdk.IGuild[] = r.data;
+				if ( guilds.length <= 0 )
+					this.bot.logger.error( "获取频道信息失败..." );
+				await this.bot.redis.setString( `adachi.guild-number`, guilds.length );
+				for ( let guild of guilds ) {
 					if ( guild.owner_id === this.bot.config.master ) {
-						await this.bot.redis.setString( `adachi.guild-id`, guild.id );
-						const response = await this.bot.client.channelApi.channels( guild.id );
-						if ( response.status === 200 ) {
-							const channels: IChannel[] = response.data;
-							await this.bot.redis.setString( `adachi.guild-channels`, channels.length );
-						} else {
-							this.bot.logger.error( "子频道数量获取错误，部分功能会受到影响" );
-						}
+						await this.bot.redis.setString( `adachi.guild-id`, guild.id ); //当前BOT主人所在频道
 						return;
 					}
 					this.bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
@@ -134,9 +128,7 @@ export class Adachi {
 		return this.bot;
 	}
 	
-	private static
-	
-	setEnv( file: FileManagement ): void {
+	private static setEnv( file: FileManagement ): void {
 		file.createDir( "config", "root" );
 		const exist
 			:
@@ -335,8 +327,8 @@ export class Adachi {
 		}
 	}
 	
-	private botOnline( param ) {
-		if ( param.msg.user.status === 1 ) {
+	private botOnline() {
+		if ( this.bot.ws.alive ) {
 			this.bot.logger.info( "BOT启动成功" );
 		}
 	}

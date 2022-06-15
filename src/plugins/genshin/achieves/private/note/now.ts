@@ -25,8 +25,10 @@ async function getNowNote( userID: string ): Promise<string[]> {
 		);
 		if ( res.code === "ok" ) {
 			imageList.push( res.data );
+		} else if ( res.code === "error" ) {
+			imageList.push( res.error );
 		} else {
-			bot.logger.error( res.error );
+			bot.logger.error( res.err );
 			imageList.push( "图片渲染异常，请联系持有者进行反馈" );
 		}
 	}
