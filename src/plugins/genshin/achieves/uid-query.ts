@@ -50,46 +50,37 @@ export async function main(
 	const server: string = getRegion( uid.toString()[0] );
 	const target: string = atID ? atID : userID;
 	
-	//对他人主页缓存优化
-	const dbKey: string = `extr-wave-uid-query-`;
-	const image: string = await redis.getHashField( dbKey, `${ uid }` );
-	if ( image !== "" ) {
-		await sendMessage( "七七找到了刚刚画好的图..." );
-		await sendMessage( image );
-	} else {
-		try {
-			const targetInfo = await client.guildApi.guildMember( await redis.getString( `adachi.guild-id` ), target );
-			const nickname: string = targetInfo.status === 200
-				? targetInfo.data.user.username : "";
-			await redis.setHash( `silvery-star.card-data-${ uid }`, {
-				nickname, uid, level: 0
-			} );
-			await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
-			
-			const charIDs = <number[]>await detailInfoPromise( target, server );
-			await characterInfoPromise( target, server, charIDs );
-		} catch ( error ) {
-			if ( error !== "gotten" ) {
-				await sendMessage( <string>error );
-				return;
-			}
-		}
+	try {
+		const targetInfo = await client.guildApi.guildMember( await redis.getString( `adachi.guild-id` ), target );
+		const nickname: string = targetInfo.status === 200
+			? targetInfo.data.user.username : "";
+		await redis.setHash( `silvery-star.card-data-${ uid }`, {
+			nickname, uid, level: 0
+		} );
+		await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
 		
-		await sendMessage( "获取成功，七七努力画图中..." );
-		const res: RenderResult = await renderer.asCqCode(
-			"/user-base.html", {
-				qq: target, stranger,
-				style: config.cardWeaponStyle,
-				profile: config.cardProfile
-			}
-		);
-		if ( res.code === "ok" ) {
-			await sendMessage( res.data );
-			await redis.setHashField( dbKey, `${ uid }`, res.data );
-			await redis.setTimeout( dbKey, 6 * 3600 );
-		} else {
-			logger.error( res.error );
-			await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
+		const charIDs = <number[]>await detailInfoPromise( target, server );
+		await characterInfoPromise( target, server, charIDs );
+	} catch ( error ) {
+		if ( error !== "gotten" ) {
+			await sendMessage( <string>error );
+			return;
 		}
+	}
+	
+	await sendMessage( "获取成功，七七努力画图中..." );
+	const res: RenderResult = await renderer.asUrlImage(
+		"/user-base.html", {
+			qq: target, stranger,
+			style: config.cardWeaponStyle,
+			profile: config.cardProfile
+		}
+	);
+	if ( res.code === "ok" ) {
+		await sendMessage( { image: res.data } );
+	} else {
+		logger.error( res.error );
+		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
+		
 	}
 }

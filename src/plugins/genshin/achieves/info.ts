@@ -23,14 +23,16 @@ export async function main(
 			await sendMessage( "仅角色支持查看技能详情" );
 		} else {
 			const route: string = checked( typeData.artifact.suitNames ) ? "/info-artifact.html" : "/info.html";
-			const res: RenderResult = await renderer.asCqCode(
+			const res: RenderResult = await renderer.asUrlImage(
 				route,
 				{ name: result.info, skill: isSkillPage }
 			);
 			if ( res.code === "ok" ) {
 				await sendMessage( { image: res.data } );
+			} else if ( res.code === "error" ) {
+				await sendMessage( res.error );
 			} else {
-				logger.error( res.error );
+				logger.error( res.err );
 				await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 			}
 		}

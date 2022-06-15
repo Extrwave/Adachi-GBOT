@@ -56,12 +56,12 @@ export async function main(
 			data: data.result,
 			name: nickname
 		} ) );
-		const res: RenderResult = await renderer.asCqCode(
+		const res: RenderResult = await renderer.asUrlImage(
 			"/wish.html",
 			{ qq: userID }
 		);
 		if ( res.code === "ok" ) {
-			await sendMessage( res.data );
+			await sendMessage( { image: res.data } );
 		} else {
 			logger.error( res.error );
 			await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
@@ -98,12 +98,12 @@ export async function main(
 		total: data.total,
 		nickname
 	} );
-	const res: RenderResult = await renderer.asCqCode(
+	const res: RenderResult = await renderer.asUrlImage(
 		"/wish-statistic.html",
 		{ qq: userID }
 	);
 	if ( res.code === "ok" ) {
-		await sendMessage( res.data );
+		await sendMessage( { image: res.data } );
 	} else {
 		logger.error( res.error );
 		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );

@@ -1,4 +1,4 @@
-import request from "../util/requests";
+import request from "#genshin/utils/requests";
 
 let URL: string = `http://api.qingyunke.com/api.php?key=free&appid=0&msg=`;
 

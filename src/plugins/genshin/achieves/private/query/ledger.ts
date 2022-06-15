@@ -4,7 +4,6 @@ import { RenderResult } from "@modules/renderer";
 import { ledgerPromise } from "#genshin/utils/promise";
 import { getPrivateAccount } from "#genshin/utils/private";
 import { renderer } from "#genshin/init";
-import { send } from "process";
 
 function monthCheck( m: number ) {
 	const optional: number[] = [];
@@ -52,31 +51,20 @@ export async function main(
 	
 	const { cookie, uid, server } = info.setting;
 	
-	//优化旅行札记缓存
-	const dbKey: string = `extr-wave-ledger-`;
-	const image: string = await redis.getHashField( dbKey, `${ uid }` );
-	if ( image !== "" ) {
-		await sendMessage( "七七找到了刚刚画好的图..." );
-		await sendMessage( image );
+	try {
+		await ledgerPromise( uid, server, month, cookie );
+	} catch ( error ) {
+		if ( error !== "gotten" ) {
+			await sendMessage( <string>error );
+			return;
+		}
+	}
+	await sendMessage( "获取成功，七七努力画图中..." );
+	const res: RenderResult = await renderer.asUrlImage( "/ledger.html", { uid } );
+	if ( res.code === "ok" ) {
+		await sendMessage( { image: res.data } );
 	} else {
-		
-		try {
-			await ledgerPromise( uid, server, month, cookie );
-		} catch ( error ) {
-			if ( error !== "gotten" ) {
-				await sendMessage( <string>error );
-				return;
-			}
-		}
-		await sendMessage( "获取成功，七七努力画图中..." );
-		const res: RenderResult = await renderer.asCqCode( "/ledger.html", { uid } );
-		if ( res.code === "ok" ) {
-			await sendMessage( res.data );
-			await redis.setHashField( dbKey, `${ uid }`, res.data );
-			await redis.setTimeout( dbKey, 5 * 3600 );
-		} else {
-			logger.error( res.error );
-			await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
-		}
+		logger.error( res.error );
+		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
 	}
 }

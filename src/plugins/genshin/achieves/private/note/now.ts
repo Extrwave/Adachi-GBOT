@@ -20,7 +20,7 @@ async function getNowNote( userID: string ): Promise<string[]> {
 		const uid: string = a.setting.uid;
 		const dbKey: string = `silvery-star.note-temp-${ uid }`;
 		await bot.redis.setString( dbKey, data );
-		const res: RenderResult = await renderer.asCqCode(
+		const res: RenderResult = await renderer.asUrlImage(
 			"/note.html", { uid }
 		);
 		if ( res.code === "ok" ) {
@@ -38,6 +38,6 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 	const res: string[] = await getNowNote( userID );
 	
 	for ( let msg of res ) {
-		await sendMessage( msg );
+		await sendMessage( { image: msg } );
 	}
 }

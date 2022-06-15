@@ -60,7 +60,7 @@ export class DailySet {
 }
 
 async function getRenderResult( id: string ): Promise<RenderResult> {
-	return await renderer.asCqCode( "/daily.html", { id } );
+	return await renderer.asUrlImage( "/daily.html", { id } );
 }
 
 export class DailyClass {
@@ -96,21 +96,26 @@ export class DailyClass {
 			
 			const groupData = new DailySet( this.allData );
 			let subMessage: string = "";
+			let subMessageImage = {};
 			if ( week === 0 ) {
 				subMessage = "周日所有材料都可以刷取哦~";
+				for ( let id of groupIDs ) {
+					await bot.client.messageApi.postMessage( id, { content: subMessage } );
+				}
 			} else {
 				await groupData.save( "0" );
 				const res: RenderResult = await getRenderResult( "0" );
 				if ( res.code === "ok" ) {
-					subMessage = res.data;
+					subMessageImage = { content: "今日材料如下", image: res.data };
 				} else {
 					bot.logger.error( res.error );
 					bot.logger.info( "每日素材订阅图片渲染异常，请查看日志进行检查" );
 				}
 			}
-			if ( subMessage.length !== 0 ) {
-				for ( let id of groupIDs ) {
-					await bot.client.messageApi.postMessage( id, { content: subMessage } );
+			for ( let id of groupIDs ) {
+				await bot.client.messageApi.postMessage( id, { content: subMessage } );
+				if ( subMessageImage !== null ) {
+					await bot.client.messageApi.postMessage( id, subMessageImage );
 				}
 			}
 			
@@ -212,25 +217,16 @@ export class DailyClass {
 			return "周日所有材料都可以刷取哦~";
 		}
 		
-		//优化每日材料获取
-		const dbKey = `extr-wave-dailyMaterial`;
-		const image = await bot.redis.getString( dbKey );
-		if ( image !== "" ) {
-			return image;
+		const data: DailySet | undefined = await this.getUserSubList( userID );
+		const set = data === undefined ? new DailySet( this.allData ) : data;
+		
+		await set.save( userID );
+		const res: RenderResult = await getRenderResult( userID );
+		if ( res.code === "ok" ) {
+			return res.data;
 		} else {
-			const data: DailySet | undefined = await this.getUserSubList( userID );
-			const set = data === undefined ? new DailySet( this.allData ) : data;
-			
-			await set.save( userID );
-			const res: RenderResult = await getRenderResult( userID );
-			if ( res.code === "ok" ) {
-				await bot.redis.setString( dbKey, res.data );
-				await bot.redis.setTimeout( dbKey, 24 * 3600 );
-				return res.data;
-			} else {
-				bot.logger.error( res.error );
-				return "图片渲染异常，请联系持有者进行反馈";
-			}
+			bot.logger.error( res.error );
+			return "图片渲染异常，请联系持有者进行反馈";
 		}
 	}
 	

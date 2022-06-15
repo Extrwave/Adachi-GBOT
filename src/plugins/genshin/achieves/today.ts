@@ -5,5 +5,5 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 	const userID: string = messageData.msg.author.id;
 	
 	const result: string = await dailyClass.getUserSubscription( userID );
-	await sendMessage( result );
+	await sendMessage( { image: result } );
 }

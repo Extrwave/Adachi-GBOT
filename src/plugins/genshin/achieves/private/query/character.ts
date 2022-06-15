@@ -128,13 +128,13 @@ export async function main(
 		}
 		
 		await sendMessage( "获取成功，七七努力画图中..." );
-		const res: RenderResult = await renderer.asCqCode(
+		const res: RenderResult = await renderer.asUrlImage(
 			"/character.html", {
 				qq: userID,
 				showScore: config.showCharScore
 			} );
 		if ( res.code === "ok" ) {
-			await sendMessage( res.data );
+			await sendMessage( { image: res.data } );
 			await redis.setHashField( dbKey, role_name, res.data );
 			await redis.setTimeout( dbKey, 6 * 3600 );
 		} else {

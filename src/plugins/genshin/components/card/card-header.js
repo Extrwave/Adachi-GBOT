@@ -53,10 +53,9 @@ export default defineComponent( {
 		/* 获取头像 */
 		const getProImg = ( id ) => `https://adachi-bot.oss-cn-beijing.aliyuncs.com/characters/profile/${ id }.png`;
 		const defaultAvatar =
-			appoint === "empty"
-				? profile === "random"
-					? getProImg( avatars[Math.floor( Math.random() * charNum )].id )
-					: `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ props.urlParams.qq }`
+			appoint === "empty" ? profile === "random" ? getProImg( avatars[Math.floor( Math.random() * charNum )].id )
+					// : `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ props.urlParams.qq }`
+					: "https://qqchannel-profile-1251316161.file.myqcloud.com/1653314730a4db5d093a350901" //测试使用频道头像
 				: getProImg( appoint );
 		
 		/* 计算世界等级 */

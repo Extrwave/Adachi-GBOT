@@ -22,6 +22,7 @@ import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import { unlinkSync } from "fs";
 import { IChannel, IGuild } from "qq-guild-bot";
+import Qiniuyun from "@modules/qiniuyun";
 
 
 export interface BOT {
@@ -30,6 +31,7 @@ export interface BOT {
 	readonly client: sdk.IOpenAPI;
 	readonly ws;
 	readonly logger: log.Logger;
+	readonly qiniuyun: Qiniuyun;
 	readonly interval: Interval;
 	readonly file: FileManagement;
 	readonly auth: Authorization;
@@ -54,18 +56,21 @@ export class Adachi {
 		if ( config.webConsole.enable ) {
 			new WebConsole( config );
 		}
+		/* 创建七牛云实例*/
+		const qiniuyun = new Qiniuyun( config );
 		/* 创建client实例*/
 		const client = sdk.createOpenAPI( {
 			appID: config.appID,
 			token: config.token,
-			sandbox: config.sandbox
+			sandbox: config.sandbox,
 		} );
-		// 创建 websocket 连接
 		const ws = sdk.createWebsocket( {
-			appID: config.appID,
-			token: config.token,
-			sandbox: config.sandbox
-		} );
+				appID: config.appID,
+				token: config.token,
+				sandbox: config.sandbox
+			}
+		);
+		// 创建 websocket 连接
 		process.on( "unhandledRejection", reason => {
 			logger.error( "消息错误：" + JSON.stringify( reason ) );
 		} );
@@ -81,7 +86,7 @@ export class Adachi {
 		this.bot = {
 			client, ws, file, redis,
 			logger, message, auth, command,
-			config, refresh, renderer, interval
+			config, refresh, renderer, interval, qiniuyun
 		};
 		
 		refresh.registerRefreshableFunc( renderer );
@@ -129,9 +134,13 @@ export class Adachi {
 		return this.bot;
 	}
 	
-	private static setEnv( file: FileManagement ): void {
+	private static
+	
+	setEnv( file: FileManagement ): void {
 		file.createDir( "config", "root" );
-		const exist: boolean = file.createYAML( "setting", BotConfig.initObject );
+		const exist
+			:
+			boolean = file.createYAML( "setting", BotConfig.initObject );
 		if ( exist ) {
 			return;
 		}
@@ -180,6 +189,8 @@ export class Adachi {
 		if ( this.bot.refresh.isRefreshing || !unionRegExp.test( content ) ) {
 			return;
 		}
+		
+		console.log( messageData.msg.author.id + ":" + messageData.msg.author.avatar )
 		
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
 		for ( let cmd of usable ) {
@@ -291,8 +302,7 @@ export class Adachi {
 	}
 	
 	/* 数据统计 与 超量使用监看 */
-	private hourlyCheck( that: Adachi ):
-		JobCallback {
+	private hourlyCheck( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return function (): void {
 			bot.redis.getHash( "adachi.hour-stat" ).then( async data => {

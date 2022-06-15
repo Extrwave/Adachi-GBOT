@@ -14,12 +14,12 @@ export async function main(
 		await sendMessage( reason );
 		return;
 	}
-	const res: RenderResult = await renderer.asCqCode(
+	const res: RenderResult = await renderer.asUrlImage(
 		"/artifact.html",
 		{ qq: userID, type: "init" }
 	);
 	if ( res.code === "ok" ) {
-		await sendMessage( res.data );
+		await sendMessage( { image: res.data } );
 	} else {
 		logger.error( res.error );
 		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
