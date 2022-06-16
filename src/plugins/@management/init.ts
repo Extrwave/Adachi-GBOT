@@ -15,17 +15,33 @@ const manager: SwitchConfig = {
 	main: "manager"
 };
 
-// const interval: OrderConfig = {
-//     type: "order",
-//     cmdKey: "adachi.interval",
-//     desc: [ "", "[uqq|g群号] [时间]" ],
-//     headers: [ "int" ],
-//     regexps: [ "[ugUG]\\d+", "\\d+" ],
-//     auth: AuthLevel.Manager,
-//     main: "interval",
-//     detail: "该命令用于设置群聊/私聊的指令操作触发间隔，时间的单位为毫秒\n" +
-//         "1秒=1000毫秒，不支持设置小数"
-// };
+const ban: SwitchConfig = {
+	type: "switch",
+	mode: "divided",
+	cmdKey: "adachi-ban",
+	desc: [ "封禁用户", "[@用户]" ],
+	header: "",
+	regexp: [ "<@!\\d+>" ],
+	onKey: "ban",
+	offKey: "unban",
+	auth: AuthLevel.Manager,
+	main: "ban",
+	detail: "封禁或者解禁某人对BOT的使用权"
+};
+
+const limit: SwitchConfig = {
+	type: "switch",
+	mode: "single",
+	cmdKey: "adachi-limit",
+	desc: [ "指令权限", "@用户 [key] #{OPT}" ],
+	header: "limit",
+	onKey: "on",
+	offKey: "off",
+	regexp: [ "<@!\\d+>", "[.-\\w]+", "#{OPT}" ],
+	auth: AuthLevel.Manager,
+	main: "limit",
+	detail: "封禁或者解禁某人对BOT的具体某一指令使用权"
+};
 
 const refresh: OrderConfig = {
 	type: "order",
@@ -52,22 +68,13 @@ const refresh: OrderConfig = {
 //         "在指令后追加 -f 来覆盖本地修改强制更新"
 // }
 
-// const restart: OrderConfig = {
-//     type: "order",
-//     cmdKey: "adachi.restart",
-//     desc: [ "重启bot", "" ],
-//     headers: [ "restart" ],
-//     regexps: [],
-//     auth: AuthLevel.Master,
-//     main: "restart",
-//     detail: "用于重启 bot，win 平台暂时无法使用"
-// }
+
 
 export async function init(): Promise<PluginSetting> {
-    return {
-        pluginName: "@management",
-        cfgList: [
-            manager, refresh
-        ]
-    }
+	return {
+		pluginName: "@management",
+		cfgList: [
+			manager, refresh, ban, limit
+		]
+	}
 }

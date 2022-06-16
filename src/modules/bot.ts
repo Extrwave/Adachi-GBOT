@@ -258,11 +258,6 @@ export class Adachi {
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
-			// const isBanned: boolean = await bot.redis.existListElement(
-			// 	"adachi.banned-group", channelID
-			// );
-			// if ( isBanned )
-			// 	return;
 			
 			const channelInfo = <sdk.IChannel>( await bot.client.channelApi.channel( channelID ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
