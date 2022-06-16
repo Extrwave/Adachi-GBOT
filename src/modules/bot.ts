@@ -182,8 +182,6 @@ export class Adachi {
 			return;
 		}
 		
-		console.log( messageData.msg.author.id + ":" + messageData.msg.author.avatar )
-		
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
 		for ( let cmd of usable ) {
 			const res: MatchResult = cmd.match( content );

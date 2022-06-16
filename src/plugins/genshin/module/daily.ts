@@ -213,13 +213,13 @@ export class DailyClass {
 		return new DailySet( privateSub );
 	}
 	
-	public async getUserSubscription( userID: string ): Promise<string> {
+	public async getUserSubscription( userID: string ): Promise<{ code: string, data: string }> {
 		const date: Date = new Date();
 		
 		let week: number = date.getDay();
 		week = date.getHours() < 4 ? week === 0 ? 6 : week - 1 : week;
 		if ( week === 0 ) {
-			return "周日所有材料都可以刷取哦~";
+			return { code: "ok", data: "周日所有材料都可以刷取哦~" };
 		}
 		
 		const data: DailySet | undefined = await this.getUserSubList( userID );
@@ -228,13 +228,13 @@ export class DailyClass {
 		await set.save( userID );
 		const res: RenderResult = await getRenderResult( userID );
 		if ( res.code === "ok" ) {
-			return res.data;
+			return res;
 		} else if ( res.code === "error" ) {
 			bot.logger.error( res.error );
-			return res.error;
+			return { code: "error", data: res.error }
 		} else {
 			bot.logger.error( res.err );
-			return "图片渲染异常，请联系持有者进行反馈";
+			return { code: "error", data: "图片渲染异常，请联系持有者进行反馈" };
 		}
 	}
 	

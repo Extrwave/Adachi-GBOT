@@ -13,6 +13,31 @@ import {
 } from 'qq-guild-bot';
 import { RestyResponse } from 'resty-client';
 
+
+/* 监听到消息的类型 */
+export interface Message {
+	eventType: 'DIRECT_MESSAGE_CREATE' | 'MESSAGE_CREATE',
+	eventId: string,
+	msg: {
+		author: {
+			avatar: string,
+			bot: boolean,
+			id: string,
+			username: string
+		},
+		channel_id: string,
+		content: string,
+		direct_message?: true,
+		guild_id: string,
+		id: string,
+		member?: {
+			joined_at: string
+		},
+		timestamp: string
+	}
+}
+
+
 export enum MessageScope {
 	Neither,
 	Group = 1 << 0,
@@ -127,27 +152,6 @@ export function isGroupMessage( data: Message ): boolean {
 	}
 }
 
-export interface Message {
-	eventType: 'DIRECT_MESSAGE_CREATE' | 'MESSAGE_CREATE',
-	eventId: string,
-	msg: {
-		author: {
-			avatar: string,
-			bot: boolean,
-			id: string,
-			username: string
-		},
-		channel_id: string,
-		content: string,
-		direct_message?: true,
-		guild_id: string,
-		id: string,
-		member?: {
-			joined_at: string
-		},
-		timestamp: string
-	}
-}
 
 
 

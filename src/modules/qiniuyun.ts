@@ -6,7 +6,7 @@ import Mac = auth.digest.Mac;
 import BotConfig from "@modules/config";
 
 /* 上传到七牛后保存的文件名,默认使用UUID随机化 */
-const key = "adachi/" + v4() + '.png';
+
 
 export default class Qiniuyun {
 	readonly cdnUrl: string;
@@ -37,7 +37,7 @@ export default class Qiniuyun {
 	
 	
 	public async upBase64Oss( base64: string ): Promise<{ code: string, data: string }> {
-		
+		const key = "adachi/" + v4() + '.png';
 		//生成上传 Token
 		const token = this.getUpToken( this.bucket, key );
 		const header = {
@@ -60,9 +60,10 @@ export default class Qiniuyun {
 			body: base64
 		} ) );
 		if ( result.key ) {
+			console.log( this.cdnUrl + result.key );
 			return { code: "ok", data: this.cdnUrl + result.key };
 		} else {
-			return { code: "error", data: "图片上传OSS失败" };
+			return { code: "error", data: "图片上传OSS失败 ：" + result.error };
 		}
 	}
 }

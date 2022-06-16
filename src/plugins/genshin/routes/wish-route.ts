@@ -5,12 +5,12 @@ import { typeData } from "#genshin/init";
 
 export default express.Router()
 	.get( "/result", async ( req, res ) => {
-		const userID: number = parseInt( <string>req.query.qq );
+		const userID: string = <string>req.query.qq;
 		const data = JSON.parse( <string>await bot.redis.getString( `silvery-star-wish-result-${ userID }` ) );
 		res.send( data );
 	} )
 	.get( "/statistic", async ( req, res ) => {
-		const userID: number = parseInt( <string>req.query.qq );
+		const userID: string = <string>req.query.qq;
 		const data = await bot.redis.getHash( `silvery-star-wish-statistic-${ userID }` );
 		res.send( deepParse( data ) );
 	} )

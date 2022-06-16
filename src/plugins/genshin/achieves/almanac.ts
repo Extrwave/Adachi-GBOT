@@ -11,7 +11,7 @@ export async function main(
 	const res: RenderResult = await renderer.asUrlImage( "/almanac.html" );
 	
 	if ( res.code === "ok" ) {
-		await sendMessage( res.data );
+		await sendMessage( { image: res.data } );
 	} else if ( res.code === "error" ) {
 		await sendMessage( res.error )
 	} else {
