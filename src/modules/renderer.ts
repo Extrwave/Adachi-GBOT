@@ -71,7 +71,7 @@ export class Renderer {
 	): Promise<RenderResult> {
 		try {
 			const url: string = this.getURL( route, params );
-			console.log( "URL:" + url );
+			// console.log( "URL:" + url );
 			const base64: string = await bot.renderer.screenshot( url, viewPort, selector );
 			const { code, data } = await bot.qiniuyun.upBase64Oss( base64 );
 			if ( code === "ok" )
@@ -193,7 +193,6 @@ export class BasicRenderer {
 			const element = await page.$( selector );
 			const result = <string>await element?.screenshot( option );
 			// const base64: string = `base64://${ result }`;
-			const base64: string = result;
 			await page.close();
 			
 			this.screenshotCount++;
@@ -201,7 +200,7 @@ export class BasicRenderer {
 				await bot.renderer.restartBrowser();
 			}
 			
-			return base64;
+			return result;
 		} catch ( err: any ) {
 			await page.close();
 			throw err;

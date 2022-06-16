@@ -60,7 +60,7 @@ export default class Qiniuyun {
 			body: base64
 		} ) );
 		if ( result.key ) {
-			console.log( this.cdnUrl + result.key );
+			// console.log( this.cdnUrl + result.key );
 			return { code: "ok", data: this.cdnUrl + result.key };
 		} else {
 			return { code: "error", data: "图片上传OSS失败 ：" + result.error };

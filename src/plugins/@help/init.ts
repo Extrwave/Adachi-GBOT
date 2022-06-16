@@ -4,7 +4,7 @@ import { OrderConfig } from "@modules/command";
 const help: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-help",
-	desc: [ "", "(-k)" ],
+	desc: [ "全指令", "(-k)" ],
 	headers: [ "help" ],
 	regexps: [ "(-k)?" ],
 	main: "achieves/help"

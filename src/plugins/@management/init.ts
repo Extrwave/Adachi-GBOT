@@ -6,7 +6,7 @@ const manager: SwitchConfig = {
 	type: "switch",
 	mode: "divided",
 	cmdKey: "adachi-manager",
-	desc: [ "", "[ID]" ],
+	desc: [ "设置/取消管理", "[ID]" ],
 	header: "",
 	regexp: [ "\\d+" ],
 	onKey: "manager",
@@ -14,38 +14,6 @@ const manager: SwitchConfig = {
 	auth: AuthLevel.Master,
 	main: "manager"
 };
-
-// const ban: SwitchConfig = {
-//     type: "switch",
-//     mode: "divided",
-//     cmdKey: "adachi.ban",
-//     desc: [ "", "[uqq|g群号]" ],
-//     header: "",
-//     regexp: [ "[ugUG]\\d+" ],
-//     onKey: "ban",
-//     offKey: "unban",
-//     auth: AuthLevel.Manager,
-//     main: "ban",
-//     detail: "qq和群号需使用标识符开头\n" +
-//         "qq的标识符为 u，群号为 g\n" +
-//         "例：u123456789 表示qq为 123456789 的用户"
-// };
-
-// const limit: SwitchConfig = {
-//     type: "switch",
-//     mode: "single",
-//     cmdKey: "adachi.limit",
-//     desc: [ "", "[uqq|g] [key] #{OPT}" ],
-//     header: "limit",
-//     onKey: "on",
-//     offKey: "off",
-//     regexp: [ "[ugUG]\\d+", "[.-\\w]+", "#{OPT}" ],
-//     auth: AuthLevel.Manager,
-//     main: "limit",
-//     detail: "qq和群号需使用标识符开头\n" +
-//         "qq的标识符为 u，群号为 g\n" +
-//         "例：g987654321 表示群号为 987654321 的群聊"
-// };
 
 // const interval: OrderConfig = {
 //     type: "order",

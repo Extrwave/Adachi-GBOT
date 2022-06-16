@@ -51,6 +51,12 @@ export enum MessageType {
 	Unknown
 }
 
+
+export interface SendMsgType {
+	code: "msg" | "image",
+	data: string
+}
+
 export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<void>;
 
 interface MsgManagementMethod {
