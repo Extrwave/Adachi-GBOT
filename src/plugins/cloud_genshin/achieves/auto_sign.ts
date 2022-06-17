@@ -1,6 +1,8 @@
 import bot from "ROOT";
 import { scheduleJob } from "node-schedule";
-import { getWalletURL, getAnnouncementURL, getNotificationURL, headers } from "../util/api";
+import { getWalletURL, getAnnouncementURL, getNotificationURL, HEADERS } from "../util/api";
+import { getHeaders } from "#cloud_genshin/util/header";
+import { getGidMemberIn } from "@modules/utils/account";
 
 
 //定时任务
@@ -12,14 +14,15 @@ export async function autoSign() {
 			let userId = key.split( '.' )[1];
 			const dbKey = "extr-wave-yys-sign." + userId;
 			bot.logger.info( `正在进行用户 ${ userId } 云原神签到` );
-			const guild = await bot.redis.getString( `adachi.guild-id` );
+			//此处私发逻辑已更改
+			const guild = await getGidMemberIn( userId );
+			if ( !guild ) {
+				bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userId );
+				return;
+			}
 			const sendMessage = await bot.message.getPrivateSendFunc( guild, userId );
 			//获取用户信息填充header
-			headers["x-rpc-combo_token"] = await bot.redis.getHashField( dbKey, "token" );
-			headers["x-rpc-device_name"] = await bot.redis.getHashField( dbKey, "device_name" );
-			headers["x-rpc-device_model"] = await bot.redis.getHashField( dbKey, "device_model" );
-			headers["x-rpc-device_id"] = await bot.redis.getHashField( dbKey, "device_id" );
-			
+			const headers: HEADERS = await getHeaders( userId );
 			const message = await getWalletURL( headers );
 			const data = JSON.parse( message );
 			if ( data.retcode === 0 && data.message === "OK" ) {

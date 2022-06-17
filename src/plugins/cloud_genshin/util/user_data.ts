@@ -1,6 +1,7 @@
 import bot from "ROOT"
-import { headers, getWalletURL } from "./api"
+import { getWalletURL } from "./api"
 import { InputParameter } from "@modules/command";
+import { getHeaders } from "#cloud_genshin/util/header";
 
 //redis保存用户信息
 export async function savaUserData( token: string, i: InputParameter ) {
@@ -15,11 +16,7 @@ export async function savaUserData( token: string, i: InputParameter ) {
 export async function checkToken( userId: string ) {
 	const dbKey = "extr-wave-yys-sign." + userId;
 	//获取用户信息填充header
-	headers["x-rpc-combo_token"] = await bot.redis.getHashField( dbKey, "token" );
-	headers["x-rpc-device_name"] = await bot.redis.getHashField( dbKey, "device_name" );
-	headers["x-rpc-device_model"] = await bot.redis.getHashField( dbKey, "device_model" );
-	headers["x-rpc-device_id"] = await bot.redis.getHashField( dbKey, "device_id" );
-	
+	const headers = await getHeaders( userId );
 	const message = await getWalletURL( headers );
 	const data = JSON.parse( message );
 	if ( data.retcode === 0 && data.message === "OK" ) {
@@ -28,7 +25,6 @@ export async function checkToken( userId: string ) {
 	return false;
 	
 }
-
 
 //获取固定设备名称（后面也许会添加其他？？？）
 function getDevice( type: string ) {

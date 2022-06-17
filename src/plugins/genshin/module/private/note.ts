@@ -5,6 +5,7 @@ import { Note, Expedition } from "#genshin/types";
 import { Private, Service, UserInfo } from "./main";
 import { scheduleJob, Job } from "node-schedule";
 import { dailyNotePromise } from "#genshin/utils/promise";
+import { getGidMemberIn } from "@modules/utils/account";
 
 interface PushEvent {
 	type: "resin" | "expedition";
@@ -198,8 +199,14 @@ export class NoteService implements Service {
 	
 	/* 因为sendMessage需要异步获取，无法写进构造器 */
 	public async sendMessage( data: string ) {
-		const guildID = await bot.redis.getString( `adachi.guild-id` );
-		const sendMessage = await bot.message.getPrivateSendFunc( guildID, this.parent.setting.userID );
+		const userID = this.parent.setting.userID;
+		//此处私发逻辑已更改
+		const guildID = await getGidMemberIn( userID );
+		if ( !guildID ) {
+			bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID )
+			return;
+		}
+		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
 		await sendMessage( data );
 	}
 }

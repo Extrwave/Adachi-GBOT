@@ -2,6 +2,7 @@ import bot from "ROOT";
 import { InputParameter } from "@modules/command";
 import { UserInfo } from "#genshin/module/private/main";
 import { privateClass } from "#genshin/init";
+import { getGidMemberIn } from "@modules/utils/account";
 
 async function removePrivate( userID: string ): Promise<string> {
 	const settings: UserInfo[] = privateClass.getUserInfoList( userID );
@@ -13,7 +14,12 @@ async function removePrivate( userID: string ): Promise<string> {
 }
 
 async function sendMessageToUser( userID: string ) {
-	const guildID = await bot.redis.getString( `adachi.guild-id` );
+	//此处私发逻辑已更改
+	const guildID = await getGidMemberIn( userID );
+	if ( !guildID ) {
+		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID )
+		return;
+	}
 	const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
 	await sendMessage( "你的私人服务已被管理员取消" );
 }

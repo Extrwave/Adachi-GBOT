@@ -4,6 +4,7 @@ import { RenderResult } from "@modules/renderer";
 import { characterInfoPromise, detailInfoPromise } from "../utils/promise";
 import { getRegion } from "../utils/region";
 import { config, renderer } from "#genshin/init";
+import { getMemberInfo } from "@modules/utils/account";
 
 interface UIDResult {
 	info: number | string;
@@ -51,9 +52,9 @@ export async function main(
 	const target: string = atID ? atID : userID;
 	
 	try {
-		const targetInfo = await client.guildApi.guildMember( await redis.getString( `adachi.guild-id` ), target );
-		const nickname: string = targetInfo.status === 200
-			? targetInfo.data.user.username : "";
+		//此处个人信息获取逻辑已更改
+		const targetInfo = await getMemberInfo( userID );
+		const nickname: string = targetInfo ? targetInfo.account.user.username : "";
 		await redis.setHash( `silvery-star.card-data-${ uid }`, {
 			nickname, uid, level: 0
 		} );

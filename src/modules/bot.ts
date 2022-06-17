@@ -22,6 +22,7 @@ import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import { unlinkSync } from "fs";
 import Qiniuyun from "@modules/qiniuyun";
+import { getMemberInfo } from "@modules/utils/account";
 
 
 export interface BOT {
@@ -72,7 +73,7 @@ export class Adachi {
 		);
 		/* 捕获未知且未被 catch 的错误 */
 		process.on( "unhandledRejection", reason => {
-			logger.error( "未知错误：" + JSON.stringify( reason ) );
+			logger.error( "SDK错误：" + JSON.stringify( reason ) );
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
@@ -106,20 +107,7 @@ export class Adachi {
 			} );
 			
 			this.bot.logger.info( "事件监听启动成功" );
-			/* 获取频道ID 暂时只支持 Master 所在频道主动推送 */
-			this.bot.client.meApi.meGuilds().then( async r => {
-				const guilds: sdk.IGuild[] = r.data;
-				if ( guilds.length <= 0 )
-					this.bot.logger.error( "获取频道信息失败..." );
-				await this.bot.redis.setString( `adachi.guild-number`, guilds.length );
-				for ( let guild of guilds ) {
-					if ( guild.owner_id === this.bot.config.master ) {
-						await this.bot.redis.setString( `adachi.guild-id`, guild.id ); //当前BOT主人所在频道
-						return;
-					}
-					this.bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
-				}
-			} );
+			this.getBotGuildInfo( this );
 		} );
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
@@ -203,9 +191,10 @@ export class Adachi {
 			
 			/* 数据统计与收集 */
 			const userID: string = messageData.msg.author.id;
-			const groupID: string = msg.isGroupMessage( messageData ) ? messageData.msg.channel_id : "-1";
-			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, groupID );
-			await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 );
+			const guildID: string = msg.isGroupMessage( messageData ) ? messageData.msg.guild_id : "-1";
+			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
+			await this.bot.redis.addSetMember( `adachi.guild-used`, guildID ); //存入有用户使用过的频道ID
+			await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
 			await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
 			return;
 		}
@@ -317,6 +306,26 @@ export class Adachi {
 				await bot.redis.setString( `adachi.command-stat-${ hourID }`, JSON.stringify( data ) );
 			} );
 		}
+	}
+	
+	/* 获取BOT所在频道基础信息 */
+	public getBotGuildInfo( that: Adachi ) {
+		const bot = that.bot;
+		bot.client.meApi.meGuilds().then( async r => {
+			const guilds: sdk.IGuild[] = r.data;
+			if ( guilds.length <= 0 ) {
+				bot.logger.error( "获取频道信息失败..." );
+			} else {
+				for ( let guild of guilds ) {
+					if ( guild.owner_id === this.bot.config.master ) {
+						await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
+						await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
+						return;
+					}
+					bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
+				}
+			}
+		} );
 	}
 	
 	private botOnline() {

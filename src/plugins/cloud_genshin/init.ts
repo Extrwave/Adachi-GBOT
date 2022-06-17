@@ -4,9 +4,9 @@ import { autoSign } from "./achieves/auto_sign";
 
 const msign_enable: OrderConfig = {
 	type: "order",
-	cmdKey: "extr-wave-plugins-yysign-enable",
+	cmdKey: "extr-wave-yysign-enable",
 	desc: [ "开启云原神签到", "" ],
-	headers: [ "yysenable" ],
+	headers: [ "onyys" ],
 	regexps: [ ".+" ],
 	main: "achieves/enable_sign",
 	detail: "参数为token，获取方式查看 https://blog.ethreal.cn"
@@ -14,9 +14,9 @@ const msign_enable: OrderConfig = {
 
 const msign_disable: OrderConfig = {
 	type: "order",
-	cmdKey: "extr-wave-plugins-yysign-disable",
+	cmdKey: "extr-wave-yysign-disable",
 	desc: [ "取消云原神签到", "" ],
-	headers: [ "yysdisable" ],
+	headers: [ "offyys" ],
 	regexps: [],
 	main: "achieves/disable_sign",
 	detail: ""

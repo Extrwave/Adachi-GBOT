@@ -3,6 +3,7 @@ import express from "express";
 import { AuthLevel } from "@modules/management/auth";
 import { PluginReSubs, SubInfo } from "@modules/plugin";
 import { BOT } from "@modules/bot";
+import { getGidMemberIn, getMemberInfo } from "@modules/utils/account";
 
 type UserInfo = {
 	userID: string;
@@ -127,47 +128,53 @@ export default express.Router()
 
 /* 获取用户信息 */
 async function getUserInfo( userID: string ): Promise<UserInfo> {
+	//此处获取用户信息逻辑已更改
+	const memberInfo = await getMemberInfo( userID );
+	if ( !memberInfo ) {
+		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID );
+		return {
+			userID: "error:" + userID,
+			avatar: "http://cdn.ethreal.cn/img/QAvatar-1654016391.jpg",
+			nickname: "真·获取失败",
+			botAuth: AuthLevel.Banned,
+			interval: 1500,
+			limits: [],
+			groupInfoList: [],
+			subInfo: []
+		}
+	}
 	
-	const guildID = await bot.redis.getString( `adachi.guild-id` );
-	const publicInfo = await bot.client.guildApi.guildMember( guildID, userID );
 	const groupInfoList: Array<MemberBaseInfo | string> = [];
-	
-	// const response = await bot.client.guildApi.guildMembers(guildID);
-	
 	const botAuth: AuthLevel = await bot.auth.get( userID );
 	const interval: number = bot.interval.get( userID, "-1" );
 	const limits: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
 	
-	let nickname: string = ""
-	let avatar: string = "";
+	//获取用户使用过的子频道ID
+	const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
 	
-	if ( publicInfo.status === 200 ) {
-		//获取用户使用过的子频道ID
-		const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
-		
-		nickname = publicInfo.data.nick;
-		avatar = publicInfo.data.user.avatar;
-		
-		for ( let el of usedGroups ) {
-			const groupID: string = el;
-			if ( groupID === "-1" ) {
-				groupInfoList.push( "私聊方式使用" );
-				continue;
-			}
-			groupInfoList.push( {
-				user_id: publicInfo.data.user.id,
-				nickname: publicInfo.data.nick,
-				card: "",
-				sex: "female",
-				age: 18,
-				area: "",
-				level: 10,
-				role: "member",
-				title: "用户"
-			} );
-			
+	const nickname = memberInfo.account.user.username;
+	const avatar = memberInfo.account.user.avatar;
+	
+	for ( let el of usedGroups ) {
+		const groupID: string = el;
+		if ( groupID === "-1" ) {
+			groupInfoList.push( "私聊方式使用" );
+			continue;
 		}
+		groupInfoList.push( {
+			user_id: memberInfo.account.user.id,
+			nickname: memberInfo.account.nick,
+			card: "",
+			sex: "female",
+			age: 18,
+			area: "",
+			level: 10,
+			role: "member",
+			title: "用户"
+		} );
+		
 	}
+	
 	return {
 		userID,
 		avatar,
