@@ -1,5 +1,6 @@
 import express from "express";
 import bot from "ROOT";
+import { getMemberAvatar } from "@modules/utils/account";
 
 async function loadMysData( userID: string ): Promise<any> {
 	const uid: string = await bot.redis.getString( `silvery-star.user-querying-id-${ userID }` );
@@ -9,7 +10,7 @@ async function loadMysData( userID: string ): Promise<any> {
 	data.explorations = JSON.parse( data.explorations );
 	data.avatars = JSON.parse( data.avatars );
 	data.allHomes = data.allHomes ? JSON.parse( data.allHomes ) : [];
-	
+	data.userAvatar = await getMemberAvatar( userID );
 	return data;
 }
 

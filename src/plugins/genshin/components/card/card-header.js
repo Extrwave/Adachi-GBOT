@@ -50,12 +50,12 @@ export default defineComponent( {
 		const level = props.data.level;
 		const charNum = avatars.length;
 		
+		const userAvatar = props.data.userAvatar ? props.data.userAvatar : `https://docs.adachi.top/images/adachi.png`;
 		/* 获取头像 */
 		const getProImg = ( id ) => `https://adachi-bot.oss-cn-beijing.aliyuncs.com/characters/profile/${ id }.png`;
 		const defaultAvatar =
 			appoint === "empty" ? profile === "random" ? getProImg( avatars[Math.floor( Math.random() * charNum )].id )
-					// : `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ props.urlParams.qq }`
-					: "http://cdn.ethreal.cn/img/QAvatar-1654016391.jpg" //测试使用频道头像
+					: userAvatar
 				: getProImg( appoint );
 		
 		/* 计算世界等级 */

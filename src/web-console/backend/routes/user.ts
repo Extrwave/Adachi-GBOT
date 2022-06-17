@@ -134,7 +134,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID );
 		return {
 			userID: "error:" + userID,
-			avatar: "http://cdn.ethreal.cn/img/QAvatar-1654016391.jpg",
+			avatar: "https://docs.adachi.top/images/adachi.png",
 			nickname: "真·获取失败",
 			botAuth: AuthLevel.Banned,
 			interval: 1500,
