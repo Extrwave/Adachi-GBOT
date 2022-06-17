@@ -1,6 +1,6 @@
 const template = `<div class="user-page">
     <div class="nav-btn-box">
-      	<el-input v-model="listQuery.userId" placeholder="请输入昵称（待实现）" @clear="getUserData" @keyup.enter="getUserData" :disabled="tableLoading" clearable />
+      	<el-input v-model="listQuery.userId" placeholder="请输入ID（待实现）" @clear="getUserData" @keyup.enter="getUserData" :disabled="tableLoading" clearable />
       	<el-select v-model="listQuery.sub" class="m-2" placeholder="请选择是否存在订阅" @change="getUserData" @clear="getUserData" :disabled="tableLoading" clearable>
       		<el-option label="已订阅" value="1" />
       		<el-option label="未订阅" value="2" />
