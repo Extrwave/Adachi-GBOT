@@ -9,7 +9,7 @@ export async function main(
 	
 	const nameList: string[] = typeData.getNameList();
 	if ( !nameList.some( el => el === name ) ) {
-		await sendMessage( `不存在名称为「${ name }」的角色或武器，若确认名称输入无误，请前往 github.com/SilveryStar/Adachi-BOT 进行反馈` );
+		await sendMessage( `不存在名称为「${ name }」的角色或武器，若确认名称输入无误，请前往 SilveryStar/Adachi-BOT 进行反馈` );
 		return;
 	}
 	

@@ -1,4 +1,5 @@
 import { InputParameter, SwitchMatchResult } from "@modules/command";
+import idParser from "#@help/utils/id-parser";
 
 export async function main( {
 	                            sendMessage,
@@ -9,13 +10,11 @@ export async function main( {
 	const states: string = match.isOn() ? "开启" : "关闭";
 	
 	const [ id, key ] = match.match;
-	const result = id.match( /<@!(.*)>/ );
-	let targetID;
-	if ( result === null ) {
-		logger.error( "用户匹配出错." );
-		await sendMessage( "用户匹配出错." );
+	const { code, targetID } = idParser( id );
+	if ( code === "error" ) {
+		logger.error( targetID );
+		await sendMessage( targetID );
 	} else {
-		targetID = result[1];
 		let dbKey: string, reply: string;
 		dbKey = `adachi.user-command-limit-${ targetID }`;
 		reply = `用户 ${ targetID } 的 ${ key } 权限已${ states }`;

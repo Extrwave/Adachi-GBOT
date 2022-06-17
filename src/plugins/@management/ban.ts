@@ -1,18 +1,16 @@
 import { AuthLevel } from "@modules/management/auth";
 import { InputParameter, SwitchMatchResult } from "@modules/command";
+import idParser from "#@help/utils/id-parser";
 
 export async function main(
 	{ sendMessage, messageData, matchResult, redis, auth, logger }: InputParameter
 ): Promise<void> {
 	const match = <SwitchMatchResult>matchResult;
-	const atUser: string = match.match[0]; //匹配到的@用户信息
-	const result = atUser.match( /<@!(.*)>/ );
-	let targetID;
-	if ( result === null ) {
-		logger.error( "用户匹配出错." );
-		await sendMessage( "用户匹配出错." );
+	const { code, targetID } = idParser( match.match[0] );
+	if ( code === "error" ) {
+		logger.error( targetID );
+		await sendMessage( targetID );
 	} else {
-		targetID = result[1];
 		const targetAuth: AuthLevel = await auth.get( targetID );
 		const mineAuth: AuthLevel = await auth.get( messageData.msg.author.id );
 		/* 封禁 */

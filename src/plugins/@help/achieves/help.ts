@@ -1,9 +1,8 @@
-import Sendable from "@modules/message";
 import { InputParameter, Order } from "@modules/command";
 import Command from "@modules/command/main";
 import FileManagement from "@modules/file";
 import { filterUserUsableCommand } from "../utils/filter";
-import { Ark, Embed } from "qq-guild-bot";
+import { Embed } from "qq-guild-bot";
 
 
 function getVersion( file: FileManagement ): string {

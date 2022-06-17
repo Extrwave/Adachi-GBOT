@@ -29,7 +29,7 @@ function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM: Order
 	
 	return `『${ userID }』你好 \n` + "请务必确保 BOT 持有者可信\n" +
 		`确定开启该功能，使用指令 「${ CONFIRM.getHeaders()[0] } cookie」来继续\n` +
-		"在频道公告查看获取 cookie 的方法\n" +
+		"获取cookie的方法：频道公告\n" +
 		"请在 3 分钟内进行，超时会自动取消本次申请";
 }
 

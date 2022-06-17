@@ -1,4 +1,4 @@
-import request from "#genshin/utils/requests";
+import request from "@modules/requests";
 
 const NotificationURL = 'https://api-cloudgame.mihoyo.com/hk4e_cg_cn/gamer/api/listNotifications?status=NotificationStatusUnread&type=NotificationTypePopup&is_sort=true';
 const WalletURL = 'https://api-cloudgame.mihoyo.com/hk4e_cg_cn/wallet/wallet/get';
@@ -19,7 +19,7 @@ export interface HEADERS {
 	'Connection': string,
 	'Accept-Encoding': string,
 	'User-Agent': string
-};
+}
 
 export const headers: HEADERS = {
 	'x-rpc-combo_token': "",

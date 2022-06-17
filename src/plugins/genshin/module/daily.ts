@@ -273,7 +273,7 @@ export class DailyClass {
 			
 			return `订阅${ operation ? "添加" : "取消" }成功`;
 		} else if ( result.info === "" ) {
-			return `未找到名为「${ name }」的角色或武器，若确认名称输入无误，请前往 github.com/SilveryStar/Adachi-BOT 进行反馈`;
+			return `未找到名为「${ name }」的角色或武器，若确认名称输入无误，请前往 SilveryStar/Adachi-BOT 进行反馈`;
 		} else {
 			return `未找到相关信息，是否要找：${ [ "", ...<string[]>result.info ].join( "\n  - " ) }`;
 		}

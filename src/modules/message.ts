@@ -5,14 +5,10 @@
 
 import BotConfig from "@modules/config";
 import {
-	Ark, Embed,
 	IDirectMessage,
-	IMessage,
-	IOpenAPI, MessageReference,
+	IOpenAPI,
 	MessageToCreate
 } from 'qq-guild-bot';
-import { RestyResponse } from 'resty-client';
-
 
 /* 监听到消息的类型 */
 export interface Message {
@@ -60,11 +56,12 @@ export interface SendMsgType {
 export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<void>;
 
 interface MsgManagementMethod {
-	getPrivateSender( guildID: string, userID: string ): Promise<RestyResponse<IDirectMessage>>;
+	getPrivateSender( guildID: string, userID: string ): Promise<IDirectMessage>;
 	
 	sendPrivateMessage( guildId: string, msg_id: string ): SendFunc;
 	
 	sendGuildMessage( channelID: string, msg_id: string ): SendFunc;
+	
 }
 
 export default class MsgManager implements MsgManagementMethod {
@@ -78,28 +75,30 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	/*构建私聊会话*/
-	async getPrivateSender( guildID: string, userID: string ): Promise<RestyResponse<IDirectMessage>> {
-		return await this.client.directMessageApi.createDirectMessage( {
+	async getPrivateSender( guildID: string, userID: string ): Promise<IDirectMessage> {
+		const response = await this.client.directMessageApi.createDirectMessage( {
 			source_guild_id: guildID,
 			recipient_id: userID
 		} );
+		
+		return {
+			guild_id: response.data.guild_id,
+			channel_id: response.data.channel_id,
+			create_time: response.data.create_time
+		};
 	}
 	
 	/*获取私信发送方法*/
-	public getPrivateSendFunc( guildId: string, userId: string ): SendFunc {
+	public async getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc> {
 		const client = this.client;
-		let pGuildID = "", pChannelID = "";
-		this.getPrivateSender( guildId, userId ).then( value => {
-			pGuildID = value.data.guild_id;
-			pChannelID = value.data.channel_id;
-		} );
+		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
 		return async function ( content: MessageToCreate | string ) {
 			if ( typeof content === 'string' ) {
-				await client.directMessageApi.postDirectMessage( guildId, {
+				await client.directMessageApi.postDirectMessage( guild_id, {
 					content: content,
 				} );
 			} else {
-				await client.directMessageApi.postDirectMessage( guildId, content );
+				await client.directMessageApi.postDirectMessage( guild_id, content );
 			}
 		}
 	}
@@ -135,7 +134,6 @@ export default class MsgManager implements MsgManagementMethod {
 			}
 		}
 	}
-	
 }
 
 export function removeStringPrefix( string: string, prefix: string ): string {

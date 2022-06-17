@@ -34,7 +34,7 @@ export class NoteService implements Service {
 			? true : options.enable;
 		
 		this.feedbackCatch = async () => {
-			await this.parent.sendMessage( <string>this.globalData );
+			await this.sendMessage( <string>this.globalData );
 		};
 		
 		if ( this.enable ) {
@@ -75,7 +75,7 @@ export class NoteService implements Service {
 			this.scheduleJobOff();
 			this.clearEvents();
 		}
-		message && await this.parent.sendMessage( `树脂及冒险探索定时提醒功能已${ this.enable ? "开启" : "关闭" }` );
+		message && await this.sendMessage( `树脂及冒险探索定时提醒功能已${ this.enable ? "开启" : "关闭" }` );
 		/* 回传进行数据库更新 */
 		await this.parent.refreshDBContent( NoteService.FixedField );
 	}
@@ -156,7 +156,8 @@ export class NoteService implements Service {
 			const time = new Date( now + remaining * 1000 );
 			
 			const job: Job = scheduleJob( time, async () => {
-				await this.parent.sendMessage( `[UID${ this.parent.setting.uid }] - 树脂量已经到达 ${ t } 了哦~` );
+				
+				await this.sendMessage( `[UID${ this.parent.setting.uid }] - 树脂量已经到达 ${ t } 了哦~` );
 			} );
 			this.events.push( { type: "resin", job } );
 		}
@@ -186,10 +187,19 @@ export class NoteService implements Service {
 		
 		for ( let c of compressed ) {
 			const time = new Date( now + parseInt( c.remainedTime ) * 1000 );
+			
+			
 			const job: Job = scheduleJob( time, async () => {
-				await this.parent.sendMessage( `[UID${ this.parent.setting.uid }] - 已有 ${ c.num } 个探索派遣任务完成` );
+				await this.sendMessage( `[UID${ this.parent.setting.uid }] - 已有 ${ c.num } 个探索派遣任务完成` );
 			} );
 			this.events.push( { type: "expedition", job } );
 		}
+	}
+	
+	/* 因为sendMessage需要异步获取，无法写进构造器 */
+	public async sendMessage( data: string ) {
+		const guildID = await bot.redis.getString( `adachi.guild-id` );
+		const sendMessage = await bot.message.getPrivateSendFunc( guildID, this.parent.setting.userID );
+		await sendMessage( data );
 	}
 }

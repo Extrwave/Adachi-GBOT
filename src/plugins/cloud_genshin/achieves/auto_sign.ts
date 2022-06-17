@@ -1,9 +1,6 @@
 import bot from "ROOT";
 import { scheduleJob } from "node-schedule";
 import { getWalletURL, getAnnouncementURL, getNotificationURL, headers } from "../util/api";
-import { MessageType } from "@modules/message";
-import user from "@web-console/backend/routes/user";
-import { serialize } from "v8";
 
 
 //定时任务

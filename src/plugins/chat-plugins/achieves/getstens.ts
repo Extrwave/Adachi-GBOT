@@ -1,4 +1,4 @@
-import request from "#genshin/utils/requests";
+import request from "@modules/requests";
 
 const HEADERS = {
 	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46",

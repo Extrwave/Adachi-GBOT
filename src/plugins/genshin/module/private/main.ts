@@ -1,5 +1,4 @@
 import bot from "ROOT";
-import { MessageType, SendFunc } from "@modules/message";
 import { AuthLevel } from "@modules/management/auth";
 import { Order } from "@modules/command";
 import { NoteService } from "./note";
@@ -66,7 +65,6 @@ const dbPrefix: string = "silvery-star.private-";
 export class Private {
 	public readonly setting: UserInfo;
 	public readonly services: Services;
-	public readonly sendMessage: SendFunc;
 	public readonly dbKey: string;
 	
 	public id: number;
@@ -92,11 +90,6 @@ export class Private {
 	) {
 		this.options = options || {};
 		this.setting = new UserInfo( uid, cookie, userID, mysID );
-		let guildID = "";
-		bot.redis.getString( `adachi.guild-id` ).then( ( value ) => {
-			guildID = value;
-		} );
-		this.sendMessage = bot.message.getPrivateSendFunc( guildID, userID );
 		
 		const md5: string = Md5.init( `${ userID }-${ uid }` );
 		this.id = id;

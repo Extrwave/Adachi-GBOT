@@ -36,7 +36,7 @@ export async function main(
 			m = parseInt( data[2] );
 		}
 		if ( monthCheck( m ) ) {
-			sendMessage( `无法查询 ${ m } 月的札记数据` );
+			await sendMessage( `无法查询 ${ m } 月的札记数据` );
 			return;
 		} else {
 			month = m;

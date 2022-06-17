@@ -51,7 +51,7 @@ export class SignInService implements Service {
 		} else {
 			this.cancelScheduleJob();
 		}
-		message && await this.parent.sendMessage( `米游社签到功能已${ this.enable ? "开启" : "关闭" }` );
+		message && await this.sendMessage( `米游社签到功能已${ this.enable ? "开启" : "关闭" }` );
 		/* 回传进行数据库更新 */
 		await this.parent.refreshDBContent( SignInService.FixedField );
 	}
@@ -62,17 +62,17 @@ export class SignInService implements Service {
 		try {
 			const info = <SignInInfo>( await signInInfoPromise( uid, server, cookie ) );
 			if ( info.isSign ) {
-				reply ? await this.parent.sendMessage( "您今天已在米游社签到" ) : "";
+				reply ? await this.sendMessage( "您今天已在米游社签到" ) : "";
 				return;
 			}
 			await signInResultPromise( uid, server, cookie );
-			await this.parent.sendMessage(
+			await this.sendMessage(
 				`[UID${ uid }] - 今日已签到
 			本月累计签到 ${ info.totalSignDay + 1 } 天
 			明天会自动签到哦`
 			);
 		} catch ( error ) {
-			await this.parent.sendMessage( <string>error );
+			await this.sendMessage( <string>error );
 		}
 	}
 	
@@ -92,5 +92,12 @@ export class SignInService implements Service {
 		if ( this.job !== undefined ) {
 			this.job.cancel();
 		}
+	}
+	
+	/* 因为sendMessage需要异步获取，无法写进构造器 */
+	public async sendMessage( data: string ) {
+		const guildID = await bot.redis.getString( `adachi.guild-id` );
+		const sendMessage = await bot.message.getPrivateSendFunc( guildID, this.parent.setting.userID );
+		await sendMessage( data );
 	}
 }

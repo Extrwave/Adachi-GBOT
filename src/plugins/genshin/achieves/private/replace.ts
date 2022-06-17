@@ -36,6 +36,6 @@ export async function main(
 		return;
 	}
 	
-	account.replaceCookie( newCookie );
+	await account.replaceCookie( newCookie );
 	await sendMessage( `cookie 更新成功` );
 }
