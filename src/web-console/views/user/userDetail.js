@@ -145,9 +145,10 @@ export default defineComponent( {
 		
 		function role( str ) {
 			const map = {
-				owner: "频道主",
-				admin: "管理员",
-				member: "成员"
+				4: "频道主",
+				2: "管理员",
+				1: "成员",
+				5: "子管理员"
 			};
 			return map[str];
 		}
@@ -157,7 +158,7 @@ export default defineComponent( {
 			if ( typeof el === "string" ) {
 				return el;
 			}
-			return `频道 ${ el.group_id } - [${ role( el.role ) }]${ el.card || el.nickname }`;
+			return `频道 ${ el.guild_name } - [${ role( el.role ) }] - ${ el.nickname || el.username }`;
 		}
 		
 		/* 根据切换到的 key 更改按钮状态 */

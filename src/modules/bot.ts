@@ -98,13 +98,19 @@ export class Adachi {
 			this.bot.command.add( commands );
 			//是否登陆成功
 			this.botOnline();
-			/* 事件监听 */
+			/* 事件监听 ,请根据机器人类型选择能够监听的事件 */
+			// 消息事件，仅 *私域* 机器人能够设置此 intents。
 			this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
 				this.parseGroupMsg( this )( data );
 			} );
+			//消息事件，仅 *公域* 机器人能够设置此 intents
+			// this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data ) => {
+			// 	this.parseGroupMsg( this )( data );
+			// } );
 			this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
 				this.parsePrivateMsg( this )( data );
 			} );
+			
 			
 			this.bot.logger.info( "事件监听启动成功" );
 			this.getBotGuildInfo( this );

@@ -3,7 +3,7 @@ import express from "express";
 import { AuthLevel } from "@modules/management/auth";
 import { PluginReSubs, SubInfo } from "@modules/plugin";
 import { BOT } from "@modules/bot";
-import { getGidMemberIn, getMemberInfo } from "@modules/utils/account";
+import { getGidMemberIn, getGuildBaseInfo, getMemberInfo, getMemberInfoInGuild } from "@modules/utils/account";
 
 type UserInfo = {
 	userID: string;
@@ -12,23 +12,24 @@ type UserInfo = {
 	botAuth: AuthLevel;
 	interval: number;
 	limits: string[];
-	groupInfoList: ( string | MemberBaseInfo )[];
+	groupInfoList: ( string | MemberInGuildInfo )[];
 	subInfo?: string[]
 }
 
-export type GroupRole = "owner" | "admin" | "member";
-export type Gender = "male" | "female" | "unknown";
-
-export interface MemberBaseInfo {
+/**
+ * Role 字段
+ * 4 频道主
+ * 2 管理员
+ * 5 子管理员
+ * 1 成员
+ */
+export interface MemberInGuildInfo {
 	readonly user_id: string,
-	readonly nickname: string,
-	readonly card: string, //群名片
-	readonly sex: Gender,
-	readonly age: number,
-	readonly area: string,
-	readonly level: number, //等级
-	readonly role: GroupRole, //权限
-	readonly title: string, //头衔
+	readonly guild_id: string,
+	readonly guild_name: string,
+	readonly username: string, //用户昵称
+	readonly nickname: string, //频道中的昵称
+	readonly role: string, //身份权限
 }
 
 export default express.Router()
@@ -133,9 +134,9 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	if ( !memberInfo ) {
 		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID );
 		return {
-			userID: "error:" + userID,
+			userID: "N: " + userID,
 			avatar: "https://docs.adachi.top/images/adachi.png",
-			nickname: "真·获取失败",
+			nickname: "用户已退出",
 			botAuth: AuthLevel.Banned,
 			interval: 1500,
 			limits: [],
@@ -144,7 +145,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 		}
 	}
 	
-	const groupInfoList: Array<MemberBaseInfo | string> = [];
+	const groupInfoList: Array<MemberInGuildInfo | string> = [];
 	const botAuth: AuthLevel = await bot.auth.get( userID );
 	const interval: number = bot.interval.get( userID, "-1" );
 	const limits: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
@@ -152,8 +153,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	//获取用户使用过的子频道ID
 	const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
 	
-	const nickname = memberInfo.account.user.username;
-	const avatar = memberInfo.account.user.avatar;
+	let nickname: string = "", avatar: string = "";
 	
 	for ( let el of usedGroups ) {
 		const groupID: string = el;
@@ -161,18 +161,20 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 			groupInfoList.push( "私聊方式使用" );
 			continue;
 		}
+		const guildMemberInfo = await getMemberInfoInGuild( userID, el );
+		const guildBaseInfo = await getGuildBaseInfo( el );
+		const mInfo = guildMemberInfo ? guildMemberInfo : memberInfo; //获取失败使用上一次成功的数据
+		const gName = guildBaseInfo ? guildBaseInfo.name : "Unknown";
+		nickname = mInfo.account.user.username;
+		avatar = mInfo.account.user.avatar;
 		groupInfoList.push( {
-			user_id: memberInfo.account.user.id,
-			nickname: memberInfo.account.nick,
-			card: "",
-			sex: "female",
-			age: 18,
-			area: "",
-			level: 10,
-			role: "member",
-			title: "用户"
+			user_id: mInfo.account.user.id,
+			guild_id: el,
+			guild_name: gName,
+			username: mInfo.account.user.username,
+			nickname: mInfo.account.nick,
+			role: mInfo.account.roles[0],
 		} );
-		
 	}
 	
 	return {
