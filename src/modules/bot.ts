@@ -126,7 +126,7 @@ export class Adachi {
 			} )
 			
 			this.bot.logger.info( "事件监听启动成功" );
-			this.getBotGuildInfo( this );
+			this.getBotBaseInfo( this );
 		} );
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
@@ -181,14 +181,39 @@ export class Adachi {
 		cmdSet: BasicConfig[],
 		limits: string[],
 		unionRegExp: RegExp,
-		isPrivate: boolean
+		isPrivate: boolean,
+		isAt: boolean
 	): Promise<void> {
-		const content: string = messageData.msg.content;
 		
-		if ( this.bot.refresh.isRefreshing || !unionRegExp.test( content ) ) {
+		/* 用户数据统计与收集 */
+		const userID: string = messageData.msg.author.id;
+		const guildID: string = isPrivate ? messageData.msg.guild_id : "-1"; // -1 代表私聊使用
+		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
+		
+		/* bot正在重载指令配置 */
+		if ( this.bot.refresh.isRefreshing ) {
+			await sendMessage( "BOT重载配置中，请稍后..." );
 			return;
 		}
 		
+		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
+		const content: string = messageData.msg.content;
+		if ( !unionRegExp.test( content ) && isAt ) {
+			const autoReply: BasicConfig | undefined = cmdSet.find( el => el.cmdKey === "ethreal-plugins-echo" ); //获取自动回复插件作为默认返回
+			if ( autoReply ) {
+				autoReply.run( {
+					sendMessage, ...this.bot,
+					messageData, matchResult: { type: "order", header: "/echo" }
+				} );
+				return;
+			} else {
+				//自动回复插件加载出现问题
+				await sendMessage( "嘿嘿，才不是我出问题了呢..( BUG了" );
+				return;
+			}
+		}
+		
+		/* 获取匹配指令对应的处理方法 */
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
 		for ( let cmd of usable ) {
 			const res: MatchResult = cmd.match( content );
@@ -208,15 +233,13 @@ export class Adachi {
 				messageData, matchResult: res
 			} );
 			
-			/* 数据统计与收集 */
-			const userID: string = messageData.msg.author.id;
-			const guildID: string = msg.isGroupMessage( messageData ) ? messageData.msg.guild_id : "-1";
-			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
-			await this.bot.redis.addSetMember( `adachi.guild-used`, guildID ); //存入有用户使用过的频道ID
+			/* 指令数据统计与收集 */
 			await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
 			await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
 			return;
 		}
+		
+		
 	}
 	
 	/* 清除缓存图片 */
@@ -250,7 +273,7 @@ export class Adachi {
 			);
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Private );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Private );
-			await that.execute( messageData, sendMessage, cmdSet, limit, unionReg, true );
+			await that.execute( messageData, sendMessage, cmdSet, limit, unionReg, true, true );
 			bot.logger.info( `[Author: ${ authorName }][UserID: ${ userID }]: ${ content }` );
 		}
 	}
@@ -259,7 +282,7 @@ export class Adachi {
 	private parseGroupMsg( that: Adachi ) {
 		const bot = that.bot;
 		return async function ( messageData: Message ) {
-			that.checkAtBOT( messageData );
+			const isAt = await that.checkAtBOT( messageData );
 			const authorName = messageData.msg.author.username;
 			const channelID = messageData.msg.channel_id;
 			const userID = messageData.msg.author.id;
@@ -274,14 +297,20 @@ export class Adachi {
 				channelID, msgID );
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Group );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );
-			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false );
+			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false, isAt );
 			bot.logger.info( `[Author: ${ authorName }][Channel: ${ channelInfo.name }]: ${ content }` );
 		}
 	}
 	
-	/*去掉消息中的@信息*/
-	private checkAtBOT( msg: Message ): boolean {
-		const atBOTReg: RegExp = new RegExp( `<@!\\d+>` );
+	/*去掉消息中的@自己信息*/
+	private async checkAtBOT( msg: Message ): Promise<boolean> {
+		const botID = await this.bot.redis.getString( `adachi.user-bot-id` );
+		let atBOTReg: RegExp;
+		if ( botID ) { //如果自身信息获取失败，默认去除第一个@信息
+			atBOTReg = new RegExp( `<@!${botID}>` );
+		} else {
+			atBOTReg = new RegExp( `<@!\\d+>` );
+		}
 		const content: string = msg.msg.content;
 		
 		if ( atBOTReg.test( content ) ) {
@@ -357,8 +386,15 @@ export class Adachi {
 	
 	
 	/* 获取BOT所在频道基础信息 */
-	private getBotGuildInfo( that: Adachi ) {
+	private getBotBaseInfo( that: Adachi ) {
 		const bot = that.bot;
+		bot.client.meApi.me().then( async res => {
+			if ( !res.data.id ) {
+				bot.logger.error( "获取BOT自身信息失败..." );
+				return;
+			}
+			await this.bot.redis.setString( `adachi.user-bot-id`, res.data.id );
+		} );
 		bot.client.meApi.meGuilds().then( async r => {
 			const guilds: sdk.IGuild[] = r.data;
 			if ( guilds.length <= 0 ) {
@@ -366,8 +402,8 @@ export class Adachi {
 			} else {
 				let ack: boolean = false;
 				for ( let guild of guilds ) {
+					await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
 					if ( guild.owner_id === this.bot.config.master ) {
-						await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
 						await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
 						ack = true;
 						return;
