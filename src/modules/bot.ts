@@ -9,7 +9,7 @@ import BotConfig from "./config";
 import Database from "./database";
 import Interval from "./management/interval";
 import FileManagement from "./file";
-import Plugin from "./plugin";
+import Plugin, { PluginReSubs } from "./plugin";
 import WebConfiguration from "./logger";
 import WebConsole from "@web-console/backend";
 import RefreshConfig from "./management/refresh";
@@ -101,15 +101,22 @@ export class Adachi {
 			/* 事件监听 ,请根据机器人类型选择能够监听的事件 */
 			// 消息事件，仅 *私域* 机器人能够设置此 intents。
 			this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
-				this.parseGroupMsg( this )( data );
+				if ( data.eventType === 'MESSAGE_CREATE' )
+					this.parseGroupMsg( this )( data );
 			} );
 			//消息事件，仅 *公域* 机器人能够设置此 intents
 			// this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data ) => {
 			// 	this.parseGroupMsg( this )( data );
 			// } );
 			this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
-				this.parsePrivateMsg( this )( data );
+				if ( data.eventType === 'DIRECT_MESSAGE_CREATE' )
+					this.parsePrivateMsg( this )( data );
 			} );
+			
+			this.bot.ws.on( "GUILD_MEMBERS", ( data ) => {
+				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
+					this.membersDecrease( this )( data );
+			} )
 			
 			
 			this.bot.logger.info( "事件监听启动成功" );
@@ -337,6 +344,25 @@ export class Adachi {
 	private botOnline() {
 		if ( this.bot.ws.alive ) {
 			this.bot.logger.info( "BOT启动成功" );
+		}
+	}
+	
+	/* 用户退出频道事件 */
+	private membersDecrease( that: Adachi ) {
+		const bot = that.bot
+		return async function ( messageData: Message ) {
+			const userId = messageData.msg.author.id;
+			const dbKey = `adachi.user-used-groups-${ userId }`;
+			//首先清除所有订阅服务
+			for ( const plugin in PluginReSubs ) {
+				try {
+					await PluginReSubs[plugin].reSub( userId, bot );
+				} catch ( error ) {
+					bot.logger.error( `插件${ plugin }取消订阅事件执行异常：${ <string>error }` )
+				}
+			}
+			//清除使用记录
+			await bot.redis.deleteKey( dbKey );
 		}
 	}
 }

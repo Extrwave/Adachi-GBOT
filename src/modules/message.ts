@@ -12,7 +12,7 @@ import {
 
 /* 监听到消息的类型 */
 export interface Message {
-	eventType: 'DIRECT_MESSAGE_CREATE' | 'MESSAGE_CREATE',
+	eventType: string,
 	eventId: string,
 	msg: {
 		author: {
