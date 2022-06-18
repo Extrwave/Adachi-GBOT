@@ -66,6 +66,7 @@ export default express.Router()
 				userData = userData.filter( ( userKey: string ) => !Object.keys( userSubData ).includes( userKey ) );
 			}
 			
+			/* 一次获取10个用户的个人信息 */
 			const filterUserKeys = userData.slice( ( page - 1 ) * length, page * length );
 			
 			let userInfos: UserInfo[] = []

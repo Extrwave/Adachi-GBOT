@@ -55,6 +55,7 @@ export default defineComponent( {
 		const avatars = props.data.avatars;
 		const level = props.data.level;
 		const charNum = avatars.length;
+		const userAvatar = props.data.userAvatar ? props.data.userAvatar : getProImg( avatars[Math.floor( Math.random() * charNum )].id );
 		
 		for ( let info of props.infoList ) {
 			if ( info.value === "-" ) {
@@ -70,7 +71,7 @@ export default defineComponent( {
 		const defaultAvatar =
 			profile === "random" || props.urlParams.stranger === "true"
 				? getProImg( avatars[Math.floor( Math.random() * charNum )].id )
-				: `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ props.urlParams.qq }`;
+				: userAvatar;
 		
 		/* 计算世界等级 */
 		const worldLevel = computed( () => {
