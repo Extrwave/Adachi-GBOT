@@ -7,6 +7,7 @@ import { scheduleJob } from "node-schedule";
 import { pull } from "lodash";
 import { getBaseInfo } from "#genshin/utils/api";
 import { privateClass } from "#genshin/init";
+import { decode } from "js-base64";
 
 const tempSubscriptionList: string[] = [];
 
@@ -23,7 +24,9 @@ function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM: Order
 		
 		if ( isFinish !== undefined ) {
 			pull( tempSubscriptionList, userID );
-			await send( "私人服务申请超时，BOT 自动取消" );
+			await send( "私人服务申请超时，BOT 自动取消\n" +
+				"频道可能会屏蔽发送的cookie消息\n" +
+				"如你的消息被吞，请将cookie base64后发送" );
 		}
 	} );
 	
@@ -41,13 +44,19 @@ async function confirm(
 		return `你还未申请私人服务，请先使用「${ SUBSCRIBE.getHeaders()[0] }」`;
 	}
 	
+	/* 由于腾讯默认屏蔽含有cookie消息，故采用base64加密一下？试试 */
 	const reg = new RegExp( /.*?ltuid=([0-9]+).*?/g );
-	const execRes: RegExpExecArray | null = reg.exec( cookie );
-	
+	let execRes: RegExpExecArray | null = reg.exec( cookie );
+	let execResBase64: RegExpExecArray | null = reg.exec( decode( cookie ) );
 	if ( execRes === null ) {
-		return "无效的 cookie，请重新提交正确的 cookie";
+		let resMsg = "无效的 cookie，尝试解码数据\n" +
+			"正在尝试Base64解码cookie...\n"
+		if ( execResBase64 === null )
+			return resMsg + "抱歉，请重新提交正确的 cookie";
+		else {
+			execRes = execResBase64;
+		}
 	}
-	
 	const mysID: number = parseInt( execRes[1] );
 	const { retcode, message, data } = await getBaseInfo( mysID, cookie );
 	

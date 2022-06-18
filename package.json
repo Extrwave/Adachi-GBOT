@@ -1,6 +1,6 @@
 {
   "name": "Adachi-GBot",
-  "version": "1.5.5",
+  "version": "1.6.5",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register app.ts --files"
   },
@@ -11,6 +11,7 @@
     "express-jwt": "^6.1.0",
     "express-serve-static-core": "^0.1.1",
     "express-ws": "^5.0.2",
+    "js-base64": "^3.7.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "log4js": "^6.3.0",
