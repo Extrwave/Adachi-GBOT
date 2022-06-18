@@ -134,9 +134,9 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	if ( !memberInfo ) {
 		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID );
 		return {
-			userID: "N: " + userID,
+			userID: "N/S: " + userID,
 			avatar: "https://docs.adachi.top/images/adachi.png",
-			nickname: "用户已退出",
+			nickname: "已退出/单私聊",
 			botAuth: AuthLevel.Banned,
 			interval: 1500,
 			limits: [],

@@ -19,13 +19,15 @@ interface GuildBaseInfo {
 	joined_at: number;
 }
 
-/* 泛获取用户信息对象，用户加入频道顺序第一个中的用户信息 */
+/* 泛获取用户信息对象，用户使用频道顺序第一个中的用户信息 */
 export async function getMemberInfo( userID: string ): Promise<Account | undefined> {
-	const guilds: string[] = await bot.redis.getSet( `adachi.guild-used` );
+	const guilds: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
 	for ( let guild of guilds ) {
-		let response;
+		/* 如果只是在私聊使用过，没有群聊使用过 */
+		if ( guild === "-1" )
+			continue;
 		try {
-			response = await bot.client.guildApi.guildMember( guild, userID );
+			const response = await bot.client.guildApi.guildMember( guild, userID );
 			if ( response.status === 200 && response.data.user !== null ) {
 				return { guildID: guild, account: response.data };
 			}

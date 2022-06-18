@@ -185,10 +185,6 @@ export class Adachi {
 		isAt: boolean
 	): Promise<void> {
 		
-		/* 用户数据统计与收集 */
-		const userID: string = messageData.msg.author.id;
-		const guildID: string = isPrivate ? messageData.msg.guild_id : "-1"; // -1 代表私聊使用
-		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
 		
 		/* bot正在重载指令配置 */
 		if ( this.bot.refresh.isRefreshing ) {
@@ -212,6 +208,11 @@ export class Adachi {
 				return;
 			}
 		}
+		
+		/* 用户数据统计与收集，当用户使用了指令之后才统计 */
+		const userID: string = messageData.msg.author.id;
+		const guildID: string = isPrivate ? "-1" : messageData.msg.guild_id; // -1 代表私聊使用
+		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
 		
 		/* 获取匹配指令对应的处理方法 */
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
