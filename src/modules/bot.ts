@@ -3,6 +3,7 @@
  CreateTime: 2022/6/12
  */
 import * as sdk from "qq-guild-bot";
+import { AvailableIntentsEventsEnum } from "qq-guild-bot";
 import * as log from "log4js";
 import moment from "moment";
 import BotConfig from "./config";
@@ -22,7 +23,7 @@ import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import { unlinkSync } from "fs";
 import Qiniuyun from "@modules/qiniuyun";
-import { getMemberInfo } from "@modules/utils/account";
+import { config } from "#genshin/init";
 
 
 export interface BOT {
@@ -62,13 +63,14 @@ export class Adachi {
 		const client = sdk.createOpenAPI( {
 			appID: config.appID,
 			token: config.token,
-			sandbox: config.sandbox,
+			sandbox: config.sandbox
 		} );
 		// 创建 websocket 连接
 		const ws = sdk.createWebsocket( {
 				appID: config.appID,
 				token: config.token,
-				sandbox: config.sandbox
+				sandbox: config.sandbox,
+				intents: this.getBotIntents( config )
 			}
 		);
 		/* 捕获未知且未被 catch 的错误 */
@@ -98,26 +100,30 @@ export class Adachi {
 			this.bot.command.add( commands );
 			//是否登陆成功
 			this.botOnline();
-			/* 事件监听 ,请根据机器人类型选择能够监听的事件 */
-			// 消息事件，仅 *私域* 机器人能够设置此 intents。
-			this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
-				if ( data.eventType === 'MESSAGE_CREATE' )
-					this.parseGroupMsg( this )( data );
-			} );
-			//消息事件，仅 *公域* 机器人能够设置此 intents
-			// this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data ) => {
-			// 	this.parseGroupMsg( this )( data );
-			// } );
+			/* 事件监听 ,根据机器人类型选择能够监听的事件 */
+			if ( this.bot.config.area === "private" ) {
+				/* 私域机器人 */
+				this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
+					if ( data.eventType === 'MESSAGE_CREATE' )
+						this.parseGroupMsg( this )( data );
+				} );
+			} else {
+				/* 公域机器人 */
+				this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data ) => {
+					if ( data.eventType === 'AT_MESSAGE_CREATE' )
+						this.parseGroupMsg( this )( data );
+				} );
+			}
+			/* 私信相关 */
 			this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
 				if ( data.eventType === 'DIRECT_MESSAGE_CREATE' )
 					this.parsePrivateMsg( this )( data );
 			} );
-			
+			/* 成员变动相关 */
 			this.bot.ws.on( "GUILD_MEMBERS", ( data ) => {
 				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
 					this.membersDecrease( this )( data );
 			} )
-			
 			
 			this.bot.logger.info( "事件监听启动成功" );
 			this.getBotGuildInfo( this );
@@ -321,20 +327,53 @@ export class Adachi {
 		}
 	}
 	
+	/**
+	 * 获取BOT类型，并返回正确的intents
+	 * 为使BOT能正确启动，默认最小权限
+	 * 有额外事件需要，请先提前开启BOT在频道中的权限后添加
+	 * 参考地址：https://bot.q.qq.com/wiki/develop/api/gateway/intents.html
+	 */
+	private getBotIntents( config: BotConfig ): Array<AvailableIntentsEventsEnum> {
+		let intents: Array<AvailableIntentsEventsEnum> = [
+			AvailableIntentsEventsEnum.GUILDS,
+			AvailableIntentsEventsEnum.GUILD_MEMBERS,
+			AvailableIntentsEventsEnum.GUILD_MESSAGE_REACTIONS,
+			AvailableIntentsEventsEnum.DIRECT_MESSAGE,
+			AvailableIntentsEventsEnum.INTERACTION,
+			AvailableIntentsEventsEnum.MESSAGE_AUDIT,
+			AvailableIntentsEventsEnum.AUDIO_ACTION,
+			AvailableIntentsEventsEnum.PUBLIC_GUILD_MESSAGES
+			// AvailableIntentsEventsEnum.FORUMS_EVENT, //仅私域可用
+			// AvailableIntentsEventsEnum.GUILD_MESSAGES //仅私域可用
+		];
+		/* 仅私域BOT可以监听非@自己的消息 */
+		if ( config.area === "private" ) {
+			intents.push( AvailableIntentsEventsEnum.GUILD_MESSAGES,
+				AvailableIntentsEventsEnum.FORUMS_EVENT );
+		}
+		return intents;
+		
+	}
+	
+	
 	/* 获取BOT所在频道基础信息 */
-	public getBotGuildInfo( that: Adachi ) {
+	private getBotGuildInfo( that: Adachi ) {
 		const bot = that.bot;
 		bot.client.meApi.meGuilds().then( async r => {
 			const guilds: sdk.IGuild[] = r.data;
 			if ( guilds.length <= 0 ) {
 				bot.logger.error( "获取频道信息失败..." );
 			} else {
+				let ack: boolean = false;
 				for ( let guild of guilds ) {
 					if ( guild.owner_id === this.bot.config.master ) {
 						await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
 						await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
+						ack = true;
 						return;
 					}
+				}
+				if ( ack ) {
 					bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
 				}
 			}

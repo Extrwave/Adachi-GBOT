@@ -149,7 +149,7 @@ export function isPrivateMessage( data: Message ): boolean {
 }
 
 export function isGroupMessage( data: Message ): boolean {
-	if ( data.eventType === 'MESSAGE_CREATE' ) {
+	if ( data.eventType === 'MESSAGE_CREATE' || 'AT_MESSAGE_CREATE' ) {
 		return true;
 	} else {
 		return false;

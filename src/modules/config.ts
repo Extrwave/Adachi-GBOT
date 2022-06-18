@@ -4,6 +4,7 @@ export default class BotConfig {
 	public readonly appID: string;
 	public readonly token: string;
 	public readonly sandbox: boolean;
+	public readonly area: string;
 	public readonly master: string;
 	public readonly header: string;
 	public readonly atUser: boolean;
@@ -38,6 +39,7 @@ export default class BotConfig {
 		token: "token",
 		sandbox: false,
 		master: "masterID",
+		area: "private",
 		header: "/",
 		atUser: false,
 		dbPort: 6379,
@@ -103,6 +105,9 @@ export default class BotConfig {
 		const helpList: string[] = [ "message", "embed" ];
 		this.helpMessageStyle = helpList.includes( config.helpMessageStyle )
 			? config.helpMessageStyle : "message";
+		
+		const areaList: string[] = [ "private", "public" ];
+		this.area = areaList.includes( config.area ) ? config.area : "private";
 		
 		const logLevelList: string[] = [
 			"trace", "debug", "info", "warn",
