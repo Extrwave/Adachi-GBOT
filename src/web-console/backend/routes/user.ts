@@ -109,7 +109,7 @@ export default express.Router()
 	} )
 	.delete( "/sub/remove", async ( req, res ) => {
 		const userId = <string>req.query.userId;
-		
+		const dbKey = `adachi.user-used-groups-${ userId }`;
 		try {
 			if ( !userId ) {
 				res.status( 400 ).send( { code: 400, data: [], msg: "Error Params" } );
@@ -122,11 +122,28 @@ export default express.Router()
 					bot.logger.error( `插件${ plugin }取消订阅事件执行异常：${ <string>error }` )
 				}
 			}
+			//清除使用记录
+			await bot.redis.deleteKey( dbKey );
 			res.status( 200 ).send( { code: 200, data: {}, msg: "Success" } );
 		} catch ( error ) {
 			res.status( 500 ).send( { code: 500, data: [], msg: "Server Error" } );
 		}
 	} )
+	.delete( "/remove", async ( req, res ) => {
+		const userId = <string>req.query.userId;
+		const dbKey = `adachi.user-used-groups-${ userId }`;
+		try {
+			if ( !userId ) {
+				res.status( 400 ).send( { code: 400, data: [], msg: "Error Params" } );
+				return;
+			}
+			//清除使用记录
+			await bot.redis.deleteKey( dbKey );
+			res.status( 200 ).send( { code: 200, data: {}, msg: "Success" } );
+		} catch ( error ) {
+			res.status( 500 ).send( { code: 500, data: [], msg: "Server Error" } );
+		}
+	} );
 
 /* 获取用户信息 */
 async function getUserInfo( userID: string ): Promise<UserInfo> {
@@ -135,7 +152,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	if ( !memberInfo ) {
 		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID );
 		return {
-			userID: "N/S: " + userID,
+			userID: userID,
 			avatar: "https://docs.adachi.top/images/adachi.png",
 			nickname: "已退出/单私聊",
 			botAuth: AuthLevel.Banned,

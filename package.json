@@ -1,6 +1,6 @@
 {
   "name": "Adachi-GBot",
-  "version": "1.6.7",
+  "version": "1.6.8",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register app.ts --files"
   },

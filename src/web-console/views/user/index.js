@@ -39,6 +39,7 @@ const template = `<div class="user-page">
 				<template #default="{row}">
     	      		<el-button v-if="row.subInfo.length" type="text" @click="removeSub(row.userID)">取消订阅</el-button>
     	      		<el-button type="text" @click="openUserModal(row)">编辑</el-button>
+    	      		<el-button v-if="!row.subInfo.length" type="text" @click="removeUser(row.userID)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -136,8 +137,24 @@ export default defineComponent( {
 			} ).then( () => {
 				state.tableLoading = true;
 				$http.USER_SUB_REMOVE( { userId }, "DELETE" ).then( async () => {
-					getUserData()
-					ElMessage.success( "取消该用户订阅服务成功" )
+					getUserData();
+					ElMessage.success( "取消该用户订阅服务成功" );
+				} ).catch( () => {
+					state.tableLoading = false;
+				} )
+			} )
+		}
+		
+		function removeUser( userId ) {
+			ElMessageBox.confirm( "确定移除该用户使用记录？", '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			} ).then( () => {
+				state.tableLoading = true;
+				$http.USER_REMOVE( { userId }, "DELETE" ).then( async () => {
+					getUserData();
+					ElMessage.success( "删除用户使用记录成功" );
 				} ).catch( () => {
 					state.tableLoading = false;
 				} )
@@ -168,6 +185,7 @@ export default defineComponent( {
 			authLevel,
 			getUserData,
 			removeSub,
+			removeUser,
 			setRowIndex,
 			openUserModal,
 			closeUserModal

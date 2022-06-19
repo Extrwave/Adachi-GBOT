@@ -3,6 +3,7 @@ export default {
 	USER_INFO: "/user/info",
 	USER_SET: "/user/set",
 	USER_SUB_REMOVE: "/user/sub/remove",
+	USER_REMOVE: "/user/remove",
 	USER_LOGIN: "/login/",
 	LOG_INFO: "/log",
 	TOKEN_CHECK: "/check",
