@@ -26,7 +26,7 @@ const msign_disable: OrderConfig = {
 export async function init(): Promise<PluginSetting> {
 	await autoSign();
 	return {
-		pluginName: "cloud_genshin",
+		pluginName: "yyscloud",
 		cfgList: [ msign_enable, msign_disable ]
 	};
 }

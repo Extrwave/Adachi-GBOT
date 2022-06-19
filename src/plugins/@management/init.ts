@@ -6,13 +6,15 @@ const manager: SwitchConfig = {
 	type: "switch",
 	mode: "divided",
 	cmdKey: "adachi-manager",
-	desc: [ "设置/取消管理", "[@用户]" ],
+	desc: [ "设置管理", "[@用户]" ],
 	header: "",
-	regexp: [ "\\d+" ],
+	regexp: [ "<@!\\d+>" ],
 	onKey: "man",
 	offKey: "unman",
 	auth: AuthLevel.Master,
-	main: "manager"
+	main: "manager",
+	detail: "设置成员对BOT的管理权限，非QQ频道管理\n" +
+		"后续可能同步实现频道管理（挖坑"
 };
 
 const ban: SwitchConfig = {
@@ -46,7 +48,7 @@ const limit: SwitchConfig = {
 const refresh: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-hot-update-config",
-	desc: [ "", "" ],
+	desc: [ "重载配置", "" ],
 	headers: [ "refresh" ],
 	regexps: [],
 	auth: AuthLevel.Master,

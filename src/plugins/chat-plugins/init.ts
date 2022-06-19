@@ -4,7 +4,7 @@ import { OrderConfig } from "@modules/command";
 const echo: OrderConfig = {
     type: "order",
     cmdKey: "ethreal-plugins-echo",
-    desc: [ "", "[任意内容]" ],
+    desc: [ "随缘聊天", "[可直接@BOT" ],
     headers: [ "echo" ],
     regexps: [ ".+" ],
     main: "achieves/index"

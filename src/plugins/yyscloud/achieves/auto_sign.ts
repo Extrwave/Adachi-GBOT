@@ -1,7 +1,7 @@
 import bot from "ROOT";
 import { scheduleJob } from "node-schedule";
 import { getWalletURL, getAnnouncementURL, getNotificationURL, HEADERS } from "../util/api";
-import { getHeaders } from "#cloud_genshin/util/header";
+import { getHeaders } from "#yyscloud/util/header";
 import { getGidMemberIn } from "@modules/utils/account";
 
 

@@ -2,7 +2,8 @@ import { InputParameter, Order } from "@modules/command";
 import Command from "@modules/command/main";
 import FileManagement from "@modules/file";
 import { filterUserUsableCommand } from "../utils/filter";
-import { Embed } from "qq-guild-bot";
+import { Ark, Embed } from "qq-guild-bot";
+import { getArkListMessage, MessageArk } from "@modules/utils/arks";
 
 
 function getVersion( file: FileManagement ): string {
@@ -37,11 +38,22 @@ function embedStyle( title: string, list: string[], command: Command ): Embed {
 }
 
 
+function arkStyle( title: string, list: string[], command: Command ): Ark {
+	const DETAIL = <Order>command.getSingle( "adachi-detail" );
+	list.push( "===============================" );
+	list.push( `\n使用 ${ DETAIL.getHeaders()[0] }+序号 获取提示` );
+	list.push( "[ ] 必填, ( ) 选填, | 选择" );
+	list.push( "授权相关指令仅在私聊中生效" );
+	let arkHelpMsg: Ark = getArkListMessage( title, "BOT 使用帮助", list );
+	return <Ark>arkHelpMsg;
+}
+
+
 async function getHelpMessage(
 	title: string, list: string[],
 	i: InputParameter
 ): Promise<void> {
-	let style: Embed | string;
+	let style: Embed | Ark | string;
 	switch ( i.config.helpMessageStyle ) {
 		case "message":
 			style = messageStyle( title, list, i.command );
@@ -49,13 +61,20 @@ async function getHelpMessage(
 		case "embed":
 			style = embedStyle( title, list, i.command );
 			break;
+		case "ark":
+			style = arkStyle( title, list, i.command );
+			break;
 		default:
 			style = "";
 	}
 	if ( typeof style === "string" ) {
 		await i.sendMessage( style );
-	} else {
+	} else if ( i.config.helpMessageStyle === "embed" ) {
+		//@ts-ignore
 		await i.sendMessage( { embed: style } );
+	} else {
+		//@ts-ignore
+		await i.sendMessage( { ark: style } );
 	}
 }
 
@@ -68,14 +87,13 @@ export async function main( i: InputParameter ): Promise<void> {
 		return;
 	}
 	
-	let ID: number = 0;
 	if ( i.messageData.msg.content === "-k" ) {
 		const keys: string = commands.reduce( ( pre, cur ) => {
-			return pre + ` \n${ ++ID }. ${ cur.getCmdKey() }`;
+			return pre + ` \n ${ cur.getCmdKey() }`;
 		}, "" );
 		await i.sendMessage( title + keys, false );
 	} else {
-		const msgList: string[] = commands.map( el => `${ ++ID }. ${ el.getDesc() }` );
+		const msgList: string[] = commands.map( el => `${ el.getDesc() }` );
 		await getHelpMessage( title, msgList, i );
 	}
 }

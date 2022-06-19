@@ -1,8 +1,9 @@
 import bot from "ROOT";
-import { InputParameter } from "@modules/command";
+import { InputParameter, SwitchMatchResult } from "@modules/command";
 import { UserInfo } from "#genshin/module/private/main";
 import { privateClass } from "#genshin/init";
 import { getGidMemberIn } from "@modules/utils/account";
+import idParser from "#@help/utils/id-parser";
 
 async function removePrivate( userID: string ): Promise<string> {
 	const settings: UserInfo[] = privateClass.getUserInfoList( userID );
@@ -24,10 +25,16 @@ async function sendMessageToUser( userID: string ) {
 	await sendMessage( "你的私人服务已被管理员取消" );
 }
 
-export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
-	const userID: string = messageData.msg.author.id;
+export async function main( { sendMessage, matchResult, logger }: InputParameter ): Promise<void> {
 	
-	const msg: string = await removePrivate( userID );
-	await sendMessageToUser( userID );
-	await sendMessage( msg );
+	const match = <SwitchMatchResult>matchResult;
+	const { code, targetID } = idParser( match.match[0] );
+	if ( code === "error" ) {
+		logger.error( targetID );
+		await sendMessage( targetID );
+	} else {
+		const msg: string = await removePrivate( targetID );
+		await sendMessageToUser( targetID );
+		await sendMessage( msg );
+	}
 }

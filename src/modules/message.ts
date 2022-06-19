@@ -56,12 +56,9 @@ export interface SendMsgType {
 export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<void>;
 
 interface MsgManagementMethod {
-	getPrivateSender( guildID: string, userID: string ): Promise<IDirectMessage>;
-	
+	getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc>;
 	sendPrivateMessage( guildId: string, msg_id: string ): SendFunc;
-	
 	sendGuildMessage( channelID: string, msg_id: string ): SendFunc;
-	
 }
 
 export default class MsgManager implements MsgManagementMethod {
@@ -88,7 +85,7 @@ export default class MsgManager implements MsgManagementMethod {
 		};
 	}
 	
-	/*获取私信发送方法*/
+	/*获取私信发送方法 (主动推送)*/
 	public async getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc> {
 		const client = this.client;
 		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
@@ -120,7 +117,7 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	
-	public sendGuildMessage( channelID: string, msg_id: string ): SendFunc {
+	public sendGuildMessage( channelID: string, msg_id?: string ): SendFunc {
 		const client = this.client;
 		return async function ( content: MessageToCreate | string ) {
 			if ( typeof content === 'string' ) {

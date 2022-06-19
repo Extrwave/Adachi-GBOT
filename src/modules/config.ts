@@ -102,7 +102,7 @@ export default class BotConfig {
 			Bucket: config.qiniu.Bucket
 		}
 		
-		const helpList: string[] = [ "message", "embed" ];
+		const helpList: string[] = [ "message", "embed", "ark" ];
 		this.helpMessageStyle = helpList.includes( config.helpMessageStyle )
 			? config.helpMessageStyle : "message";
 		

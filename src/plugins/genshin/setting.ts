@@ -211,19 +211,19 @@ const privateCancel: OrderConfig = {
 const privateRemove: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-remove",
-	desc: [ "移除用户授权服务", "[id]" ],
+	desc: [ "移除授权", "[@用户]" ],
 	headers: [ "remove" ],
-	regexps: [ "\\d+" ],
+	regexps: [ "<@!\\d+>" ],
 	main: "achieves/private/remove",
 	auth: AuthLevel.Master,
-	detail: "移除指定ID号所绑定的所有授权服务\n" +
+	detail: "移除指定 @用户 所绑定的所有授权服务\n" +
 		"移除后将会给对方发送提示信息"
 };
 
 const privateReplace: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-replace",
-	desc: [ "更新授权服务", "[序号] [cookie]" ],
+	desc: [ "更新授权", "[序号] [cookie]" ],
 	headers: [ "pr" ],
 	regexps: [ "\\d+", ".+" ],
 	ignoreCase: false,
@@ -336,7 +336,7 @@ const privateToggleNote: OrderConfig = {
 const privateLedger: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-ledger",
-	desc: [ "查看旅行札记", "(序号) [月份]" ],
+	desc: [ "旅行札记", "(序号) [月份]" ],
 	headers: [ "led" ],
 	regexps: [ "(\\d+)?", "(\\d+)?" ],
 	main: "achieves/private/query/ledger",

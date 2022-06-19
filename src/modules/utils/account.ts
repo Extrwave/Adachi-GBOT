@@ -19,7 +19,7 @@ interface GuildBaseInfo {
 	joined_at: number;
 }
 
-/* 泛获取用户信息对象，用户使用频道顺序第一个中的用户信息 */
+/* 泛获取用户信息对象 */
 export async function getMemberInfo( userID: string ): Promise<Account | undefined> {
 	const guilds: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
 	for ( let guild of guilds ) {

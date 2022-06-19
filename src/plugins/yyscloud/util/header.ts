@@ -1,4 +1,4 @@
-import { HEADERS } from "#cloud_genshin/util/api";
+import { HEADERS } from "#yyscloud/util/api";
 import bot from "ROOT";
 
 /**

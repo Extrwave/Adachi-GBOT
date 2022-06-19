@@ -1,7 +1,6 @@
-import bot from "ROOT"
 import { getWalletURL } from "./api"
 import { InputParameter } from "@modules/command";
-import { getHeaders } from "#cloud_genshin/util/header";
+import { getHeaders } from "#yyscloud/util/header";
 
 //redis保存用户信息
 export async function savaUserData( token: string, i: InputParameter ) {
@@ -14,16 +13,11 @@ export async function savaUserData( token: string, i: InputParameter ) {
 
 //检查token有效性
 export async function checkToken( userId: string ) {
-	const dbKey = "extr-wave-yys-sign." + userId;
 	//获取用户信息填充header
 	const headers = await getHeaders( userId );
 	const message = await getWalletURL( headers );
 	const data = JSON.parse( message );
-	if ( data.retcode === 0 && data.message === "OK" ) {
-		return true;
-	}
-	return false;
-	
+	return data.retcode === 0 && data.message === "OK";
 }
 
 //获取固定设备名称（后面也许会添加其他？？？）
