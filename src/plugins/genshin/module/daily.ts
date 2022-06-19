@@ -219,7 +219,7 @@ export class DailyClass {
 		let week: number = date.getDay();
 		week = date.getHours() < 4 ? week === 0 ? 6 : week - 1 : week;
 		if ( week === 0 ) {
-			return { code: "ok", data: "周日所有材料都可以刷取哦~" };
+			return { code: "error", data: "周日所有材料都可以刷取哦~" };
 		}
 		
 		const data: DailySet | undefined = await this.getUserSubList( userID );

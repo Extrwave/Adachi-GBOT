@@ -118,7 +118,7 @@ export async function main(
 		return;
 	}
 	
-	await sendMessage( "获取成功，七七努力画图中..." );
+	await sendMessage( "获取成功，正在生成图片..." );
 	const res: RenderResult = await renderer.asUrlImage(
 		"/character.html", {
 			qq: userID,

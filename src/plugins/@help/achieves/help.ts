@@ -80,7 +80,7 @@ async function getHelpMessage(
 
 export async function main( i: InputParameter ): Promise<void> {
 	
-	const title: string = `打工七 v${ getVersion( i.file ) }`;
+	const title: string = `Adachi-GBOT v${ getVersion( i.file ) }\n`;
 	const commands = await filterUserUsableCommand( i );
 	if ( commands.length === 0 ) {
 		await i.sendMessage( "没有可用的指令" );
