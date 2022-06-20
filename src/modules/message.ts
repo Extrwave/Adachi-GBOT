@@ -85,7 +85,7 @@ export default class MsgManager implements MsgManagementMethod {
 		};
 	}
 	
-	/*获取私信发送方法 (主动推送)*/
+	/*获取私信发送方法 主动*/
 	public async getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc> {
 		const client = this.client;
 		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
@@ -100,7 +100,7 @@ export default class MsgManager implements MsgManagementMethod {
 		}
 	}
 	
-	
+	/*私信回复方法 被动*/
 	public sendPrivateMessage( guildId: string, msg_id: string ): SendFunc {
 		const client = this.client;
 		return async function ( content: MessageToCreate | string ) {
@@ -116,7 +116,7 @@ export default class MsgManager implements MsgManagementMethod {
 		}
 	}
 	
-	
+	/* 回复频道消息方法，被动*/
 	public sendGuildMessage( channelID: string, msg_id?: string ): SendFunc {
 		const client = this.client;
 		return async function ( content: MessageToCreate | string ) {
@@ -137,19 +137,13 @@ export function removeStringPrefix( string: string, prefix: string ): string {
 	return string.replace( prefix, "" );
 }
 
-export function isPrivateMessage( data: Message ): boolean {
-	if ( data.eventType === 'DIRECT_MESSAGE_CREATE' ) {
-		return true;
+export function getMessageType( data: Message ): MessageType {
+	if ( data.eventType === 'MESSAGE_CREATE' || data.eventType === 'AT_MESSAGE_CREATE' ) {
+		return MessageType.Group;
+	} else if ( data.eventType === 'DIRECT_MESSAGE_CREATE' ) {
+		return MessageType.Private;
 	} else {
-		return false;
-	}
-}
-
-export function isGroupMessage( data: Message ): boolean {
-	if ( data.eventType === 'MESSAGE_CREATE' || 'AT_MESSAGE_CREATE' ) {
-		return true;
-	} else {
-		return false;
+		return MessageType.Unknown;
 	}
 }
 

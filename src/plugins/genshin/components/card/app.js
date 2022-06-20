@@ -55,7 +55,7 @@ const template = `<div class="card-base">
 					:type="urlParams.style"
 				/>
 			</div>
-			<p class="sign">Modify - 七七</p>
+			<p class="sign">Modify - Adachi-GBOT</p>
 		</section>
 	</main>
 </div>`;

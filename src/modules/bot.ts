@@ -130,7 +130,6 @@ export class Adachi {
 		} );
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
-		scheduleJob( "0 0 4 ? * WED", this.clearImageCache( this ) );
 		
 		return this.bot;
 	}
@@ -241,21 +240,6 @@ export class Adachi {
 		}
 		
 		
-	}
-	
-	/* 清除缓存图片 */
-	private clearImageCache( that: Adachi ) {
-		const bot = that.bot;
-		return function () {
-			const files: string[] = bot.file.getDirFiles( "data/image", "root" );
-			files.forEach( f => {
-				const path: string = bot.file.getFilePath(
-					`data/image/${ f }`, "root"
-				);
-				unlinkSync( path );
-			} );
-			bot.logger.info( "图片缓存已清空" );
-		}
 	}
 	
 	/* 处理私聊事件 */

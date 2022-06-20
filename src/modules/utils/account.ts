@@ -2,7 +2,7 @@
 import { IMember, IUser } from "qq-guild-bot";
 import bot from "ROOT";
 
-interface Account {
+export interface Account {
 	guildID: string,
 	account: IMember
 }
@@ -77,3 +77,4 @@ export async function getGuildBaseInfo( guildID: string ): Promise<GuildBaseInfo
 		//如果获取失败，隐藏错误输出
 	}
 }
+

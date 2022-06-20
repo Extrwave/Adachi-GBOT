@@ -120,20 +120,21 @@ const alias: SwitchConfig = {
 		"「天帝」会被自动识别为「枫原万叶」"
 };
 
-const daily: SwitchConfig = {
-	type: "switch",
-	mode: "single",
-	cmdKey: "silvery-star-daily",
-	desc: [ "材料订阅", "#{OPT} [角色|武器名|群号]" ],
-	header: "sub",
-	regexp: [ "#{OPT}", "[\\w\\u4e00-\\u9fa5]+" ],
-	main: "achieves/daily",
-	onKey: "add",
-	offKey: "rem",
-	detail: "为自己添加/删除角色天赋/武器的突破材料\n" +
-		"每天的 6:00~7:00 随机时间进行推送\n" +
-		"若使用群号，则将在 6:00 向该群发送所有信息"
-};
+// const daily: SwitchConfig = {
+// 	type: "switch",
+// 	mode: "single",
+// 	cmdKey: "silvery-star-daily",
+// 	desc: [ "材料订阅", "#{OPT} [角色|武器名|群号]" ],
+// 	header: "sub",
+// 	regexp: [ "#{OPT}", "[\\w\\u4e00-\\u9fa5]+" ],
+// 	main: "achieves/daily",
+// 	onKey: "add",
+// 	offKey: "rem",
+// 	display: false,
+// 	detail: "为自己添加/删除角色天赋/武器的突破材料\n" +
+// 		"每天的 6:00~7:00 随机时间进行推送\n" +
+// 		"若使用群号，则将在 6:00 向该群发送所有信息"
+// };
 
 const today: OrderConfig = {
 	type: "order",
@@ -229,8 +230,8 @@ const privateReplace: OrderConfig = {
 	ignoreCase: false,
 	main: "achieves/private/replace",
 	scope: MessageScope.Private,
-	detail: "序号在私人服务列表中查看\n" +
-		"该指令用于更换私人服务所绑定的 cookie"
+	detail: "序号在授权服务列表中查看\n" +
+		"该指令用于更换授权服务所绑定的 cookie"
 };
 
 const privateReorder: OrderConfig = {
@@ -348,7 +349,7 @@ export default <PluginSetting>{
 	pluginName: "genshin",
 	cfgList: [
 		bind, today, guide, getArtifact, almanac,
-		wish, daily, alias, impArtifact, domain, choosePool,
+		wish, alias, impArtifact, domain, choosePool,
 		slip, uidQuery, epitomizedPath, information,
 		privateNowNote, privateNoteEvent, privateSubList,
 		privateConfirm, privateSubscribe, privateReplace,

@@ -60,7 +60,7 @@ export async function subs( { redis }: BOT ): Promise<SubInfo[]> {
 	} );
 	
 	return [ {
-		name: "私人服务",
+		name: "授权服务",
 		users: privateClass.getUserIDList()
 	}, {
 		name: "素材订阅",

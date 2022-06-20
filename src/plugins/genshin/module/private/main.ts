@@ -202,7 +202,7 @@ export class PrivateClass {
 		const auth: AuthLevel = await bot.auth.get( userID );
 		const PRIVATE_UPGRADE = <Order>bot.command.getSingle( "silvery-star-private-replace", auth );
 		if ( list.some( el => el.setting.uid === uid ) ) {
-			return `UID${ uid } 的私人服务已经申请` + `如需更新请使用『${ PRIVATE_UPGRADE.getHeaders()[0] }』指令`;
+			return `UID${ uid } 的授权服务已经申请\n` + `如需更新请使用『 ${ PRIVATE_UPGRADE.getHeaders()[0] } 』指令`;
 		}
 		const reg = new RegExp( /.*?ltuid=([0-9]+).*?/g );
 		const execRes = <RegExpExecArray>reg.exec( cookie );
@@ -228,18 +228,18 @@ export class PrivateClass {
 		await bot.redis.deleteKey( p.dbKey );
 	}
 	
-	/* 移除指定用户的某个私人服务 */
+	/* 移除指定用户的某个授权服务 */
 	public async delSinglePrivate( userID: string, privateID: number ): Promise<string> {
 		const single: Private | string = await this.getSinglePrivate( userID, privateID );
 		if ( typeof single === "string" ) {
 			return single;
 		} else {
 			await this.delPrivate( single );
-			return "私人服务取消成功";
+			return "授权服务取消成功";
 		}
 	}
 	
-	/* 批量移除指定用户的私人服务 */
+	/* 批量移除指定用户的授权服务 */
 	public async delBatchPrivate( userID: string ): Promise<string> {
 		const privateList: Private[] = this.getUserPrivateList( userID );
 		
@@ -247,6 +247,6 @@ export class PrivateClass {
 			await this.delPrivate( batch );
 		}
 		
-		return `用户${ userID }的私人服务已全部移除`;
+		return `用户${ userID }的授权服务已全部移除`;
 	}
 }

@@ -1,7 +1,7 @@
 const template = `<div class="abyss-base">
 	<span class="uid">{{ uid }}</span>
 	<slot />
-	<p class="footer">Modify - 七七</p>
+	<p class="footer">Modify - Adachi-GBOT</p>
 </div>`;
 
 const { defineComponent, computed } = Vue;

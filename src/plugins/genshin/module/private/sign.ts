@@ -5,6 +5,7 @@ import { Private, Service } from "./main";
 import { SignInInfo } from "#genshin/types";
 import { Order } from "@modules/command";
 import bot from "ROOT";
+import { getGidMemberIn } from "@modules/utils/account";
 
 export class SignInService implements Service {
 	public readonly parent: Private;
@@ -67,9 +68,10 @@ export class SignInService implements Service {
 			}
 			await signInResultPromise( uid, server, cookie );
 			await this.sendMessage(
-				`[UID${ uid }] - 今日已签到
+				`[UID ${ uid }]\n
+			今日已完成签到
 			本月累计签到 ${ info.totalSignDay + 1 } 天
-			明天会自动签到哦`
+			明天也会自动签到哦`
 			);
 		} catch ( error ) {
 			await this.sendMessage( <string>error );
@@ -96,8 +98,14 @@ export class SignInService implements Service {
 	
 	/* 因为sendMessage需要异步获取，无法写进构造器 */
 	public async sendMessage( data: string ) {
-		const guildID = await bot.redis.getString( `adachi.guild-id` );
-		const sendMessage = await bot.message.getPrivateSendFunc( guildID, this.parent.setting.userID );
+		const userID = this.parent.setting.userID;
+		//此处私发逻辑已更改
+		const guildID = await getGidMemberIn( userID );
+		if ( !guildID ) {
+			bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
+			return;
+		}
+		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
 		await sendMessage( data );
 	}
 }

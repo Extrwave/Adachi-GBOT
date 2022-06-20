@@ -8,7 +8,7 @@ CreateTime: 2022/6/17
 
 export async function getHeaders( userId: string ): Promise<HEADERS> {
 	//获取用户信息填充header
-	const dbKey = "extr-wave-yys-sign." + userId;
+	const dbKey = "extr-wave-yys-sign-" + userId;
 	let headers: HEADERS = {
 		'x-rpc-combo_token': "",
 		'x-rpc-client_type': 2,  //默认安卓

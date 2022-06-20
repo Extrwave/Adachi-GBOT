@@ -8,12 +8,13 @@ import { pull } from "lodash";
 import { getBaseInfo } from "#genshin/utils/api";
 import { privateClass } from "#genshin/init";
 import { decode } from "js-base64";
+import { Account, getMemberInfo } from "@modules/utils/account";
 
 const tempSubscriptionList: string[] = [];
 
-function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM: Order ): string {
+async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM: Order ): Promise<string> {
 	if ( tempSubscriptionList.includes( userID ) ) {
-		return "您已经处于私人服务申请状态";
+		return "您已经处于授权服务申请状态";
 	}
 	
 	tempSubscriptionList.push( userID );
@@ -24,16 +25,27 @@ function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM: Order
 		
 		if ( isFinish !== undefined ) {
 			pull( tempSubscriptionList, userID );
-			await send( "私人服务申请超时，BOT 自动取消\n" +
-				"频道可能会屏蔽发送的cookie消息\n" +
+			await send( "授权服务申请超时，BOT 自动取消\n" +
+				"请先检查发送消息内容是否符合要求\n" +
+				"频道私聊可能会屏蔽发送的敏感信息\n" +
 				"如你的消息被吞，请将cookie base64后发送" );
 		}
 	} );
 	
-	return `『${ userID }』你好 \n` + "请务必确保 BOT 持有者可信\n" +
-		`确定开启该功能，使用指令 「${ CONFIRM.getHeaders()[0] } cookie」来继续\n` +
-		"获取cookie的方法：频道公告\n" +
-		"请在 3 分钟内进行，超时会自动取消本次申请";
+	const info: Account | undefined = await getMemberInfo( userID );
+	let title: string = `『${ userID }』您好 \n`;
+	if ( info ) {
+		title = `『 ${ info.account.nick } 』您好 \n`
+	}
+	
+	return title + "请务必确保 BOT 持有者可信任\n" +
+		`本BOT承诺未经您的允许不使用此cookie\n` +
+		`确定开启该功能，使用以下指令来开启\n ` +
+		`「 ${ CONFIRM.getHeaders()[0] } cookie 」\n` +
+		"请在 3 分钟内进行，超时会自动取消\n" +
+		"cookie获取：@BOT发送：cookie教程 \n" +
+		"（教程只能在频道里 @ 获取）";
+	
 }
 
 async function confirm(
@@ -41,7 +53,7 @@ async function confirm(
 	a: AuthLevel, SUBSCRIBE: Order
 ): Promise<string> {
 	if ( !tempSubscriptionList.some( el => el === userID ) ) {
-		return `你还未申请私人服务，请先使用「${ SUBSCRIBE.getHeaders()[0] }」`;
+		return `你还未申请授权服务，请先使用「${ SUBSCRIBE.getHeaders()[0] }」`;
 	}
 	
 	/* 由于腾讯默认屏蔽含有cookie消息，故采用base64加密一下？试试 */
@@ -55,6 +67,7 @@ async function confirm(
 			return resMsg + "抱歉，请重新提交正确的 cookie";
 		else {
 			execRes = execResBase64;
+			cookie = decode( cookie );
 		}
 	}
 	const mysID: number = parseInt( execRes[1] );
@@ -91,7 +104,7 @@ export async function main(
 	const SUBSCRIBE = <Order>command.getSingle( "silvery-star-private-subscribe", a );
 	
 	if ( SUBSCRIBE.getHeaders().includes( header ) ) {
-		const msg: string = subscribe( userID, sendMessage, a, CONFIRM );
+		const msg: string = await subscribe( userID, sendMessage, a, CONFIRM );
 		await sendMessage( msg );
 	} else if ( CONFIRM.getHeaders().includes( header ) ) {
 		const msg: string = await confirm( userID, data, a, SUBSCRIBE );

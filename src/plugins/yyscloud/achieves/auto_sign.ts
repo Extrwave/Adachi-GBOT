@@ -9,10 +9,9 @@ import { getGidMemberIn } from "@modules/utils/account";
 export async function autoSign() {
 	bot.logger.info( "云原神自动签到已启动" )
 	scheduleJob( "5 6 7 * * *", async () => {
-		let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign.*' )
+		let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign-*' )
 		for ( let key of keys ) {
 			let userId = key.split( '.' )[1];
-			const dbKey = "extr-wave-yys-sign." + userId;
 			bot.logger.info( `正在进行用户 ${ userId } 云原神签到` );
 			//此处私发逻辑已更改
 			const guild = await getGidMemberIn( userId );

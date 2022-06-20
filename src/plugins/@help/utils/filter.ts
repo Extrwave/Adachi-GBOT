@@ -2,16 +2,7 @@ import { AuthLevel } from "@modules/management/auth";
 import { BasicConfig, InputParameter } from "@modules/command/main";
 import Database from "@modules/database";
 import * as m from "@modules/message";
-
-function getMessageType( msg: m.Message ): m.MessageType {
-    if ( m.isGroupMessage(msg) ) {
-        return m.MessageType.Group;
-    } else if ( m.isPrivateMessage(msg) ) {
-        return m.MessageType.Private;
-    } else {
-        return m.MessageType.Unknown;
-    }
-}
+import { getMessageType } from "@modules/message";
 
 async function getLimited( id: string, type: string, redis: Database ): Promise<string[]> {
     const dbKey: string = `adachi.${ type }-command-limit-${ id }`;

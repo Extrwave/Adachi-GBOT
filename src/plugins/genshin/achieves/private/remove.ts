@@ -8,7 +8,7 @@ import idParser from "#@help/utils/id-parser";
 async function removePrivate( userID: string ): Promise<string> {
 	const settings: UserInfo[] = privateClass.getUserInfoList( userID );
 	if ( settings.length === 0 ) {
-		return "该用户还未启用任何私人服务";
+		return "该用户还未启用任何授权服务";
 	}
 	
 	return privateClass.delBatchPrivate( userID );
@@ -22,7 +22,7 @@ async function sendMessageToUser( userID: string ) {
 		return;
 	}
 	const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
-	await sendMessage( "你的私人服务已被管理员取消" );
+	await sendMessage( "你的授权服务已被管理员取消" );
 }
 
 export async function main( { sendMessage, matchResult, logger }: InputParameter ): Promise<void> {

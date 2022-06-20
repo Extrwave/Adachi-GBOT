@@ -203,7 +203,7 @@ export class NoteService implements Service {
 		//此处私发逻辑已更改
 		const guildID = await getGidMemberIn( userID );
 		if ( !guildID ) {
-			bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID )
+			bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
 			return;
 		}
 		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );

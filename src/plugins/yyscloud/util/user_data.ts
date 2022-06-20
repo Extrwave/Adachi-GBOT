@@ -1,14 +1,26 @@
+import bot from "ROOT";
 import { getWalletURL } from "./api"
-import { InputParameter } from "@modules/command";
 import { getHeaders } from "#yyscloud/util/header";
+import { Account, getMemberInfo } from "@modules/utils/account";
 
 //redis保存用户信息
-export async function savaUserData( token: string, i: InputParameter ) {
-	const dbKey = "extr-wave-yys-sign." + i.messageData.msg.author.id;
-	await i.redis.setHashField( dbKey, "token", token );
-	await i.redis.setHashField( dbKey, "device_name", getDevice( "name" ) );
-	await i.redis.setHashField( dbKey, "device_model", getDevice( "model" ) );
-	await i.redis.setHashField( dbKey, "device_id", getDevice( "id" ) );
+export async function savaUserData( token: string, userID: string ): Promise<string> {
+	const dbKey = "extr-wave-yys-sign-" + userID;
+	await bot.redis.setHashField( dbKey, "token", token );
+	await bot.redis.setHashField( dbKey, "device_name", getDevice( "name" ) );
+	await bot.redis.setHashField( dbKey, "device_model", getDevice( "model" ) );
+	await bot.redis.setHashField( dbKey, "device_id", getDevice( "id" ) );
+	//检查token有效性
+	const bool = await checkToken( userID );
+	if ( !bool ) {
+		return "云原神Token无效，请重新获取~";
+	}
+	
+	const info: Account | undefined = await getMemberInfo( userID );
+	if ( info ) {
+		return `『 ${ info.account.nick } 』 已开启云原神签到服务`
+	}
+	return `[ ${ userID } ] 已开启云原神签到服务`
 }
 
 //检查token有效性
