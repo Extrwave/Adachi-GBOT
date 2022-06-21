@@ -18,7 +18,7 @@ export async function main(
 	
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	if ( accounts.length === 0 ) {
-		await sendMessage( `配置尚未完成\n请私聊本七发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` );
+		await sendMessage( `配置尚未完成\n请私聊本BOT发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` );
 		return;
 	} else if ( id > accounts.length || id === 0 ) {
 		const PRIVATE_LIST = <Order>bot.command.getSingle(

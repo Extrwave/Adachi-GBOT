@@ -13,7 +13,7 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 	const auth: AuthLevel = await bot.auth.get( userID );
 	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	if ( accounts.length === 0 ) {
-		return [ { code: "msg", data: `配置尚未完成\n请私聊本七发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` } ];
+		return [ { code: "msg", data: `配置尚未完成\n请私聊本BOT发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` } ];
 	}
 	
 	const imageList: SendMsgType[] = [];

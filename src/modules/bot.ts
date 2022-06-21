@@ -21,9 +21,9 @@ import MsgManagement, * as msg from "./message";
 import MsgManager, { Message, MessageScope, SendFunc } from "./message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
-import { unlinkSync } from "fs";
 import Qiniuyun from "@modules/qiniuyun";
 import { config } from "#genshin/init";
+import { autoReply } from "@modules/chat";
 
 
 export interface BOT {
@@ -193,19 +193,9 @@ export class Adachi {
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		const content: string = messageData.msg.content;
-		if ( !unionRegExp.test( content ) && isAt ) {
-			const autoReply: BasicConfig | undefined = cmdSet.find( el => el.cmdKey === "ethreal-plugins-echo" ); //获取自动回复插件作为默认返回
-			if ( autoReply ) {
-				autoReply.run( {
-					sendMessage, ...this.bot,
-					messageData, matchResult: { type: "order", header: "/echo" }
-				} );
-				return;
-			} else {
-				//自动回复插件加载出现问题
-				await sendMessage( "嘿嘿，才不是我出问题了呢..( BUG了" );
-				return;
-			}
+		if ( this.bot.config.autoChat && !unionRegExp.test( content ) && isAt ) {
+			await autoReply( messageData, sendMessage );
+			return;
 		}
 		
 		/* 用户数据统计与收集，当用户使用了指令之后才统计 */

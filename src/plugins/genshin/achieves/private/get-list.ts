@@ -9,7 +9,7 @@ async function getPrivateList( userID: string ): Promise<string> {
 	const auth: AuthLevel = await bot.auth.get( userID );
 	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	if ( settings.length === 0 ) {
-		return `配置尚未完成\n请私聊本七发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用`;
+		return `配置尚未完成\n请私聊本BOT发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用`;
 	}
 	
 	const str: string[] = [];

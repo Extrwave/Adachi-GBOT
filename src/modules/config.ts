@@ -8,6 +8,7 @@ export default class BotConfig {
 	public readonly master: string;
 	public readonly header: string;
 	public readonly atUser: boolean;
+	public readonly autoChat: boolean;
 	public readonly dbPort: number;
 	public readonly dbPassword: string;
 	public readonly countThreshold: number;
@@ -42,6 +43,7 @@ export default class BotConfig {
 		area: "private",
 		header: "/",
 		atUser: false,
+		autoChat: false,
 		dbPort: 6379,
 		dbPassword: "",
 		countThreshold: 60,
@@ -67,7 +69,7 @@ export default class BotConfig {
 	
 	constructor( file: FileManagement ) {
 		const config: any = file.loadYAML( "setting" );
-		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword" ];
+		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword", "autoChat" ];
 		
 		for ( let key of checkFields ) {
 			if ( config[key] === undefined ) {
@@ -84,6 +86,7 @@ export default class BotConfig {
 		this.dbPort = config.dbPort;
 		this.dbPassword = config.dbPassword;
 		this.atUser = config.atUser;
+		this.autoChat = config.autoChat;
 		this.groupIntervalTime = config.groupIntervalTime;
 		this.privateIntervalTime = config.privateIntervalTime;
 		this.countThreshold = config.countThreshold;
@@ -102,6 +105,7 @@ export default class BotConfig {
 			Bucket: config.qiniu.Bucket
 		}
 		
+		/* 公域Ark消息模板需要申请才可以使用 */
 		const helpList: string[] = [ "message", "embed", "ark" ];
 		this.helpMessageStyle = helpList.includes( config.helpMessageStyle )
 			? config.helpMessageStyle : "message";
