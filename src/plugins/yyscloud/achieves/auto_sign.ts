@@ -11,7 +11,7 @@ export async function autoSign() {
 	scheduleJob( "5 6 7 * * *", async () => {
 		let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign-*' )
 		for ( let key of keys ) {
-			let userId = key.split( '.' )[1];
+			let userId = key.split( '-' )[4];
 			bot.logger.info( `正在进行用户 ${ userId } 云原神签到` );
 			//此处私发逻辑已更改
 			const guild = await getGidMemberIn( userId );

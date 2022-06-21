@@ -38,7 +38,6 @@ export async function main( i: InputParameter ): Promise<void> {
 				message = "主页：https://blog.ethreal.cn/home\n" +
 					"cookie获取: https://blog.ethreal.cn/archives/hdmyscookies\n" +
 					"token获取: https://blog.ethreal.cn/archives/yysgettoken";
-				
 				break;
 			default:
 				//调用青云客免费API
