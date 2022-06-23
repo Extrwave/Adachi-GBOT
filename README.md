@@ -2,7 +2,7 @@
     <img src="https://docs.adachi.top/images/adachi.png" width="200"/>
     <h3>- Adachi-GBOT -</h3>
     <div>
-        <a href="https://blog.ethreal.cn/archives/adachi-gbot" target="_blank">使用文档</a> &nbsp;|&nbsp;
+        <a href="https://docs.ethreal.cn" target="_blank">使用文档</a> &nbsp;|&nbsp;
         <a href="https://github.com/Extrwave/Adachi-GBOT-Plugin" target="_blank">插件库</a> &nbsp;|&nbsp;
         <a href="https://github.com/SilveryStar/Adachi-BOT">原项目</a>
     </div>
