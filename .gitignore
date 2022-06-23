@@ -2,4 +2,6 @@
 /src/
 /logs/
 /database/
-/config/
+!config/
+config/*
+!config/index.html
