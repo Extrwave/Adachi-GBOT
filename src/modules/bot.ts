@@ -75,7 +75,8 @@ export class Adachi {
 		);
 		/* 捕获未知且未被 catch 的错误 */
 		process.on( "unhandledRejection", reason => {
-			logger.error( "SDK错误：" + JSON.stringify( reason ) );
+			if ( reason )
+				logger.error( "SDK错误：" + reason );
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
@@ -403,6 +404,7 @@ export class Adachi {
 		return async function ( messageData: Message ) {
 			const userId = messageData.msg.author.id;
 			const dbKey = `adachi.user-used-groups-${ userId }`;
+			const bindUID = `silvery-star.user-bind-uid-${ userId }`;
 			//首先清除所有订阅服务
 			for ( const plugin in PluginReSubs ) {
 				try {
@@ -412,7 +414,7 @@ export class Adachi {
 				}
 			}
 			//清除使用记录
-			await bot.redis.deleteKey( dbKey );
+			await bot.redis.deleteKey( dbKey, bindUID );
 		}
 	}
 }
