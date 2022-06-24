@@ -122,8 +122,6 @@ export default express.Router()
 					bot.logger.error( `插件${ plugin }取消订阅事件执行异常：${ <string>error }` )
 				}
 			}
-			//清除使用记录
-			await bot.redis.deleteKey( dbKey );
 			res.status( 200 ).send( { code: 200, data: {}, msg: "Success" } );
 		} catch ( error ) {
 			res.status( 500 ).send( { code: 500, data: [], msg: "Server Error" } );
@@ -147,31 +145,17 @@ export default express.Router()
 
 /* 获取用户信息 */
 async function getUserInfo( userID: string ): Promise<UserInfo> {
-	//此处获取用户信息逻辑已更改
-	const memberInfo = await getMemberInfo( userID );
-	if ( !memberInfo ) {
-		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID );
-		return {
-			userID: userID,
-			avatar: "https://docs.adachi.top/images/adachi.png",
-			nickname: "已退出/单私聊",
-			botAuth: AuthLevel.Banned,
-			interval: 1500,
-			limits: [],
-			groupInfoList: [],
-			subInfo: []
-		}
-	}
 	
+	/* 此处获取用户信息逻辑已更改 */
 	const groupInfoList: Array<MemberInGuildInfo | string> = [];
 	const botAuth: AuthLevel = await bot.auth.get( userID );
 	const interval: number = bot.interval.get( userID, "-1" );
 	const limits: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
 	
-	//获取用户使用过的子频道ID
+	//获取用户使用过的频道ID
 	const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
-	
-	let nickname: string = "", avatar: string = "";
+	let avatar;
+	let nickname;
 	
 	for ( let el of usedGroups ) {
 		const groupID: string = el;
@@ -179,21 +163,26 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 			groupInfoList.push( "私聊方式使用" );
 			continue;
 		}
-		const guildMemberInfo = await getMemberInfoInGuild( userID, el );
 		const guildBaseInfo = await getGuildBaseInfo( el );
-		const mInfo = guildMemberInfo ? guildMemberInfo : memberInfo; //获取失败使用上一次成功的数据
+		const guildMemberInfo = await getMemberInfoInGuild( userID, el );
 		const gName = guildBaseInfo ? guildBaseInfo.name : "Unknown";
-		nickname = mInfo.account.user.username;
-		avatar = mInfo.account.user.avatar;
-		groupInfoList.push( {
-			user_id: mInfo.account.user.id,
-			guild_id: el,
-			guild_name: gName,
-			username: mInfo.account.user.username,
-			nickname: mInfo.account.nick,
-			role: mInfo.account.roles[0],
-		} );
+		if ( guildMemberInfo?.account ) {
+			nickname = guildMemberInfo.account.user.username;
+			avatar = guildMemberInfo.account.user.avatar;
+			groupInfoList.push( {
+				user_id: guildMemberInfo.account.user.id,
+				guild_id: el,
+				guild_name: gName,
+				username: guildMemberInfo.account.user.username,
+				nickname: guildMemberInfo.account.nick,
+				role: guildMemberInfo.account.roles[0],
+			} );
+		}
 	}
+	if ( !avatar )
+		avatar = "https://docs.adachi.top/images/adachi.png";
+	if ( !nickname )
+		nickname = "已退出/单私聊";
 	
 	return {
 		userID,

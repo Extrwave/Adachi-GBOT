@@ -5,7 +5,7 @@
 
 import BotConfig from "@modules/config";
 import {
-	IDirectMessage,
+	IDirectMessage, IMessage,
 	IOpenAPI,
 	MessageToCreate
 } from 'qq-guild-bot';
@@ -14,24 +14,13 @@ import {
 export interface Message {
 	eventType: string,
 	eventId: string,
-	msg: {
-		author: {
-			avatar: string,
-			bot: boolean,
-			id: string,
-			username: string
-		},
-		channel_id: string,
-		content: string,
-		direct_message?: true,
-		guild_id: string,
-		id: string,
-		member?: {
-			joined_at: string
-		},
-		src_guild_id?: string,
-		timestamp: string
-	}
+	msg: Msg
+}
+
+/* 此处是SDK摆烂没更新的部分 */
+interface Msg extends IMessage {
+	direct_message?: boolean,
+	src_guild_id?: string
 }
 
 
