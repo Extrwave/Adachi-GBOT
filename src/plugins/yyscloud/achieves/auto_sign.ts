@@ -7,12 +7,16 @@ import { getGidMemberIn } from "@modules/utils/account";
 
 //定时任务
 export async function autoSign() {
-	bot.logger.info( "云原神自动签到已启动" )
+	bot.logger.info( "云原神自动签到已启动" );
 	scheduleJob( "5 6 7 * * *", async () => {
-		let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign-*' )
+		let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign-*' );
 		for ( let key of keys ) {
 			let userId = key.split( '-' )[4];
 			bot.logger.info( `正在进行用户 ${ userId } 云原神签到` );
+			//获取用户信息填充header
+			const headers: HEADERS = await getHeaders( userId );
+			const message = await getWalletURL( headers );
+			const data = JSON.parse( message );
 			//此处私发逻辑已更改
 			const guild = await getGidMemberIn( userId );
 			if ( !guild ) {
@@ -20,10 +24,6 @@ export async function autoSign() {
 				return;
 			}
 			const sendMessage = await bot.message.getPrivateSendFunc( guild, userId );
-			//获取用户信息填充header
-			const headers: HEADERS = await getHeaders( userId );
-			const message = await getWalletURL( headers );
-			const data = JSON.parse( message );
 			if ( data.retcode === 0 && data.message === "OK" ) {
 				await sendMessage(
 					`今日云原神签到成功\n` +

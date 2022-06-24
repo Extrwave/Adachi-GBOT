@@ -405,6 +405,7 @@ export class Adachi {
 			const userId = messageData.msg.author.id;
 			const dbKey = `adachi.user-used-groups-${ userId }`;
 			const bindUID = `silvery-star.user-bind-uid-${ userId }`;
+			const yysSub = "extr-wave-yys-sign-" + userId;
 			//首先清除所有订阅服务
 			for ( const plugin in PluginReSubs ) {
 				try {
@@ -414,7 +415,7 @@ export class Adachi {
 				}
 			}
 			//清除使用记录
-			await bot.redis.deleteKey( dbKey, bindUID );
+			await bot.redis.deleteKey( dbKey, bindUID, yysSub );
 		}
 	}
 }

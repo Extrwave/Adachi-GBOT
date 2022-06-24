@@ -5,7 +5,7 @@ import { AuthLevel } from "@modules/management/auth";
 import { scheduleJob } from "node-schedule";
 import { pull } from "lodash";
 import { decode } from "js-base64";
-import { Account, getMemberInfo, getMemberInfoInGuild } from "@modules/utils/account";
+import { Account, getMemberInfo } from "@modules/utils/account";
 
 const tempSubscriptionList: string[] = [];
 
@@ -42,6 +42,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 		`「 ${ CONFIRM.getHeaders()[0] } token 」\n` +
 		"请在 3 分钟内进行，超时会自动取消\n" +
 		"token获取：@BOT发送：token教程 \n" +
+		"在频道中使用一次任意指令才可推送\n" +
 		"（教程只能在频道里 @ 获取）";
 }
 
