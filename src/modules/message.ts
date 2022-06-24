@@ -29,6 +29,7 @@ export interface Message {
 		member?: {
 			joined_at: string
 		},
+		src_guild_id?: string,
 		timestamp: string
 	}
 }

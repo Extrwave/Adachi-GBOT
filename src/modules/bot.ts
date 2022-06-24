@@ -203,6 +203,9 @@ export class Adachi {
 		const userID: string = messageData.msg.author.id;
 		const guildID: string = isPrivate ? "-1" : messageData.msg.guild_id; // -1 代表私聊使用
 		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
+		if ( isPrivate && messageData.msg.src_guild_id ) { //私聊源频道也记录，修复未在频道使用用户信息读取问题
+			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, messageData.msg.src_guild_id );
+		}
 		
 		/* 获取匹配指令对应的处理方法 */
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
