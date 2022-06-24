@@ -76,7 +76,7 @@ export class Adachi {
 		/* 捕获未知且未被 catch 的错误 */
 		process.on( "unhandledRejection", reason => {
 			if ( reason )
-				logger.error( "SDK错误：" + reason );
+				logger.error( ( <Error>reason ).stack );
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
@@ -194,7 +194,7 @@ export class Adachi {
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		const content: string = messageData.msg.content;
-		if ( this.bot.config.autoChat && !unionRegExp.test( content ) && isAt ) {
+		if ( this.bot.config.autoChat && !unionRegExp.test( content ) && isAt && content.length < 15 ) {
 			await autoReply( messageData, sendMessage );
 			return;
 		}
@@ -263,21 +263,22 @@ export class Adachi {
 		return async function ( messageData: Message ) {
 			const isAt = await that.checkAtBOT( messageData );
 			const authorName = messageData.msg.author.username;
+			const guild = messageData.msg.guild_id;
 			const channelID = messageData.msg.channel_id;
 			const userID = messageData.msg.author.id;
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
-			const channelInfo = <sdk.IChannel>( await bot.client.channelApi.channel( channelID ) ).data;
+			const guildInfo = <sdk.IGuild>( await bot.client.guildApi.guild( guild ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
-			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ channelID }` );
+			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guild }` );
 			const uLim: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
 			const sendMessage: msg.SendFunc = bot.message.sendGuildMessage(
 				channelID, msgID );
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Group );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );
 			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false, isAt );
-			bot.logger.info( `[Author: ${ authorName }][Channel: ${ channelInfo.name }]: ${ content }` );
+			bot.logger.info( `[Author: ${ authorName }][Guild: ${ guildInfo.name }]: ${ content }` );
 		}
 	}
 	

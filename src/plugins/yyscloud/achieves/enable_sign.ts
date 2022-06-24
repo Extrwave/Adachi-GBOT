@@ -1,5 +1,5 @@
 import { InputParameter, Order, OrderMatchResult } from "@modules/command";
-import { savaUserData, checkToken } from "../util/user_data";
+import { savaUserData } from "../util/user_data";
 import { SendFunc } from "@modules/message";
 import { AuthLevel } from "@modules/management/auth";
 import { scheduleJob } from "node-schedule";
