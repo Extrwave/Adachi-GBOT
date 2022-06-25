@@ -380,6 +380,7 @@ export class Adachi {
 			if ( guilds.length <= 0 ) {
 				bot.logger.error( "获取频道信息失败..." );
 			} else {
+				await bot.redis.deleteKey( `adachi.guild-used` ); //重启重新获取BOT所在频道信息
 				let ack: boolean = false;
 				for ( let guild of guilds ) {
 					await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
