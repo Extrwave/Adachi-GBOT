@@ -72,16 +72,18 @@ export class DailyClass {
 		getDailyMaterial().then( ( result: DailyMaterial ) => {
 			this.detail = result;
 		} );
-		scheduleJob( "0 0 0 * * *", async () => {
+		
+		/* 每天四点删除昨日材料数据 */
+		scheduleJob( "0 0 4 * * *", async () => {
 			this.detail = await getDailyMaterial();
+			await bot.redis.deleteKey( `adachi-temp-daily-material` );
+			bot.logger.info( "每日材料已重新加载" );
 		} );
 		
+		/* 获取订阅？已经忘记了 */
 		scheduleJob( "0 0 6 * * *", async () => {
 			const date: Date = new Date();
-			await bot.redis.deleteKey( `extr-wave-dailyMaterial` );
 			await this.getUserSubscription( bot.config.master );
-			bot.logger.info( "每日材料已重新加载" );
-			
 			
 			/* 获取当日副本对应的角色和武器 */
 			let week: number = date.getDay();
@@ -215,6 +217,7 @@ export class DailyClass {
 	
 	public async getUserSubscription( userID: string ): Promise<{ code: string, data: string }> {
 		const date: Date = new Date();
+		const dbKey: string = `adachi-temp-daily-material`;
 		
 		let week: number = date.getDay();
 		week = date.getHours() < 4 ? week === 0 ? 6 : week - 1 : week;
@@ -222,12 +225,22 @@ export class DailyClass {
 			return { code: "error", data: "周日所有材料都可以刷取哦~" };
 		}
 		
+		/* 当日已经缓存过每日材料数据 */
+		const daily = await bot.redis.getString( dbKey );
+		if ( daily !== "" ) {
+			bot.logger.info( "返回缓存材料数据" );
+			return { code: "ok", data: daily };
+		}
+		
 		const data: DailySet | undefined = await this.getUserSubList( userID );
 		const set = data === undefined ? new DailySet( this.allData ) : data;
-		
 		await set.save( userID );
+		
+		
+		//没有当日素材缓存
 		const res: RenderResult = await getRenderResult( userID );
 		if ( res.code === "ok" ) {
+			await bot.redis.setString( dbKey, res.data ); //应对频道高频使用场景优化
 			return res;
 		} else if ( res.code === "error" ) {
 			bot.logger.error( res.error );

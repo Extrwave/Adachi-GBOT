@@ -50,6 +50,15 @@ export async function main(
 	const uid: number = info;
 	const server: string = getRegion( uid.toString()[0] );
 	const target: string = atID ? atID : userID;
+	const dbKey: string = `adachi-temp-uid-query-${ uid }`;
+	
+	/* 一小时内重复获取 */
+	const queryTemp = await redis.getString( dbKey );
+	if ( queryTemp !== "" ) {
+		await sendMessage( { image: queryTemp } );
+		return;
+	}
+	
 	
 	try {
 		//此处个人信息获取逻辑已更改
@@ -79,6 +88,7 @@ export async function main(
 	);
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
+		await redis.setString( dbKey, res.data, 3600 * 1 ); //缓存半小时，避免恶意重复获取
 	} else if ( res.code === "error" ) {
 		await sendMessage( res.error );
 	} else {

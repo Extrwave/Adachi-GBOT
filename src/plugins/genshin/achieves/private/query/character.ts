@@ -118,6 +118,13 @@ export async function main(
 		return;
 	}
 	
+	const dbTempKey = `adachi-temp-char-${ uid }-${ charID }`
+	const charTemp = await redis.getString( dbTempKey );
+	if ( charTemp !== "" ) {
+		await sendMessage( { image: charTemp } );
+		return;
+	}
+	
 	await sendMessage( "获取成功，正在生成图片..." );
 	const res: RenderResult = await renderer.asUrlImage(
 		"/character.html", {
@@ -126,6 +133,7 @@ export async function main(
 		} );
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
+		await redis.setString( dbTempKey, res.data, 3600 * 0.5 );
 	} else if ( res.code === "error" ) {
 		await sendMessage( res.error );
 	} else {
