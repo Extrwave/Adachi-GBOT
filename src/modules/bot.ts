@@ -18,7 +18,7 @@ import { BasicRenderer } from "@modules/renderer";
 import Command, { BasicConfig, MatchResult } from "./command/main";
 import Authorization, { AuthLevel } from "./management/auth";
 import MsgManagement, * as msg from "./message";
-import MsgManager, { Message, MessageScope, SendFunc } from "./message";
+import MsgManager, { MemberMessage, Message, MessageScope, SendFunc } from "./message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
@@ -406,11 +406,16 @@ export class Adachi {
 	/* 用户退出频道事件 */
 	private membersDecrease( that: Adachi ) {
 		const bot = that.bot
-		return async function ( messageData: Message ) {
-			const userId = messageData.msg.author.id;
+		return async function ( messageData: MemberMessage ) {
+			const userId = messageData.msg.user.id;
+			/* 此处应该重构，或者等待新框架，好麻烦 */
 			const dbKey = `adachi.user-used-groups-${ userId }`;
 			const bindUID = `silvery-star.user-bind-uid-${ userId }`;
-			const yysSub = "extr-wave-yys-sign-" + userId;
+			const wishWeapon = `silvery-star-wish-weapon-${ userId }`;
+			const wishResult = `silvery-star-wish-result-${ userId }`;
+			const wishIndefinite = `silvery-star-wish-indefinite-${ userId }`;
+			const wishStatistic = `silvery-star-wish-statistic-${ userId }`;
+			const wishChoice = `silvery-star-wish-choice-${ userId }`;
 			//首先清除所有订阅服务
 			for ( const plugin in PluginReSubs ) {
 				try {
@@ -420,7 +425,7 @@ export class Adachi {
 				}
 			}
 			//清除使用记录
-			await bot.redis.deleteKey( dbKey, bindUID, yysSub );
+			await bot.redis.deleteKey( dbKey, bindUID, wishWeapon, wishResult, wishIndefinite, wishStatistic, wishChoice );
 		}
 	}
 }

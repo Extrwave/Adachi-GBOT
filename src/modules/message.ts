@@ -6,7 +6,7 @@
 import BotConfig from "@modules/config";
 import {
 	IDirectMessage, IMessage,
-	IOpenAPI,
+	IOpenAPI, IUser,
 	MessageToCreate
 } from 'qq-guild-bot';
 
@@ -21,6 +21,21 @@ export interface Message {
 interface Msg extends IMessage {
 	direct_message?: boolean,
 	src_guild_id?: string
+}
+
+
+/* 监听到成员变动消息的类型 */
+export interface MemberMessage {
+	eventType: string,
+	eventId: string,
+	msg: {
+		guild_id: string,
+		joined_at: string,
+		nick: string,
+		op_user_id: string,
+		roles: [],
+		user: IUser
+	}
 }
 
 
