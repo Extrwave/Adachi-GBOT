@@ -38,6 +38,27 @@ export interface MemberMessage {
 	}
 }
 
+/* BOT进入退出新旧频道监听事件 */
+export interface GuildsMove {
+	eventType: string,
+	eventId: string,
+	msg: {
+		description: string,
+		icon: string,
+		id: string,
+		joined_at: string,
+		max_members: number,
+		member_count: number,
+		name: string,
+		op_user_id: string,
+		owner: true,
+		owner_id: string,
+		union_appid: string,
+		union_org_id: string,
+		union_world_id: string
+	}
+}
+
 
 export enum MessageScope {
 	Neither,

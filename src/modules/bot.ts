@@ -125,6 +125,10 @@ export class Adachi {
 				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
 					this.membersDecrease( this )( data );
 			} )
+			/* 当机器人进入或者离开频道,更新频道数量信息 */
+			this.bot.ws.on( "GUILDS", ( data ) => {
+				this.getBotBaseInfo( this );
+			} )
 			
 			this.bot.logger.info( "事件监听启动成功" );
 			this.getBotBaseInfo( this );
