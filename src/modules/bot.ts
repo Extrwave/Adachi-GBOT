@@ -131,7 +131,7 @@ export class Adachi {
 		} );
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
-		
+		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
 		return this.bot;
 	}
 	
@@ -336,6 +336,19 @@ export class Adachi {
 		}
 	}
 	
+	/* 清除所有图片缓存 */
+	private clearImage( that: Adachi ): JobCallback {
+		const bot = that.bot;
+		return function (): void {
+			bot.redis.getKeysByPrefix( `adachi-temp-*` ).then( async data => {
+				data.forEach( value => {
+					bot.redis.deleteKey( value );
+				} );
+			} );
+			bot.logger.info( "已清除所有缓存图片链接" );
+		}
+	}
+	
 	/**
 	 * 获取BOT类型，并返回正确的intents
 	 * 为使BOT能正确启动，默认最小权限
@@ -384,13 +397,13 @@ export class Adachi {
 				let ack: boolean = false;
 				for ( let guild of guilds ) {
 					await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
-					if ( guild.owner_id === this.bot.config.master ) {
+					if ( guild.owner_id === this.bot.config.master && !ack ) {
 						await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
 						ack = true;
-						return;
+						continue;
 					}
 				}
-				if ( ack ) {
+				if ( !ack ) {
 					bot.logger.error( "频道信息获取错误，或者MasterID设置错误，部分功能会受到影响" );
 				}
 			}

@@ -16,7 +16,7 @@ function monthCheck( m: number ) {
 }
 
 export async function main(
-	{ sendMessage, messageData, auth, logger }: InputParameter
+	{ sendMessage, messageData, auth, logger, redis }: InputParameter
 ): Promise<void> {
 	const userID: string = messageData.msg.author.id;
 	const data = <RegExpExecArray>( /(\d+)? *(\d+)?/.exec( messageData.msg.content ) );
@@ -51,6 +51,13 @@ export async function main(
 	
 	const { cookie, uid, server } = info.setting;
 	
+	const dbKey = `adachi-temp-ledger-${ uid }-${ month }`;
+	const ledgerTemp = await redis.getString( dbKey );
+	if ( ledgerTemp !== "" ) {
+		await sendMessage( { content: "数据存在半小时延迟", image: ledgerTemp } );
+		return;
+	}
+	
 	try {
 		await ledgerPromise( uid, server, month, cookie );
 	} catch ( error ) {
@@ -63,6 +70,7 @@ export async function main(
 	const res: RenderResult = await renderer.asUrlImage( "/ledger.html", { uid } );
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
+		await redis.setString( dbKey, res.data, 3600 * 0.5 );
 	} else if ( res.code === "error" ) {
 		await sendMessage( res.error );
 	} else {

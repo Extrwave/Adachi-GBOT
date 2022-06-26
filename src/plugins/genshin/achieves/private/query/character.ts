@@ -121,7 +121,7 @@ export async function main(
 	const dbTempKey = `adachi-temp-char-${ uid }-${ charID }`
 	const charTemp = await redis.getString( dbTempKey );
 	if ( charTemp !== "" ) {
-		await sendMessage( { image: charTemp } );
+		await sendMessage( { content: "数据存在半小时延迟", image: charTemp } );
 		return;
 	}
 	

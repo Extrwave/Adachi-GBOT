@@ -29,7 +29,7 @@ async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
 			continue;
 		}
 		
-		bot.logger.info( `正在进行用户 ${ account.account.nick } 云原神签到` );
+		bot.logger.info( `正在进行用户 [ ${ account.account.nick } ] 云原神签到` );
 		//获取用户信息填充header
 		const headers: HEADERS = await getHeaders( userId );
 		const message = await getWalletURL( headers );

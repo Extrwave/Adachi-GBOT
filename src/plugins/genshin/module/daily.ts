@@ -76,8 +76,6 @@ export class DailyClass {
 		/* 每天四点删除昨日材料数据 */
 		scheduleJob( "0 0 4 * * *", async () => {
 			this.detail = await getDailyMaterial();
-			await bot.redis.deleteKey( `adachi-temp-daily-material` );
-			bot.logger.info( "每日材料已重新加载" );
 		} );
 		
 		/* 获取订阅？已经忘记了 */

@@ -68,10 +68,10 @@ export class SignInService implements Service {
 			}
 			await signInResultPromise( uid, server, cookie );
 			await this.sendMessage(
-				`[UID ${ uid }]\n
-			今日已完成签到
-			本月累计签到 ${ info.totalSignDay + 1 } 天
-			明天也会自动签到哦`
+				`[UID ${ uid }]
+				今日已完成签到
+				本月累计签到 ${ info.totalSignDay + 1 } 天
+				明天同一时间见~`
 			);
 		} catch ( error ) {
 			await this.sendMessage( <string>error );
