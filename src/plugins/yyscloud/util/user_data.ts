@@ -23,6 +23,12 @@ export async function savaUserData( token: string, userID: string ): Promise<str
 	return `[ ${ userID } ] 已开启云原神签到服务`
 }
 
+export async function cancelToken( userID: string ) {
+	const dbKey = "extr-wave-yys-sign-" + userID;
+	await bot.redis.deleteKey( dbKey );
+}
+
+
 //检查token有效性
 export async function checkToken( userId: string ) {
 	//获取用户信息填充header

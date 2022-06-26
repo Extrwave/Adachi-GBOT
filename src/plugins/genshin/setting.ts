@@ -8,7 +8,7 @@ const bind: OrderConfig = {
 	cmdKey: "silvery-star-bind",
 	desc: [ "米游社绑定", "[UID|-r]" ],
 	headers: [ "bind" ],
-	regexps: [ "\\d{9}" ],
+	regexps: [ "(\\d{9}|-r)" ],
 	main: "achieves/bind",
 	detail: "将频道ID与uid绑定，使用-r解除绑定"
 };

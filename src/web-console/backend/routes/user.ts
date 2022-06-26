@@ -3,7 +3,7 @@ import express from "express";
 import { AuthLevel } from "@modules/management/auth";
 import { PluginReSubs, SubInfo } from "@modules/plugin";
 import { BOT } from "@modules/bot";
-import { getGidMemberIn, getGuildBaseInfo, getMemberInfo, getMemberInfoInGuild } from "@modules/utils/account";
+import { getGuildBaseInfo, getMemberInfoInGuild } from "@modules/utils/account";
 
 type UserInfo = {
 	userID: string;

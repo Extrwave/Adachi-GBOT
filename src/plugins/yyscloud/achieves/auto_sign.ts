@@ -2,28 +2,41 @@ import bot from "ROOT";
 import { scheduleJob } from "node-schedule";
 import { getWalletURL, getAnnouncementURL, getNotificationURL, HEADERS } from "../util/api";
 import { getHeaders } from "#yyscloud/util/header";
-import { getGidMemberIn } from "@modules/utils/account";
+import { getMemberInfo } from "@modules/utils/account";
+import { InputParameter } from "@modules/command";
+import * as Msg from "@modules/message";
 
 
 //定时任务
 export async function autoSign() {
-	bot.logger.info( "云原神自动签到已启动" );
+	bot.logger.info( "云原神自动签到服务已启动" );
 	scheduleJob( "5 6 7 * * *", async () => {
-		let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign-*' );
-		for ( let key of keys ) {
-			let userId = key.split( '-' )[4];
-			bot.logger.info( `正在进行用户 ${ userId } 云原神签到` );
-			//获取用户信息填充header
-			const headers: HEADERS = await getHeaders( userId );
-			const message = await getWalletURL( headers );
-			const data = JSON.parse( message );
-			//此处私发逻辑已更改
-			const guild = await getGidMemberIn( userId );
-			if ( !guild ) {
-				bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userId );
-				return;
-			}
-			const sendMessage = await bot.message.getPrivateSendFunc( guild, userId );
+		await allSign( true );
+	} );
+}
+
+async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
+	let keys: string[] = await bot.redis.getKeysByPrefix( 'extr-wave-yys-sign-*' );
+	const result: string[] = [];
+	
+	for ( let key of keys ) {
+		let userId = key.split( '-' )[4];
+		//此处私发逻辑已更改
+		const account = await getMemberInfo( userId );
+		if ( !account ) {
+			bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userId );
+			result.push( "检查是否退出频道 ID：" + userId );
+			continue;
+		}
+		
+		bot.logger.info( `正在进行用户 ${ account.account.nick } 云原神签到` );
+		//获取用户信息填充header
+		const headers: HEADERS = await getHeaders( userId );
+		const message = await getWalletURL( headers );
+		const data = JSON.parse( message );
+		
+		if ( auto ) {
+			const sendMessage = await bot.message.getPrivateSendFunc( account.guildID, userId );
 			if ( data.retcode === 0 && data.message === "OK" ) {
 				await sendMessage(
 					`今日云原神签到成功\n` +
@@ -35,6 +48,15 @@ export async function autoSign() {
 			} else {
 				await sendMessage( data.message );
 			}
+		} else {
+			result.push( `已为用户 [ ${ account.account.nick } ] 云原神签到成功` );
 		}
-	} );
+	}
+	if ( result.length > 0 && sendMessage ) {
+		await sendMessage( [ ...result ].join( "\n" ) );
+	}
+}
+
+export async function main( { sendMessage }: InputParameter ) {
+	await allSign( false, sendMessage );
 }

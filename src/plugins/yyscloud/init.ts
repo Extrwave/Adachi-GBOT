@@ -3,6 +3,10 @@ import { OrderConfig } from "@modules/command";
 import { autoSign } from "./achieves/auto_sign";
 import { MessageScope } from "@modules/message";
 import { BOT } from "@modules/bot";
+import { AuthLevel } from "@modules/management/auth";
+import { cancelToken } from "#yyscloud/util/user_data";
+import { getMemberInfo } from "@modules/utils/account";
+import bot from "ROOT";
 
 const signEnable: OrderConfig = {
 	type: "order",
@@ -36,6 +40,16 @@ const signDisable: OrderConfig = {
 	scope: MessageScope.Private,
 };
 
+const signRemedy: OrderConfig = {
+	type: "order",
+	cmdKey: "extr-wave-yysign-remedy",
+	desc: [ "云原神全员签到", "" ],
+	headers: [ "allyys" ],
+	regexps: [],
+	main: "achieves/auto_sign",
+	auth: AuthLevel.Manager
+}
+
 
 export async function subs( { redis }: BOT ): Promise<SubInfo[]> {
 	const yysSub: string[] = await redis.getKeysByPrefix( "extr-wave-yys-sign-" );
@@ -57,8 +71,15 @@ export async function subInfo(): Promise<PluginSubSetting> {
 }
 
 /* 取消他人云原神签到服务方法 */
-async function exitGuildClean( userId: string, { redis }: BOT ) {
-	await redis.deleteKey( `extr-wave-yys-sign-${ userId }` );
+async function exitGuildClean( userId: string ) {
+	await cancelToken( userId );
+	const info = await getMemberInfo( userId );
+	if ( info ) {
+		const sendMessage = await bot.message.getPrivateSendFunc( info.guildID, userId );
+		await sendMessage( `你的云原神签到配置已被管理员取消` );
+	} else {
+		bot.logger.error( "取消云原神通知消息发送失败，或许TA已退出频道" );
+	}
 }
 
 
@@ -67,6 +88,6 @@ export async function init(): Promise<PluginSetting> {
 	await autoSign();
 	return {
 		pluginName: "yyscloud",
-		cfgList: [ signEnable, signConfirm, signDisable ]
+		cfgList: [ signEnable, signConfirm, signDisable, signRemedy ]
 	};
 }
