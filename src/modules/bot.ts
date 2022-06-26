@@ -24,6 +24,7 @@ import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
 import { config } from "#genshin/init";
 import { autoReply } from "@modules/chat";
+import { getMemberInfo } from "@modules/utils/account";
 
 
 export interface BOT {
@@ -424,9 +425,20 @@ export class Adachi {
 	private membersDecrease( that: Adachi ) {
 		const bot = that.bot
 		return async function ( messageData: MemberMessage ) {
+			
 			const userId = messageData.msg.user.id;
+			const guildId = messageData.msg.guild_id;
+			const userInfo = await getMemberInfo( userId );
+			
 			/* 此处应该重构，或者等待新框架，好麻烦 */
 			const dbKey = `adachi.user-used-groups-${ userId }`;
+			
+			/* 与机器人还有共同频道就不清除数据 */
+			if ( userInfo ) {
+				await bot.redis.delSetMember( dbKey, guildId );
+				return;
+			}
+			
 			const bindUID = `silvery-star.user-bind-uid-${ userId }`;
 			const wishWeapon = `silvery-star-wish-weapon-${ userId }`;
 			const wishResult = `silvery-star-wish-result-${ userId }`;

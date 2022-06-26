@@ -15,14 +15,6 @@ export async function main(
 	
 	const result: NameResult = getRealName( name );
 	
-	/* 八小时内重复获取 */
-	const dbKey: string = `adachi-temp-info-${ result }-${ isSkillPage }`;
-	const infoTemp = await redis.getString( dbKey );
-	if ( infoTemp !== "" ) {
-		await sendMessage( { image: infoTemp } );
-		return;
-	}
-	
 	if ( result.definite ) {
 		const info = <string>result.info;
 		const checked = ( list: any ) => list.includes( info );
@@ -30,6 +22,14 @@ export async function main(
 		if ( !checked( Object.keys( typeData.character ) ) && isSkillPage ) {
 			await sendMessage( "仅角色支持查看技能详情" );
 		} else {
+			/* 八小时内重复获取 */
+			const dbKey: string = `adachi-temp-info-${ result.info }-${ isSkillPage }`;
+			const infoTemp = await redis.getString( dbKey );
+			if ( infoTemp !== "" ) {
+				await sendMessage( { image: infoTemp } );
+				return;
+			}
+			
 			const route: string = checked( typeData.artifact.suitNames ) ? "/info-artifact.html" : "/info.html";
 			await sendMessage( "获取成功，正在生成图片..." );
 			const res: RenderResult = await renderer.asUrlImage(
