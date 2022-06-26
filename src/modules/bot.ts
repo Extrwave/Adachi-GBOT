@@ -76,8 +76,11 @@ export class Adachi {
 		);
 		/* 捕获未知且未被 catch 的错误 */
 		process.on( "unhandledRejection", reason => {
-			if ( reason )
+			if ( ( <Error>reason ).stack ) {
 				logger.error( ( <Error>reason ).stack );
+			} else if ( reason ) {
+				logger.error( reason );
+			}
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );

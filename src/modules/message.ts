@@ -143,16 +143,24 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	/* 回复频道消息方法，被动*/
-	public sendGuildMessage( channelID: string, msg_id?: string ): SendFunc {
+	public sendGuildMessage( channelID: string, msg_id: string ): SendFunc {
 		const client = this.client;
 		return async function ( content: MessageToCreate | string ) {
 			if ( typeof content === 'string' ) {
 				await client.messageApi.postMessage( channelID, {
 					content: content,
-					msg_id: msg_id
+					msg_id: msg_id,
+					message_reference: {
+						message_id: msg_id,
+						ignore_get_message_error: true
+					}
 				} );
 			} else {
 				content.msg_id = msg_id;
+				content.message_reference = {
+					message_id: msg_id,
+					ignore_get_message_error: true
+				};
 				await client.messageApi.postMessage( channelID, content );
 			}
 		}

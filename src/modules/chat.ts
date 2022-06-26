@@ -28,7 +28,7 @@ export async function autoReply( messageData: msg.Message, sendMessage: msg.Send
 				message = await getWeDog();
 				break;
 			case /教程/.test( msg ):
-				message = "主页：https://blog.ethreal.cn/home\n" +
+				message = "主页(教程)：https://blog.ethreal.cn/home\n" +
 					"cookie获取: https://blog.ethreal.cn/archives/hdmyscookies\n" +
 					"token获取: https://blog.ethreal.cn/archives/yysgettoken";
 				break;
