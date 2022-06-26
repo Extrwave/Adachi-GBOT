@@ -77,8 +77,6 @@ async function exitGuildClean( userId: string ) {
 	if ( info ) {
 		const sendMessage = await bot.message.getPrivateSendFunc( info.guildID, userId );
 		await sendMessage( `你的云原神签到配置已被管理员取消` );
-	} else {
-		bot.logger.error( "取消云原神通知消息发送失败，或许TA已退出频道" );
 	}
 }
 
