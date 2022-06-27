@@ -158,10 +158,6 @@ export default class MsgManager implements MsgManagementMethod {
 					} );
 				} else {
 					content.msg_id = msg_id;
-					content.message_reference = {
-						message_id: msg_id,
-						ignore_get_message_error: true
-					};
 					await client.messageApi.postMessage( channelID, content );
 				}
 			} else {

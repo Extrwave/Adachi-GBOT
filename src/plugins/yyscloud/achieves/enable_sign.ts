@@ -26,7 +26,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 			await send( "云原神签到服务申请超时，BOT 自动取消\n" +
 				"请先检查发送消息内容是否符合要求\n" +
 				"频道私聊可能会屏蔽发送的敏感信息\n" +
-				"如果消息被吞，请将token base64后发送" );
+				"如果BOT无响应，退出登录重新获取token试试" );
 		}
 	} );
 	

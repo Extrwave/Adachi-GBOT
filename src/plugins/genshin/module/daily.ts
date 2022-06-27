@@ -226,7 +226,6 @@ export class DailyClass {
 		/* 当日已经缓存过每日材料数据 */
 		const daily = await bot.redis.getString( dbKey );
 		if ( daily !== "" ) {
-			bot.logger.info( "返回缓存材料数据" );
 			return { code: "ok", data: daily };
 		}
 		

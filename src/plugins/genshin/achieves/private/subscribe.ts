@@ -28,7 +28,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 			await send( "授权服务申请超时，BOT 自动取消\n" +
 				"请先检查发送消息内容是否符合要求\n" +
 				"频道私聊可能会屏蔽发送的敏感信息\n" +
-				"如你的消息被吞，请将cookie base64后发送" );
+				"如果BOT无响应，退出登录重新获取cookie试试" );
 		}
 	} );
 	
@@ -109,5 +109,6 @@ export async function main(
 	} else if ( CONFIRM.getHeaders().includes( header ) ) {
 		const msg: string = await confirm( userID, data, a, SUBSCRIBE );
 		await sendMessage( msg );
+		await sendMessage( "记得点击BOT头像开放推送限制，不然每天能发送三条消息..." );
 	}
 }

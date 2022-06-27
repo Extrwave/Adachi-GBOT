@@ -14,6 +14,24 @@ export async function main(
 	const nickname: string = messageData.msg.author.username;
 	const param: string = messageData.msg.content;
 	
+	const dbKey = `adachi.user-wish-limit`;
+	const dbKeyTime = `adachi.user-wish-limit-time-${ userID }`;
+	const time = await redis.getHashField( dbKey, userID );
+	const timeLimit = await redis.getKeyTTL( dbKeyTime );
+	if ( parseInt( time ) >= 20 ) {
+		await redis.setString( dbKeyTime, "true", 3600 );
+		await redis.setHashField( dbKey, userID, 0 );
+		await sendMessage( `太激烈了，让本BOT歇会\n\n一小时内限制抽卡20次\n\n喜欢抽卡推荐去私服\n\n@我发送 [ 教程 ] 去找找？` );
+		return;
+	}
+	if ( timeLimit > 0 ) {
+		const s = timeLimit % 60;
+		const m = Math.floor( timeLimit / 60 );
+		await sendMessage( `太激烈了，请 ${ m }m ${ s }s 过后再试试吧~` );
+		return;
+	}
+	
+	await redis.incHash( dbKey, userID, 1 );
 	const wishLimitNum = config.wishLimitNum;
 	if ( wishLimitNum < 99 && ( /^\d+$/.test( param ) && parseInt( param ) > wishLimitNum ) ) {
 		await sendMessage( `因 BOT 持有者限制，仅允许使用 ${ wishLimitNum } 次以内的十连抽卡` );
