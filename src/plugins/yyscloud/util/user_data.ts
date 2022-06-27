@@ -35,6 +35,7 @@ export async function checkToken( userId: string ) {
 	const headers = await getHeaders( userId );
 	const message = await getWalletURL( headers );
 	const data = JSON.parse( message );
+	console.log( data );
 	return data.retcode === 0 && data.message === "OK";
 }
 

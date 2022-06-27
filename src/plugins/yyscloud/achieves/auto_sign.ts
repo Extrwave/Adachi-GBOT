@@ -34,10 +34,9 @@ async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
 		const headers: HEADERS = await getHeaders( userId );
 		const message = await getWalletURL( headers );
 		const data = JSON.parse( message );
-		
-		if ( auto ) {
-			const sendPostMessage = await bot.message.getPrivateSendFunc( account.guildID, userId );
-			if ( data.retcode === 0 && data.message === "OK" ) {
+		const sendPostMessage = await bot.message.getPrivateSendFunc( account.guildID, userId );
+		if ( data.retcode === 0 && data.message === "OK" ) {
+			if ( auto ) {
 				await sendPostMessage(
 					`今日云原神签到成功\n` +
 					`畅玩卡状态：${ data.data.play_card.short_msg }\n` +
@@ -45,11 +44,15 @@ async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
 					`当前剩余免费时间：${ data.data.free_time.free_time } / ${ data.data.free_time.free_time_limit }\n` +
 					`当前剩余总分钟数：${ data.data.total_time } `
 				);
-			} else {
+			}
+			result.push( `[ ${ account.account.nick } ] 云原神签到成功` );
+		} //签到失败
+		else {
+			if ( auto ) {
 				await sendPostMessage( data.message );
 			}
-		} else {
-			result.push( `已为用户 [ ${ account.account.nick } ] 云原神签到成功` );
+			result.push( `[ ${ account.account.nick } ]: 账号已过期或者防沉迷限制` );
+			bot.logger.error( `[ ${ account.account.nick } ]: 账号已过期或者防沉迷限制` );
 		}
 	}
 	if ( result.length > 0 && sendMessage ) {
