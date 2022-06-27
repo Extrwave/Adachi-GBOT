@@ -15,6 +15,9 @@ export async function autoReply( messageData: msg.Message, sendMessage: msg.Send
 	} else {
 		let message = "";
 		switch ( true ) {
+			case /\//.test( msg ):
+				message = "请输入正确的指令和参数\n具体用法查阅：/help ";
+				break;
 			case /渣/.test( msg ):
 				message = await getTextResponse( API.lovelive );
 				break;
