@@ -56,11 +56,22 @@ const refresh: OrderConfig = {
 	detail: "该指令用于重新加载在 /config 目录中的部分配置文件（setting 不会重新加载）"
 }
 
+const announce: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-announce",
+	desc: [ "发送公告", "" ],
+	headers: [ "announce" ],
+	regexps: [ ".+" ],
+	auth: AuthLevel.Master,
+	main: "announce",
+	detail: "该指令用于全局发送公告"
+}
+
 export async function init(): Promise<PluginSetting> {
 	return {
 		pluginName: "@management",
 		cfgList: [
-			manager, refresh, ban, limit
+			manager, refresh, ban, limit, announce
 		]
 	}
 }

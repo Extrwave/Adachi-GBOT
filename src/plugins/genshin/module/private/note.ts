@@ -68,7 +68,7 @@ export class NoteService implements Service {
 		}
 	}
 	
-	public async toggleEnableStatus( status?: boolean, message: boolean = true ): Promise<void> {
+	public async toggleEnableStatus( status?: boolean, message: boolean = true ): Promise<string> {
 		this.enable = status === undefined ? !this.enable : status;
 		if ( this.enable ) {
 			this.scheduleJobOn();
@@ -76,9 +76,9 @@ export class NoteService implements Service {
 			this.scheduleJobOff();
 			this.clearEvents();
 		}
-		message && await this.sendMessage( `树脂及冒险探索定时提醒功能已${ this.enable ? "开启" : "关闭" }` );
 		/* 回传进行数据库更新 */
 		await this.parent.refreshDBContent( NoteService.FixedField );
+		return `树脂及冒险探索定时提醒功能已${ this.enable ? "开启" : "关闭" }`;
 	}
 	
 	private scheduleJobOn(): void {

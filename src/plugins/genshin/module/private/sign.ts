@@ -44,7 +44,7 @@ export class SignInService implements Service {
 		return `米游社签到功能已放行，请使用「${ TOGGLE_SIGN.getHeaders()[0] }+序号」开启本功能`;
 	}
 	
-	public async toggleEnableStatus( status?: boolean, message: boolean = true ): Promise<void> {
+	public async toggleEnableStatus( status?: boolean, message: boolean = true ): Promise<string> {
 		this.enable = status === undefined ? !this.enable : status;
 		if ( this.enable ) {
 			await this.sign( false );
@@ -52,9 +52,9 @@ export class SignInService implements Service {
 		} else {
 			this.cancelScheduleJob();
 		}
-		message && await this.sendMessage( `米游社签到功能已${ this.enable ? "开启" : "关闭" }` );
 		/* 回传进行数据库更新 */
 		await this.parent.refreshDBContent( SignInService.FixedField );
+		return `米游社签到功能已${ this.enable ? "开启" : "关闭" }`;
 	}
 	
 	
@@ -75,6 +75,7 @@ export class SignInService implements Service {
 			);
 		} catch ( error ) {
 			await this.sendMessage( <string>error );
+			bot.logger.warn( `[UID ${ uid }]` + <string>error );
 		}
 	}
 	

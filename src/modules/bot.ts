@@ -201,8 +201,8 @@ export class Adachi {
 		}
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
-		const content: string = messageData.msg.content;
-		if ( this.bot.config.autoChat && !unionRegExp.test( content ) && isAt && content.length < 15 ) {
+		const content: string = messageData.msg.content.trim();
+		if ( this.bot.config.autoChat && !unionRegExp.test( content ) && isAt ) {
 			await autoReply( messageData, sendMessage );
 			return;
 		}
@@ -286,6 +286,7 @@ export class Adachi {
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Group );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );
 			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false, isAt );
+			await bot.redis.setHashField( `adachi.guild-used-channel`, guild, channelID ); //记录可以推送消息的频道
 			bot.logger.info( `[Author: ${ authorName }][Guild: ${ guildInfo.name }]: ${ content }` );
 		}
 	}
