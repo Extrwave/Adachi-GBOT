@@ -36,9 +36,9 @@ async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
 		const data = JSON.parse( message );
 		
 		if ( auto ) {
-			const sendMessage = await bot.message.getPrivateSendFunc( account.guildID, userId );
+			const sendPostMessage = await bot.message.getPrivateSendFunc( account.guildID, userId );
 			if ( data.retcode === 0 && data.message === "OK" ) {
-				await sendMessage(
+				await sendPostMessage(
 					`今日云原神签到成功\n` +
 					`畅玩卡状态：${ data.data.play_card.short_msg }\n` +
 					`当前米云币数量：${ data.data.coin.coin_num }\n` +
@@ -46,7 +46,7 @@ async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
 					`当前剩余总分钟数：${ data.data.total_time } `
 				);
 			} else {
-				await sendMessage( data.message );
+				await sendPostMessage( data.message );
 			}
 		} else {
 			result.push( `已为用户 [ ${ account.account.nick } ] 云原神签到成功` );

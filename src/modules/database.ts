@@ -129,6 +129,14 @@ export default class Database implements DatabaseMethod {
 		}
 	}
 	
+	public async incKey( key: string, increment: number ): Promise<void> {
+		if ( parseInt( increment.toString() ) === increment ) {
+			this.client.incrby( key, increment );
+		} else {
+			this.client.incrbyfloat( key, increment );
+		}
+	}
+	
 	public async existHashKey( key: string, field: string ): Promise<boolean> {
 		return new Promise( ( resolve, reject ) => {
 			this.client.hexists( key, field, ( error: Error | null, data: number ) => {
@@ -161,7 +169,7 @@ export default class Database implements DatabaseMethod {
 		} );
 	}
 	
-	public async getKeyTTL( key: string ): Promise<number> {
+	public async getTimeOut( key: string ): Promise<number> {
 		return new Promise( ( resolve, reject ) => {
 			this.client.ttl( key, ( error: Error | null, data: number | null ) => {
 				if ( error !== null ) {
