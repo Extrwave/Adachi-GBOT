@@ -261,7 +261,7 @@ export class Adachi {
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Private );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Private );
 			await that.execute( messageData, sendMessage, cmdSet, limit, unionReg, true, true );
-			bot.logger.info( `[Author: ${ authorName }][UserID: ${ userID }]: ${ content }` );
+			bot.logger.info( `[A: ${ authorName }][ID: ${ userID }]: ${ content }` );
 		}
 	}
 	
@@ -287,7 +287,7 @@ export class Adachi {
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );
 			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false, isAt );
 			await bot.redis.setHashField( `adachi.guild-used-channel`, guild, channelID ); //记录可以推送消息的频道
-			bot.logger.info( `[Author: ${ authorName }][Guild: ${ guildInfo.name }]: ${ content }` );
+			bot.logger.info( `[A: ${ authorName }][G: ${ guildInfo.name }]: ${ content }` );
 		}
 	}
 	

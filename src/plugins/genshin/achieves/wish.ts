@@ -39,8 +39,8 @@ export async function main(
 	await redis.incKey( dbKey, 1 );
 	
 	const wishLimitNum = config.wishLimitNum;
-	if ( wishLimitNum < 99 && ( /^\d+$/.test( param ) && parseInt( param ) > wishLimitNum ) ) {
-		await sendMessage( `因 BOT 持有者限制，仅允许使用 ${ wishLimitNum } 次以内的十连抽卡` );
+	if ( ( /^\d+$/.test( param ) && parseInt( param ) > wishLimitNum ) ) {
+		await sendMessage( `太累了，我直接罢工开摆！\n` + `仅允许使用 ${ wishLimitNum } 次以内的十连抽卡` );
 		return;
 	}
 	

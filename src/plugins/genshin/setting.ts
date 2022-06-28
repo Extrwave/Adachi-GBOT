@@ -58,7 +58,7 @@ const wish: OrderConfig = {
 	cmdKey: "silvery-star-wish",
 	desc: [ "祈愿抽卡", "(次数|until)" ],
 	headers: [ "wish", "w" ],
-	regexps: [ "(\\d{1,2}|until)?" ],
+	regexps: [ "(\\d+|until)?" ],
 	main: "achieves/wish",
 	detail: "抽卡次数可以填写 1~99，表示十连抽的次数，默认为 1\n" +
 		"使用 until 的时候会一直抽到 UP 武器或角色"
