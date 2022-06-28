@@ -36,14 +36,16 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 		title = `『 ${ info.account.nick } 』您好 \n`
 	}
 	
-	return title + "请务必确保 BOT 持有者可信任\n" +
-		`本BOT承诺未经您的允许不使用此token\n` +
-		`确定开启该功能，使用以下指令来开启\n` +
+	return title +
+		"请务必确保 BOT 持有者可信任\n" +
+		`本BOT承诺保护您的账户信息\n` +
+		`确定开启授权功能，请使用此指令\n ` +
 		`「 ${ CONFIRM.getHeaders()[0] } token 」\n` +
+		"token 请你按照教程获取并替换\n" +
 		"请在 3 分钟内进行，超时会自动取消\n" +
-		"token获取：@BOT发送：token教程 \n" +
-		"在频道中使用一次任意指令才可推送\n" +
-		"（教程只能在频道里 @ 获取）";
+		"教程获取：@BOT发送：cookie教程 \n\n" +
+		"因为私信无法发送任何链接消息\n" +
+		"所以请到频道 @BOT 发送 教程";
 }
 
 async function confirm(
@@ -55,6 +57,9 @@ async function confirm(
 	}
 	
 	/* 由于腾讯默认屏蔽含有cookie消息，故采用base64加密一下？试试 */
+	if ( /token/.test( token ) ) {
+		return `请问你看教程了吗？cookie是需要按照教程获取并替换，不是直接发 "cookie"`
+	}
 	const reg = new RegExp( /.*?oi=([0-9]+).*?/g );
 	let execRes: RegExpExecArray | null = reg.exec( token );
 	let execResBase64: RegExpExecArray | null = reg.exec( decode( token ) );

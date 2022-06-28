@@ -13,7 +13,15 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 	const auth: AuthLevel = await bot.auth.get( userID );
 	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	if ( accounts.length === 0 ) {
-		return [ { code: "msg", data: `配置尚未完成\n请私聊本BOT发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` } ];
+		return [ {
+			code: "msg", data: "此功能需要您的账户授权信息\n" +
+				"授权后你将拥有以下进阶功能\n\n" +
+				"树脂查询         达量推送\n" +
+				"深渊查询         自动签到\n" +
+				"旅行札记                \n\n" +
+				"如需添加授权，请私聊本BOT\n" +
+				"发送 " + PRIVATE_ADD.getHeaders()[0] + " 并按照提示完成操作"
+		} ];
 	}
 	
 	const imageList: SendMsgType[] = [];
