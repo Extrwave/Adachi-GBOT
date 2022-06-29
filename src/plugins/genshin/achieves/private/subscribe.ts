@@ -61,7 +61,9 @@ async function confirm(
 	
 	/* 由于腾讯默认屏蔽含有cookie消息，故采用base64加密一下？试试 */
 	if ( /cookie/.test( cookie ) ) {
-		return `请问你看教程了吗？cookie是需要按照教程获取并替换，不是直接发 "cookie"`
+		return `请问你看教程了吗？cookie是需要按照教程获取并替换\n` +
+			`不是直接发 "cookie"，比如 /confirm _ga=GA1.2...\n` +
+			`实在有问题请前往BOT头像个人信息上面的官方频道反馈`;
 	}
 	
 	const reg = new RegExp( /.*?ltuid=([0-9]+).*?/g );

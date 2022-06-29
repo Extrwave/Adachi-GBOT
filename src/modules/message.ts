@@ -79,6 +79,13 @@ export interface SendMsgType {
 	data: string
 }
 
+/* SDK 消息错误类型 */
+export interface ErrorMsg {
+	code: number,
+	message: string,
+	traceid: string,
+}
+
 export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<void>;
 
 interface MsgManagementMethod {

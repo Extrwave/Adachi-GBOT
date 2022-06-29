@@ -33,7 +33,7 @@ export async function main(
 	}
 	
 	if ( wishLimitID.has( userID ) ) {
-		await sendMessage( "太激烈了，限制 20/h ，下个小时再试吧" );
+		await sendMessage( "太激烈了，限制 20次/小时 ，下个小时再试吧" );
 		return;
 	}
 	await redis.incKey( dbKey, 1 );

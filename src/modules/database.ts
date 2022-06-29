@@ -205,6 +205,18 @@ export default class Database implements DatabaseMethod {
 		} );
 	}
 	
+	public async getListByIndex( key: string, index: number ): Promise<string> {
+		return new Promise( ( resolve, reject ) => {
+			this.client.lindex( key, index, ( error: Error | null, data: string ) => {
+				if ( error !== null ) {
+					reject( error );
+				} else {
+					resolve( data || "" );
+				}
+			} );
+		} );
+	}
+	
 	public async addListElement( key: string, ...value: any[] ): Promise<void> {
 		this.client.rpush( key, value );
 	}
