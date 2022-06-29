@@ -57,11 +57,6 @@ async function confirm(
 	}
 	
 	/* 由于腾讯默认屏蔽含有cookie消息，故采用base64加密一下？试试 */
-	if ( /token/.test( token ) ) {
-		return `请问你看教程了吗？cookie是需要按照教程获取并替换\n` +
-			`不是直接发 "cookie"，比如 /yconfirm ai=4;ci=1...` +
-			`实在有问题请前往BOT头像个人信息上面的官方频道反馈`;
-	}
 	const reg = new RegExp( /.*?oi=([0-9]+).*?/g );
 	let execRes: RegExpExecArray | null = reg.exec( token );
 	let execResBase64: RegExpExecArray | null = reg.exec( decode( token ) );
@@ -69,7 +64,10 @@ async function confirm(
 		let resMsg = "无效的 token，尝试解码数据\n" +
 			"正在尝试Base64解码token...\n"
 		if ( execResBase64 === null )
-			return resMsg + "抱歉，请重新提交正确的 token";
+			return resMsg + "抱歉，请重新提交正确的 token" +
+				`cookie是需要按照教程获取并替换\n` +
+				`不是直接发 "cookie"，比如 /confirm _ga=GA1.2...\n` +
+				`实在有问题请前往BOT头像个人信息上面的官方频道反馈`;
 		else {
 			token = decode( token );
 		}
