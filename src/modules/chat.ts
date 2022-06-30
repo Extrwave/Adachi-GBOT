@@ -7,7 +7,7 @@ import { API, getChatResponse, getEmoji, getTextResponse, getWeDog } from "@modu
 
 export async function autoReply( messageData: msg.Message, sendMessage: msg.SendFunc ) {
 	//处理传入的数据
-	const msg: string = messageData.msg.content;
+	const msg: string = messageData.msg.content.trim() || "";
 	//开始匹配回答
 	if ( msg.length <= 0 ) {
 		//随即回复一个表情包

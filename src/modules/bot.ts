@@ -86,7 +86,7 @@ export class Adachi {
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
 		const interval = new Interval( config, redis );
 		const auth = new Authorization( config, redis );
-		const message = new MsgManager( config, client );
+		const message = new MsgManager( config, client, redis );
 		const command = new Command( file );
 		const refresh = new RefreshConfig( file, command );
 		const renderer = new BasicRenderer();
@@ -127,7 +127,7 @@ export class Adachi {
 			/* 成员变动相关 */
 			this.bot.ws.on( "GUILD_MEMBERS", ( data ) => {
 				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
-					this.membersDecrease( this )( data );
+					this.membersDecrease( this )( data.msg.user.id );
 			} )
 			/* 当机器人进入或者离开频道,更新频道数量信息 */
 			this.bot.ws.on( "GUILDS", ( data ) => {
@@ -201,7 +201,7 @@ export class Adachi {
 		}
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
-		const content: string = messageData.msg.content.trim();
+		const content: string = messageData.msg.content.trim() || '';
 		if ( this.bot.config.autoChat && !unionRegExp.test( content ) && isAt ) {
 			await autoReply( messageData, sendMessage );
 			return;
@@ -417,6 +417,8 @@ export class Adachi {
 				}
 			}
 		} );
+		/* 检测并删除成员信息 */
+		that.clearExitUser( that ).then();
 	}
 	
 	private botOnline() {
@@ -428,37 +430,41 @@ export class Adachi {
 	/* 用户退出频道事件 */
 	private membersDecrease( that: Adachi ) {
 		const bot = that.bot
-		return async function ( messageData: MemberMessage ) {
+		return async function ( userId: string ) {
 			
-			const userId = messageData.msg.user.id;
-			const guildId = messageData.msg.guild_id;
+			/* 范获取用户信息新增错误删除功能 */
 			const userInfo = await getMemberInfo( userId );
 			
-			/* 此处应该重构，或者等待新框架，好麻烦 */
 			const dbKey = `adachi.user-used-groups-${ userId }`;
 			
 			/* 与机器人还有共同频道就不清除数据 */
 			if ( userInfo ) {
-				await bot.redis.delSetMember( dbKey, guildId );
 				return;
 			}
-			
-			const bindUID = `silvery-star.user-bind-uid-${ userId }`;
-			const wishWeapon = `silvery-star-wish-weapon-${ userId }`;
-			const wishResult = `silvery-star-wish-result-${ userId }`;
-			const wishIndefinite = `silvery-star-wish-indefinite-${ userId }`;
-			const wishStatistic = `silvery-star-wish-statistic-${ userId }`;
-			const wishChoice = `silvery-star-wish-choice-${ userId }`;
+			const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
 			//首先清除所有订阅服务
 			for ( const plugin in PluginReSubs ) {
 				try {
 					await PluginReSubs[plugin].reSub( userId, bot );
 				} catch ( error ) {
-					bot.logger.error( `插件${ plugin }取消订阅事件执行异常：${ <string>error }` )
+					bot.logger.error( `插件${ plugin }取消订阅事件执行异常：${ <string>error }` );
 				}
 			}
 			//清除使用记录
-			await bot.redis.deleteKey( dbKey, bindUID, wishWeapon, wishResult, wishIndefinite, wishStatistic, wishChoice );
+			await bot.redis.deleteKey( dbKey, ...dbKeys );
+			bot.logger.info( `已清除用户 ${ userId } 使用数据` );
 		}
+	}
+	
+	/* 清除BOT未上线时被移出频道的相关用户信息 (速度很慢，不要await调用) */
+	private async clearExitUser( that: Adachi ) {
+		const bot = that.bot;
+		bot.redis.getKeysByPrefix( `adachi.user-used-groups-*` ).then( async data => {
+			data.forEach( value => {
+				const userId = value.split( "-" )[3];
+				that.membersDecrease( that )( userId );
+			} );
+			bot.logger.info( "重新检测用户使用数据完成~" );
+		} );
 	}
 }

@@ -17,3 +17,4 @@ src/plugins/*
 !/src/plugins/genshin/
 !/src/plugins/chat-plugins/
 !/src/plugins/yyscloud/
+!/src/plugins/chat-master/

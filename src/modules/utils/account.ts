@@ -33,6 +33,7 @@ export async function getMemberInfo( userID: string ): Promise<Account | undefin
 			}
 		} catch ( err ) {
 			//如果获取失败，隐藏错误输出
+			await bot.redis.delSetMember( `adachi.user-used-groups-${ userID }`, guild );
 		}
 	}
 }

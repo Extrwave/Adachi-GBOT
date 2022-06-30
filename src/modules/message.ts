@@ -6,9 +6,10 @@
 import BotConfig from "@modules/config";
 import {
 	IDirectMessage, IMessage,
-	IOpenAPI, IUser,
+	IOpenAPI, IUser, MessageReference,
 	MessageToCreate
 } from 'qq-guild-bot';
+import Database from "@modules/database";
 
 /* 监听到消息的类型 */
 export interface Message {
@@ -20,7 +21,8 @@ export interface Message {
 /* 此处是SDK摆烂没更新的部分 */
 interface Msg extends IMessage {
 	direct_message?: boolean,
-	src_guild_id?: string
+	src_guild_id?: string,
+	message_reference?: MessageReference
 }
 
 
@@ -90,25 +92,30 @@ export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) 
 
 interface MsgManagementMethod {
 	getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc>;
-	sendPrivateMessage( guildId: string, msg_id: string ): SendFunc;
-	sendGuildMessage( channelID: string, msg_id: string ): SendFunc;
+	sendToMaster( msgId: string ): Promise<SendFunc>;
+	sendPrivateMessage( guildId: string, msgId: string ): SendFunc;
+	sendGuildMessage( channelId: string, msgId: string ): SendFunc;
 }
 
 export default class MsgManager implements MsgManagementMethod {
 	
 	private readonly atUser: boolean;
 	private readonly client: IOpenAPI;
+	private readonly redis: Database;
+	private readonly config: BotConfig;
 	
-	constructor( config: BotConfig, client: IOpenAPI ) {
+	constructor( config: BotConfig, client: IOpenAPI, redis: Database ) {
 		this.atUser = config.atUser;
 		this.client = client;
+		this.redis = redis;
+		this.config = config;
 	}
 	
 	/*构建私聊会话*/
-	async getPrivateSender( guildID: string, userID: string ): Promise<IDirectMessage> {
+	async getPrivateSender( guildId: string, userId: string ): Promise<IDirectMessage> {
 		const response = await this.client.directMessageApi.createDirectMessage( {
-			source_guild_id: guildID,
-			recipient_id: userID
+			source_guild_id: guildId,
+			recipient_id: userId
 		} );
 		
 		return {
@@ -118,64 +125,82 @@ export default class MsgManager implements MsgManagementMethod {
 		};
 	}
 	
-	/*获取私信发送方法 主动*/
-	public async getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc> {
+	/*获取私信发送方法 构建*/
+	public async getPrivateSendFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
 		const client = this.client;
 		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
 		return async function ( content: MessageToCreate | string ) {
-			if ( typeof content === 'string' ) {
-				await client.directMessageApi.postDirectMessage( guild_id, {
-					content: content,
-				} );
+			if ( msgId ) {
+				if ( typeof content === 'string' ) {
+					await client.directMessageApi.postDirectMessage( guild_id, {
+						content: content,
+						msg_id: msgId,
+					} );
+				} else {
+					content.msg_id = msgId;
+					await client.directMessageApi.postDirectMessage( guild_id, content );
+				}
 			} else {
-				await client.directMessageApi.postDirectMessage( guild_id, content );
+				if ( typeof content === 'string' ) {
+					await client.directMessageApi.postDirectMessage( guild_id, {
+						content: content,
+					} );
+				} else {
+					await client.directMessageApi.postDirectMessage( guild_id, content );
+				}
 			}
 		}
 	}
 	
-	/*私信回复方法 被动*/
-	public sendPrivateMessage( guildId: string, msg_id: string ): SendFunc {
+	/* 给管理员发送消息的方法，主动/被动 */
+	public async sendToMaster( msgId?: string ): Promise<SendFunc> {
+		const masterGuildId = await this.redis.getString( `adachi.guild-master` ); //当前BOT主人所在频道
+		return await this.getPrivateSendFunc( masterGuildId, this.config.master, msgId );
+	}
+	
+	/*私信回复方法 被动回复*/
+	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
 		const client = this.client;
 		return async function ( content: MessageToCreate | string ) {
 			if ( typeof content === 'string' ) {
 				await client.directMessageApi.postDirectMessage( guildId, {
 					content: content,
-					msg_id: msg_id
+					msg_id: msgId
 				} );
 			} else {
-				content.msg_id = msg_id;
+				content.msg_id = msgId;
 				await client.directMessageApi.postDirectMessage( guildId, content );
 			}
 		}
 	}
 	
 	/* 回复频道消息方法，主动、被动*/
-	public sendGuildMessage( channelID: string, msg_id?: string ): SendFunc {
+	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
 		const client = this.client;
 		return async function ( content: MessageToCreate | string ) {
-			if ( msg_id ) {
+			if ( msgId ) {
 				if ( typeof content === 'string' ) {
-					await client.messageApi.postMessage( channelID, {
+					await client.messageApi.postMessage( channelId, {
 						content: content,
-						msg_id: msg_id,
+						msg_id: msgId,
 						message_reference: {
-							message_id: msg_id,
+							message_id: msgId,
 							ignore_get_message_error: true
 						}
 					} );
 				} else {
-					content.msg_id = msg_id;
-					await client.messageApi.postMessage( channelID, content );
+					content.msg_id = msgId;
+					await client.messageApi.postMessage( channelId, content );
 				}
 			} else {
 				//主动消息发送
 				if ( typeof content === 'string' ) {
-					await client.messageApi.postMessage( channelID, {
+					await client.messageApi.postMessage( channelId, {
 						content: content,
 					} );
 				} else {
 					content.msg_id = undefined;
-					await client.messageApi.postMessage( channelID, content );
+					await client.messageApi.postMessage( channelId, content );
 				}
 				
 			}
