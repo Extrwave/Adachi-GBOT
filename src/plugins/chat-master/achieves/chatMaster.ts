@@ -8,7 +8,7 @@ import { Embed } from "qq-guild-bot";
 import { AuthLevel } from "@modules/management/auth";
 import { getMessageType, MessageType } from "@modules/message";
 
-export async function main( { sendMessage, messageData, message, auth, command }: InputParameter ) {
+export async function main( { sendMessage, messageData, message, command }: InputParameter ) {
 	
 	const content = messageData.msg.content;
 	const userId = messageData.msg.author.id;
@@ -24,8 +24,7 @@ export async function main( { sendMessage, messageData, message, auth, command }
 	const sendMasterFunc = await message.sendToMaster( msgId );
 	const guildInfo = await getGuildBaseInfo( guildId );
 	
-	const a: AuthLevel = await auth.get( userId );
-	const REPLY = <Order>command.getSingle( `adachi-reply-user`, a );
+	const REPLY = <Order>command.getSingle( `adachi-reply-user`, AuthLevel.Master );
 	
 	
 	const embedMsg: Embed = {

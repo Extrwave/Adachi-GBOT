@@ -15,13 +15,6 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: string, {
 	messageData
 }: InputParameter ) {
 	
-	const dbKey = `adachi-temp-abyss-${ uid }`;
-	const abyssTemp = await redis.getString( dbKey );
-	if ( abyssTemp !== "" ) {
-		await sendMessage( { content: "数据存在半小时延迟", image: abyssTemp } );
-		return;
-	}
-	
 	
 	await redis.setHash( `silvery-star.abyss-temp-${ userID }-single`, {
 		uid,
@@ -44,7 +37,6 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: string, {
 	);
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
-		await redis.setString( dbKey, res.data, 3600 * 0.5 );
 	} else if ( res.code === "error" ) {
 		await sendMessage( res.error );
 	} else {
