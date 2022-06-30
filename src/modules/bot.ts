@@ -140,6 +140,7 @@ export class Adachi {
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
 		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
+		scheduleJob( "0 1 */6 * * *", this.clearExitUser( this ) );
 		return this.bot;
 	}
 	
@@ -417,8 +418,6 @@ export class Adachi {
 				}
 			}
 		} );
-		/* 检测并删除成员信息 */
-		that.clearExitUser( that ).then();
 	}
 	
 	private botOnline() {
@@ -457,14 +456,16 @@ export class Adachi {
 	}
 	
 	/* 清除BOT未上线时被移出频道的相关用户信息 (速度很慢，不要await调用) */
-	private async clearExitUser( that: Adachi ) {
+	private clearExitUser( that: Adachi ): JobCallback {
 		const bot = that.bot;
-		bot.redis.getKeysByPrefix( `adachi.user-used-groups-*` ).then( async data => {
-			data.forEach( value => {
-				const userId = value.split( "-" )[3];
-				that.membersDecrease( that )( userId );
+		return function (): void {
+			bot.redis.getKeysByPrefix( `adachi.user-used-groups-*` ).then( async data => {
+				data.forEach( value => {
+					const userId = value.split( "-" )[3];
+					that.membersDecrease( that )( userId );
+				} );
+				bot.logger.info( "重新检测用户使用数据完成~" );
 			} );
-			bot.logger.info( "重新检测用户使用数据完成~" );
-		} );
+		}
 	}
 }
