@@ -5,7 +5,7 @@ import { NoteService } from "#genshin/module/private/note";
 import { InputParameter, Order } from "@modules/command";
 import { RenderResult } from "@modules/renderer";
 import { privateClass, renderer } from "#genshin/init";
-import { SendMsgType } from "@modules/message";
+import { SendMsgType } from "@modules/utils/message";
 
 
 async function getNowNote( userID: string ): Promise<SendMsgType[]> {

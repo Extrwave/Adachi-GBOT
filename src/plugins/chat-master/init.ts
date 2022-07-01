@@ -11,7 +11,7 @@ const chatMaster: OrderConfig = {
 	cmdKey: "adachi-chat-call",
 	desc: [ "联系BOT主人", "" ],
 	headers: [ "call" ],
-	regexps: [ ".+" ],
+	regexps: [ "(.+\\s?)*" ],
 	main: "achieves/chatMaster",
 	detail: "通过BOT与机器人持有者联系 ~ "
 }
@@ -21,7 +21,7 @@ const replyUser: OrderConfig = {
 	cmdKey: "adachi-reply-user",
 	desc: [ "回复用户", "" ],
 	headers: [ "user" ],
-	regexps: [ ".+\\s.+" ],
+	regexps: [ "(.+\\s?)*" ],
 	main: "achieves/replyUser",
 	auth: AuthLevel.Master,
 	detail: "BOT持有者回复用户消息 ~ "

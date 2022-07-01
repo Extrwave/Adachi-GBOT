@@ -1,7 +1,7 @@
 import { PluginSetting, PluginSubSetting, SubInfo } from "@modules/plugin";
 import { OrderConfig } from "@modules/command";
 import { autoSign } from "./achieves/auto_sign";
-import { MessageScope } from "@modules/message";
+import { MessageScope } from "@modules/utils/message";
 import { BOT } from "@modules/bot";
 import { AuthLevel } from "@modules/management/auth";
 import { cancelToken } from "#yyscloud/util/user_data";

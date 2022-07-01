@@ -6,23 +6,23 @@ import * as sdk from "qq-guild-bot";
 import { AvailableIntentsEventsEnum } from "qq-guild-bot";
 import * as log from "log4js";
 import moment from "moment";
-import BotConfig from "./config";
-import Database from "./database";
-import Interval from "./management/interval";
-import FileManagement from "./file";
-import Plugin, { PluginReSubs } from "./plugin";
-import WebConfiguration from "./logger";
+import BotConfig from "@modules/config";
+import Database from "@modules/database";
+import Interval from "@modules/management/interval";
+import FileManagement from "@modules/file";
+import Plugin, { PluginReSubs } from "@modules/plugin";
+import WebConfiguration from "@modules/logger";
 import WebConsole from "@web-console/backend";
-import RefreshConfig from "./management/refresh";
+import RefreshConfig from "@modules/management/refresh";
 import { BasicRenderer } from "@modules/renderer";
-import Command, { BasicConfig, MatchResult } from "./command/main";
-import Authorization, { AuthLevel } from "./management/auth";
-import MsgManagement, * as msg from "./message";
-import MsgManager, { MemberMessage, Message, MessageScope, SendFunc } from "./message";
+import Command, { BasicConfig, MatchResult } from "@modules/command/main";
+import Authorization, { AuthLevel } from "@modules/management/auth";
+import MsgManager from "@modules/message";
+import MsgManagement, * as Msg from "@modules/message";
+import { GuildsMove, MemberMessage, Message, MessageScope } from "@modules/utils/message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
-import { config } from "#genshin/init";
 import { autoReply } from "@modules/chat";
 import { getMemberInfo } from "@modules/utils/account";
 
@@ -108,29 +108,29 @@ export class Adachi {
 			/* 事件监听 ,根据机器人类型选择能够监听的事件 */
 			if ( this.bot.config.area === "private" ) {
 				/* 私域机器人 */
-				this.bot.ws.on( "GUILD_MESSAGES", ( data ) => {
+				this.bot.ws.on( "GUILD_MESSAGES", ( data: Message ) => {
 					if ( data.eventType === 'MESSAGE_CREATE' )
 						this.parseGroupMsg( this )( data );
 				} );
 			} else {
 				/* 公域机器人 */
-				this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data ) => {
+				this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data: Message ) => {
 					if ( data.eventType === 'AT_MESSAGE_CREATE' )
 						this.parseGroupMsg( this )( data );
 				} );
 			}
 			/* 私信相关 */
-			this.bot.ws.on( "DIRECT_MESSAGE", ( data ) => {
+			this.bot.ws.on( "DIRECT_MESSAGE", ( data: Message ) => {
 				if ( data.eventType === 'DIRECT_MESSAGE_CREATE' )
 					this.parsePrivateMsg( this )( data );
 			} );
 			/* 成员变动相关 */
-			this.bot.ws.on( "GUILD_MEMBERS", ( data ) => {
+			this.bot.ws.on( "GUILD_MEMBERS", ( data: MemberMessage ) => {
 				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
 					this.membersDecrease( this )( data.msg.user.id );
 			} )
 			/* 当机器人进入或者离开频道,更新频道数量信息 */
-			this.bot.ws.on( "GUILDS", ( data ) => {
+			this.bot.ws.on( "GUILDS", ( data: GuildsMove ) => {
 				this.getBotBaseInfo( this );
 			} )
 			
@@ -185,8 +185,8 @@ export class Adachi {
 	
 	/* 正则检测处理消息 */
 	private async execute(
-		messageData: msg.Message,
-		sendMessage: SendFunc,
+		messageData: Message,
+		sendMessage: Msg.SendFunc,
 		cmdSet: BasicConfig[],
 		limits: string[],
 		unionRegExp: RegExp,
@@ -227,7 +227,7 @@ export class Adachi {
 				const text: string = cmd.ignoreCase
 					? content.toLowerCase() : content;
 				messageData.msg.content = trim(
-					msg.removeStringPrefix( text, res.header.toLowerCase() )
+					Msg.removeStringPrefix( text, res.header.toLowerCase() )
 						.replace( / +/g, " " )
 				);
 			}
@@ -256,7 +256,7 @@ export class Adachi {
 			const guildId: string = messageData.msg.guild_id;
 			const auth: AuthLevel = await bot.auth.get( userID );
 			const limit: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
-			const sendMessage: SendFunc = await bot.message.sendPrivateMessage(
+			const sendMessage: Msg.SendFunc = await bot.message.sendPrivateMessage(
 				guildId, msgID
 			);
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Private );
@@ -282,7 +282,7 @@ export class Adachi {
 			const auth: AuthLevel = await bot.auth.get( userID );
 			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guild }` );
 			const uLim: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
-			const sendMessage: msg.SendFunc = bot.message.sendGuildMessage(
+			const sendMessage: Msg.SendFunc = bot.message.sendGuildMessage(
 				channelID, msgID );
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Group );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );

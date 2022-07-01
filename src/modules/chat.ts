@@ -2,10 +2,11 @@
 Author: Ethereal
 CreateTime: 2022/6/21
  */
-import * as msg from "./message";
+import * as msg from "@modules/message";
 import { API, getChatResponse, getEmoji, getTextResponse, getWeDog } from "@modules/utils/api";
+import { Message } from "@modules/utils/message";
 
-export async function autoReply( messageData: msg.Message, sendMessage: msg.SendFunc ) {
+export async function autoReply( messageData: Message, sendMessage: msg.SendFunc ) {
 	//处理传入的数据
 	const msg: string = messageData.msg.content.trim() || "";
 	//开始匹配回答

@@ -4,91 +4,12 @@
  */
 
 import BotConfig from "@modules/config";
-import {
-	IDirectMessage, IMessage,
-	IOpenAPI, IUser, MessageReference,
-	MessageToCreate
-} from 'qq-guild-bot';
+import { IDirectMessage, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
 import Database from "@modules/database";
-
-/* 监听到消息的类型 */
-export interface Message {
-	eventType: string,
-	eventId: string,
-	msg: Msg
-}
-
-/* 此处是SDK摆烂没更新的部分 */
-interface Msg extends IMessage {
-	direct_message?: boolean,
-	src_guild_id?: string,
-	message_reference?: MessageReference
-}
+import { Message, MessageType } from "@modules/utils/message";
 
 
-/* 监听到成员变动消息的类型 */
-export interface MemberMessage {
-	eventType: string,
-	eventId: string,
-	msg: {
-		guild_id: string,
-		joined_at: string,
-		nick: string,
-		op_user_id: string,
-		roles: [],
-		user: IUser
-	}
-}
-
-/* BOT进入退出新旧频道监听事件 */
-export interface GuildsMove {
-	eventType: string,
-	eventId: string,
-	msg: {
-		description: string,
-		icon: string,
-		id: string,
-		joined_at: string,
-		max_members: number,
-		member_count: number,
-		name: string,
-		op_user_id: string,
-		owner: true,
-		owner_id: string,
-		union_appid: string,
-		union_org_id: string,
-		union_world_id: string
-	}
-}
-
-
-export enum MessageScope {
-	Neither,
-	Group = 1 << 0,
-	Private = 1 << 1,
-	Both = Group | Private
-}
-
-export enum MessageType {
-	Group,
-	Private,
-	Unknown
-}
-
-
-export interface SendMsgType {
-	code: "msg" | "image",
-	data: string
-}
-
-/* SDK 消息错误类型 */
-export interface ErrorMsg {
-	code: number,
-	message: string,
-	traceid: string,
-}
-
-export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<void>;
+export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<IMessage | void>;
 
 interface MsgManagementMethod {
 	getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc>;
@@ -129,16 +50,18 @@ export default class MsgManager implements MsgManagementMethod {
 	public async getPrivateSendFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
 		const client = this.client;
 		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
-		return async function ( content: MessageToCreate | string ) {
+		return async function ( content: MessageToCreate | string ): Promise<IMessage | any> {
 			if ( msgId ) {
 				if ( typeof content === 'string' ) {
-					await client.directMessageApi.postDirectMessage( guild_id, {
+					const response = await client.directMessageApi.postDirectMessage( guild_id, {
 						content: content,
 						msg_id: msgId,
 					} );
+					return <IMessage>response.data;
 				} else {
 					content.msg_id = msgId;
-					await client.directMessageApi.postDirectMessage( guild_id, content );
+					const response = await client.directMessageApi.postDirectMessage( guild_id, content );
+					return <IMessage>response.data;
 				}
 			} else {
 				if ( typeof content === 'string' ) {
@@ -161,15 +84,17 @@ export default class MsgManager implements MsgManagementMethod {
 	/*私信回复方法 被动回复*/
 	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
 		const client = this.client;
-		return async function ( content: MessageToCreate | string ) {
+		return async function ( content: MessageToCreate | string ): Promise<IMessage> {
 			if ( typeof content === 'string' ) {
-				await client.directMessageApi.postDirectMessage( guildId, {
+				const response = await client.directMessageApi.postDirectMessage( guildId, {
 					content: content,
 					msg_id: msgId
 				} );
+				return response.data;
 			} else {
 				content.msg_id = msgId;
-				await client.directMessageApi.postDirectMessage( guildId, content );
+				const response = await client.directMessageApi.postDirectMessage( guildId, content );
+				return response.data;
 			}
 		}
 	}
@@ -180,7 +105,7 @@ export default class MsgManager implements MsgManagementMethod {
 		return async function ( content: MessageToCreate | string ) {
 			if ( msgId ) {
 				if ( typeof content === 'string' ) {
-					await client.messageApi.postMessage( channelId, {
+					const response = await client.messageApi.postMessage( channelId, {
 						content: content,
 						msg_id: msgId,
 						message_reference: {
@@ -188,9 +113,11 @@ export default class MsgManager implements MsgManagementMethod {
 							ignore_get_message_error: true
 						}
 					} );
+					return response.data;
 				} else {
 					content.msg_id = msgId;
-					await client.messageApi.postMessage( channelId, content );
+					const response = await client.messageApi.postMessage( channelId, content );
+					return response.data;
 				}
 			} else {
 				//主动消息发送
@@ -206,6 +133,13 @@ export default class MsgManager implements MsgManagementMethod {
 			}
 		}
 	}
+	
+	async getMessageInfo( channelId: string, msgId: string ): Promise<IMessageRes> {
+		const bot = this.client;
+		const response = await bot.messageApi.message( channelId, msgId );
+		return response.data;
+	}
+	
 }
 
 export function removeStringPrefix( string: string, prefix: string ): string {

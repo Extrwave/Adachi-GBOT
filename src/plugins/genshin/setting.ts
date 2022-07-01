@@ -1,5 +1,5 @@
 import { AuthLevel } from "@modules/management/auth";
-import { MessageScope } from "@modules/message";
+import { MessageScope } from "@modules/utils/message";
 import { OrderConfig, SwitchConfig } from "@modules/command";
 import { PluginSetting } from "@modules/plugin";
 

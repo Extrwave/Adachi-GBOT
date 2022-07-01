@@ -2,39 +2,42 @@
 Author: Ethereal
 CreateTime: 2022/6/30
  */
-
 import { InputParameter } from "@modules/command";
+import { MessageToCreate } from "qq-guild-bot";
 
-interface ReplyBase {
-	type: string,
-	msgId: string,
-	content: string
-}
-
-interface ReplyPrivate extends ReplyBase {
-	guildId: string
-}
-
-interface ReplyGuild extends ReplyBase {
-	channelId: string
-}
 
 export async function main( { sendMessage, messageData, message, redis }: InputParameter ) {
-	const content = messageData.msg.content; //消息内容
-	const Params: string[] = content.split( " " );
-	const regExp: RegExp = /(private|guild)(.+)\s/i;
-	const rawContent = content.replace( regExp, "" ).trim();
+	const rawContent: string = "Master：" + messageData.msg.content;
+	const msgRefId = messageData.msg.message_reference?.message_id;
+	if ( !msgRefId ) {
+		await sendMessage( "请引用需要回复的消息" );
+		return;
+	}
+	const dbKey = `adachi.message-reply-id-${ msgRefId }`;
+	const fakeGuildId = await redis.getHashField( dbKey, "fakeGuild" );
+	const channelId = await redis.getHashField( dbKey, "channelId" );
+	const msgId = await redis.getHashField( dbKey, "msgId" );
+	if ( msgId === "" ) {
+		await sendMessage( "消息ID已经过期，无法回复了哦~" );
+		return;
+	}
+	const content: MessageToCreate = {
+		content: rawContent,
+		message_reference: {
+			message_id: msgId,
+			ignore_get_message_error: true
+		}
+	}
 	try {
-		if ( Params[0] === "private" ) {
-			const Msg: ReplyPrivate = { type: Params[0], guildId: Params[1], msgId: Params[2], content: rawContent };
-			const sendToUser = message.sendPrivateMessage( Msg.guildId, Msg.msgId );
-			await sendToUser( Msg.content );
-		} else {
-			const Msg: ReplyGuild = { type: Params[0], channelId: Params[1], msgId: Params[2], content: rawContent };
-			const sendToUser = message.sendGuildMessage( Msg.channelId, Msg.msgId );
-			await sendToUser( "Master：" + Msg.content );
+		if ( fakeGuildId !== "" ) {
+			//首先处理私聊信息回复逻辑
+			const sendToUser = message.sendPrivateMessage( fakeGuildId, msgId );
+			await sendToUser( content );
+		} else if ( channelId !== "" ) {
+			const sendToUser = message.sendGuildMessage( channelId, msgId );
+			await sendToUser( content );
 		}
 	} catch ( error ) {
-		await sendMessage( "消息发送失败，或者已超过五分钟" );
+		await sendMessage( `未知错误：${ <Error>error }` );
 	}
 }
