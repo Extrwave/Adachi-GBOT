@@ -12,8 +12,12 @@ import { MessageType } from "@modules/utils/message";
 export async function main( { sendMessage, messageData, message, command, redis }: InputParameter ) {
 	
 	const content = messageData.msg.content;
-	const userId = messageData.msg.author.id;
+	if ( content.length <= 0 ) {
+		await sendMessage( "需要反馈什么呢？请带上内容 ~ " );
+		return;
+	}
 	const name = messageData.msg.author.username;
+	const userId = messageData.msg.author.id;
 	const avatar = messageData.msg.author.avatar;
 	const msgType: MessageType = getMessageType( messageData ); //获取消息类型
 	const type = msgType === MessageType.Private ? "私聊" : "频道";
@@ -28,7 +32,7 @@ export async function main( { sendMessage, messageData, message, command, redis 
 	const REPLY = <Order>command.getSingle( `adachi-reply-user`, AuthLevel.Master );
 	
 	const embedMsg: Embed = {
-		title: '收到给Master的消息',
+		title: '有人给你留言啦 ~ ',
 		prompt: '频道反馈消息',
 		thumbnail: {
 			url: avatar,
@@ -40,15 +44,11 @@ export async function main( { sendMessage, messageData, message, command, redis 
 		}, {
 			name: `方式：${ type }`
 		}, {
-			name: `消息：\n`
+			name: `消息：\n\n`
 		}, {
-			name: `${ content }`
-		}, {
-			name: "\n"
+			name: `${ content }\n\n`
 		}, {
 			name: `使用 ${ REPLY.getHeaders()[0] } 引用消息快捷回复 ~ `
-		}, {
-			name: "快捷回复仅在五分钟内有效 ~ "
 		} ]
 	};
 	try {
@@ -59,6 +59,7 @@ export async function main( { sendMessage, messageData, message, command, redis 
 			throw new Error( "发送消息返回对象异常" );
 		}
 		const dbKey = `adachi.message-reply-id-${ messageRes.id }`;
+		const gdbKey = `adachi.message-reply-guild-${ messageRes.id }`;
 		if ( msgType === MessageType.Private ) {
 			await redis.setHashField( dbKey, "fakeGuild", fakeGuildId );
 			await redis.setHashField( dbKey, "channelId", "" );
@@ -68,7 +69,10 @@ export async function main( { sendMessage, messageData, message, command, redis 
 			await redis.setHashField( dbKey, "channelId", channelId );
 			await redis.setHashField( dbKey, "msgId", msgId );
 		}
-		await redis.setTimeout( dbKey, 300 );
+		await redis.setHashField( gdbKey, "srcGuild", guildId );
+		await redis.setHashField( gdbKey, "userId", userId );
+		await redis.setTimeout( gdbKey, 3600 * 12 ); //主动回复限制12小时内，应该可以自己改长一点
+		await redis.setTimeout( dbKey, 300 ); //被动回复5分钟有效
 	} catch ( error ) {
 		await sendMessage( `消息发送失败，原因：\n${ error }\n请前往BOT资料卡上官频反馈` );
 		return;

@@ -86,3 +86,9 @@ export interface OthMessage {
 		}
 	}
 }
+
+export interface ErrorMsg {
+	code: number,
+	message: string,
+	traceid: string
+}

@@ -30,12 +30,13 @@ export default class BotConfig {
 		readonly QAccessKey: string;
 		readonly QSecretKey: string;
 		readonly CloudUrl: string;
+		readonly UploadUrl: string;
 		readonly Bucket: string;
 	}
 	
 	
 	static initObject = {
-		tip: "前往 https://docs.adachi.top/config 查看配置详情",
+		tip: "前往 https://adachi.ethreal.cn 查看配置详情",
 		appID: "appID",
 		token: "token",
 		sandbox: false,
@@ -60,9 +61,16 @@ export default class BotConfig {
 			jwtSecret: "Secret"
 		},
 		qiniu: {
+			tip: [ "根据对象存储空间修改UploadUrl",
+				"华东空间使用 upload.qiniup.com",
+				"华北空间使用 upload-z1.qiniup.com",
+				"华南空间使用 upload-z2.qiniup.com",
+				"北美空间使用 upload-na0.qiniup.com"
+			],
 			QAccessKey: "AK",
 			QSecretKey: "SK",
-			CloudUrl: "http://example.com/",
+			CloudUrl: "http://example.com",
+			UploadUrl: "upload-z2.qiniup.com",
 			Bucket: "default"
 		}
 	};
@@ -102,11 +110,12 @@ export default class BotConfig {
 			QAccessKey: config.qiniu.QAccessKey,
 			QSecretKey: config.qiniu.QSecretKey,
 			CloudUrl: config.qiniu.CloudUrl,
+			UploadUrl: config.qiniu.UploadUrl,
 			Bucket: config.qiniu.Bucket
 		}
 		
 		/* 公域Ark消息模板需要申请才可以使用 */
-		const helpList: string[] = [ "message", "embed", "ark" ];
+		const helpList: string[] = [ "message", "embed", "ark", "image" ];
 		this.helpMessageStyle = helpList.includes( config.helpMessageStyle )
 			? config.helpMessageStyle : "message";
 		

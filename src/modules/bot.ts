@@ -140,7 +140,7 @@ export class Adachi {
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
 		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
-		scheduleJob( "0 1 */6 * * *", this.clearExitUser( this ) );
+		scheduleJob( "0 1 0/6 * * *", this.clearExitUser( this ) );
 		return this.bot;
 	}
 	
