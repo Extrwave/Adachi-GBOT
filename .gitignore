@@ -18,3 +18,4 @@ src/plugins/*
 !/src/plugins/chat-plugins/
 !/src/plugins/yyscloud/
 !/src/plugins/chat-master/
+!/src/plugins/mys-news/
