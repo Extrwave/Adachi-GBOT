@@ -22,25 +22,27 @@ export async function main(
 	const nickname: string = messageData.msg.author.username;
 	const param: string = messageData.msg.content;
 	
+	const wishHourLimit = 10;
 	const dbKey = `adachi.user-wish-limit-${ userID }`;
 	let currentCount = await redis.getString( dbKey );
 	/* 用户在特定时间内超过阈值 */
 	if ( currentCount === "" ) {
 		await redis.setString( dbKey, 0, 3600 );
-	} else if ( parseInt( currentCount ) >= 20 ) {
+	} else if ( parseInt( currentCount ) >= wishHourLimit ) {
 		wishLimitID.add( userID );
 		await redis.deleteKey( dbKey );
 	}
 	
 	if ( wishLimitID.has( userID ) ) {
-		await sendMessage( "太激烈了，限制 20次/小时 ，下个小时再试吧" );
+		await sendMessage( `劳逸结合是很不错 ~ \n限制 ${ wishHourLimit }次抽卡/每小时 ，下个小时再试吧` );
 		return;
 	}
 	await redis.incKey( dbKey, 1 );
 	
 	const wishLimitNum = config.wishLimitNum;
 	if ( ( /^\d+$/.test( param ) && parseInt( param ) > wishLimitNum ) ) {
-		await sendMessage( `太累了，我直接罢工开摆！\n` + `仅允许使用 ${ wishLimitNum } 次以内的十连抽卡` );
+		await sendMessage( `劳逸结合是很不错 ~ \n` + `仅允许使用 ${ wishLimitNum } 次以内的十连抽卡` );
+		await sendMessage( "提示: 加上 until 参数可以直接抽到出金为止哦，一眼能看出欧非" );
 		return;
 	}
 	
