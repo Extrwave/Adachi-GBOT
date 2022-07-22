@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  redis:
+    image: redis:6
+    container_name: adachi-redis
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./database:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+  bot:
+    build:
+      context: .
+    image: adachi-bot:latest
+    ports:
+      - "80:80"
+    container_name: adachi-gbot
+    environment:
+      docker: "yes"
+    depends_on:
+      - redis
+    volumes:
+      - ./:/bot
+      - /bot/node_modules/

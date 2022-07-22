@@ -1,8 +1,11 @@
 {
   "name": "Adachi-GBot",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register app.ts --files"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node -r tsconfig-paths/register app.ts --files",
+    "pm2-start": "pm2 start adachi-gbot.config.js",
+    "docker-start": "pm2-runtime start adachi-gbot.config.js"
   },
   "license": "ISC",
   "dependencies": {
@@ -16,10 +19,11 @@
     "lodash": "^4.17.21",
     "log4js": "^6.3.0",
     "md5-typescript": "^1.0.5",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "node-schedule": "^2.0.0",
     "npm-lifecycle": "^3.1.5",
     "object-immutable-set": "^1.0.0",
+    "pm2": "^5.2.0",
     "puppeteer": "^14.3.0",
     "qiniu": "^7.7.0",
     "qq-guild-bot": "^2.9.5",
