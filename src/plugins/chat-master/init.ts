@@ -9,7 +9,7 @@ import { AuthLevel } from "@modules/management/auth";
 const chatMaster: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-chat-call",
-	desc: [ "联系BOT主人", "" ],
+	desc: [ "给开发者留言", "" ],
 	headers: [ "call" ],
 	regexps: [ "(.+\\s?)*" ],
 	main: "achieves/chatMaster",
@@ -19,7 +19,7 @@ const chatMaster: OrderConfig = {
 const replyUser: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-reply-user",
-	desc: [ "回复用户", "" ],
+	desc: [ "回复用户留言", "" ],
 	headers: [ "user" ],
 	regexps: [ "(.+\\s?)*" ],
 	main: "achieves/replyUser",

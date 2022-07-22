@@ -14,6 +14,7 @@ export default class BotConfig {
 	public readonly countThreshold: number;
 	public readonly groupIntervalTime: number;
 	public readonly privateIntervalTime: number;
+	public readonly helpPort: number;
 	public readonly helpMessageStyle: string;
 	public readonly logLevel: "trace" | "debug" | "info" | "warn" |
 		"error" | "fatal" | "mark" | "off";
@@ -50,6 +51,7 @@ export default class BotConfig {
 		countThreshold: 60,
 		groupIntervalTime: 1500,
 		privateIntervalTime: 2000,
+		helpPort: 54919,
 		helpMessageStyle: "message",
 		logLevel: "info",
 		webConsole: {
@@ -77,7 +79,7 @@ export default class BotConfig {
 	
 	constructor( file: FileManagement ) {
 		const config: any = file.loadYAML( "setting" );
-		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword", "autoChat" ];
+		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword", "autoChat", "helpPort" ];
 		
 		for ( let key of checkFields ) {
 			if ( config[key] === undefined ) {
@@ -95,6 +97,7 @@ export default class BotConfig {
 		this.dbPassword = config.dbPassword;
 		this.atUser = config.atUser;
 		this.autoChat = config.autoChat;
+		this.helpPort = config.helpPort;
 		this.groupIntervalTime = config.groupIntervalTime;
 		this.privateIntervalTime = config.privateIntervalTime;
 		this.countThreshold = config.countThreshold;
@@ -115,7 +118,7 @@ export default class BotConfig {
 		}
 		
 		/* 公域Ark消息模板需要申请才可以使用 */
-		const helpList: string[] = [ "message", "embed", "ark", "image" ];
+		const helpList: string[] = [ "message", "embed", "ark", "card" ];
 		this.helpMessageStyle = helpList.includes( config.helpMessageStyle )
 			? config.helpMessageStyle : "message";
 		

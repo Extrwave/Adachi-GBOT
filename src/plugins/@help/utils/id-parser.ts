@@ -9,4 +9,3 @@ export default function idParser( id: string ): { code: string, targetID: string
 		return { code: "ok", targetID: targetID };
 	}
 }
-	

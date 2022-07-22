@@ -4,7 +4,7 @@ CreateTime: 2022/6/29
  */
 import { InputParameter, Order } from "@modules/command";
 import { getGuildBaseInfo } from "@modules/utils/account";
-import { Embed, IMessageRes } from "qq-guild-bot";
+import { Embed } from "qq-guild-bot";
 import { AuthLevel } from "@modules/management/auth";
 import { getMessageType } from "@modules/message";
 import { MessageType } from "@modules/utils/message";

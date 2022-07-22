@@ -136,6 +136,7 @@ export class Adachi {
 			
 			this.bot.logger.info( "事件监听启动成功" );
 			this.getBotBaseInfo( this );
+			this.bot.redis.deleteKey( `adachi.help-image` ); //每次启动删除help缓存
 		} );
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
@@ -410,7 +411,6 @@ export class Adachi {
 					if ( guild.owner_id === this.bot.config.master && !ack ) {
 						await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
 						ack = true;
-						continue;
 					}
 				}
 				if ( !ack ) {
@@ -440,7 +440,7 @@ export class Adachi {
 			if ( userInfo ) {
 				return;
 			}
-			const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
+			
 			//首先清除所有订阅服务
 			for ( const plugin in PluginReSubs ) {
 				try {
@@ -450,6 +450,7 @@ export class Adachi {
 				}
 			}
 			//清除使用记录
+			const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
 			await bot.redis.deleteKey( dbKey, ...dbKeys );
 			bot.logger.info( `已清除用户 ${ userId } 使用数据` );
 		}

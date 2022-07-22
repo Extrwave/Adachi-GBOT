@@ -2,8 +2,7 @@ import { InputParameter, SwitchMatchResult } from "@modules/command";
 import idParser from "#@help/utils/id-parser";
 
 export async function main( {
-	                            sendMessage,
-	                            matchResult,
+	                            sendMessage, matchResult,
 	                            redis, logger
                             }: InputParameter ): Promise<void> {
 	const match = <SwitchMatchResult>matchResult;

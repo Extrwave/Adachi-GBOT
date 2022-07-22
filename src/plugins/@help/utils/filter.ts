@@ -1,7 +1,6 @@
 import { AuthLevel } from "@modules/management/auth";
 import { BasicConfig, InputParameter } from "@modules/command/main";
 import Database from "@modules/database";
-import * as m from "@modules/message";
 import { getMessageType } from "@modules/message";
 import { Message, MessageScope, MessageType } from "@modules/utils/message";
 

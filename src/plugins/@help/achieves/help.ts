@@ -1,9 +1,24 @@
-import { InputParameter, Order } from "@modules/command";
+import { BasicConfig, InputParameter, Order } from "@modules/command";
 import Command from "@modules/command/main";
 import FileManagement from "@modules/file";
 import { filterUserUsableCommand } from "../utils/filter";
 import { Ark, Embed } from "qq-guild-bot";
-import { getArkListMessage, MessageArk } from "@modules/utils/arks";
+import { getArkListMessage } from "@modules/utils/arks";
+import { RenderResult } from "@modules/renderer";
+import { renderer } from "../init";
+import bot from "ROOT";
+import { MessageScope, MessageType } from "@modules/utils/message";
+import { AuthLevel } from "@modules/management/auth";
+
+
+interface HelpCommand {
+	id: number;
+	header: string;
+	body: string
+	cmdKey: string;
+	detail: string;
+	pluginName: string;
+}
 
 
 function getVersion( file: FileManagement ): string {
@@ -12,7 +27,7 @@ function getVersion( file: FileManagement ): string {
 	return version.split( "-" )[0];
 }
 
-function messageStyle( title: string, list: string[], command: Command ): Embed | string {
+function messageStyle( title: string, list: string[], command: Command ): string {
 	const DETAIL = <Order>command.getSingle( "adachi-detail" );
 	list.push( "", `使用 ${ DETAIL.getHeaders()[0] }+序号 获取提示`, );
 	list.push( "[ ] 必填, ( ) 选填, | 选择" );
@@ -48,52 +63,111 @@ function arkStyle( title: string, list: string[], command: Command ): Ark {
 	return <Ark>arkHelpMsg;
 }
 
+/* 使用图片帮助 */
+async function cardStyle( i: InputParameter, commands: BasicConfig[], version: string ): Promise<string> {
+	const dbKey = "adachi.help-data";
+	const cmdList: HelpCommand[] = commands.map( ( cmd, cKey ) => {
+		return {
+			id: cKey + 1,
+			header: cmd.desc[0],
+			body: cmd.getFollow(),
+			cmdKey: cmd.cmdKey,
+			detail: cmd.detail,
+			pluginName: cmd.pluginName
+		};
+	} );
+	
+	const cmdData: Record<string, HelpCommand[]> = {};
+	for ( const cmd of cmdList ) {
+		cmdData[cmd.pluginName] = cmdData[cmd.pluginName] ? [ ...cmdData[cmd.pluginName], cmd ] : [ cmd ];
+	}
+	
+	const DETAIL = <Order>i.command.getSingle( "adachi.detail" );
+	
+	await i.redis.setString( dbKey, JSON.stringify( {
+		detailCmd: DETAIL ? DETAIL.getHeaders()[0] : "",
+		version: version,
+		commands: cmdData
+	} ) );
+	
+	const res: RenderResult = await renderer.asUrlImage(
+		"/index.html" );
+	if ( res.code === "ok" ) {
+		return res.data;
+	} else {
+		i.logger.error( res );
+		const CALL = <Order>bot.command.getSingle( "adachi.call", await i.auth.get( i.messageData.msg.author.id ) );
+		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
+		return `图片渲染异常，请${ appendMsg }联系持有者进行反馈`;
+	}
+}
+
 
 async function getHelpMessage(
-	title: string, list: string[],
+	title: string, version: string,
+	commands: BasicConfig[], list: string[],
 	i: InputParameter
 ): Promise<void> {
-	let style: Embed | Ark | string;
+	let style;
 	switch ( i.config.helpMessageStyle ) {
 		case "message":
 			style = messageStyle( title, list, i.command );
+			await i.sendMessage( style );
 			break;
 		case "embed":
 			style = embedStyle( title, list, i.command );
+			await i.sendMessage( { embed: style } );
 			break;
 		case "ark":
 			style = arkStyle( title, list, i.command );
+			await i.sendMessage( { ark: style } );
 			break;
 		default:
-			style = "";
-	}
-	if ( typeof style === "string" ) {
-		await i.sendMessage( style );
-	} else if ( i.config.helpMessageStyle === "embed" ) {
-		//@ts-ignore
-		await i.sendMessage( { embed: style } );
-	} else {
-		//@ts-ignore
-		await i.sendMessage( { ark: style } );
+			i.logger.error( "helpMessageStyle设置错误" )
 	}
 }
 
 export async function main( i: InputParameter ): Promise<void> {
 	
-	const title: string = `Adachi-GBOT v${ getVersion( i.file ) }\n`;
+	const version = getVersion( i.file );
+	const showKeys = i.messageData.msg.content === "-k";
 	const commands = await filterUserUsableCommand( i );
 	if ( commands.length === 0 ) {
 		await i.sendMessage( "没有可用的指令" );
 		return;
 	}
 	
-	if ( i.messageData.msg.content === "-k" ) {
+	/* 使用图片帮助,默认获取全部指令 */
+	const dbKey = `adachi.help-image`;
+	if ( i.config.helpMessageStyle === "card" ) {
+		const helpCard = await i.redis.getString( dbKey );
+		if ( helpCard !== "" ) {
+			await i.sendMessage( { image: helpCard } );
+			return;
+		}
+		const allCommands: BasicConfig[] = i.command
+			.get( AuthLevel.Master, MessageScope.Private )
+			.filter( el => el.display );
+		const image = await cardStyle( i, allCommands, version );
+		if ( /图片渲染异常/.test( image ) ) {
+			i.logger.error( image );
+			await i.sendMessage( image );
+			return;
+		}
+		await i.sendMessage( { image: image } );
+		await i.redis.setString( dbKey, image );
+		return;
+	}
+	
+	const title: string = `Adachi-GBOT v${ version }~`;
+	let ID: number = 0;
+	if ( showKeys ) {
 		const keys: string = commands.reduce( ( pre, cur ) => {
-			return pre + ` \n ${ cur.getCmdKey() }`;
+			return pre + `\n${ ++ID }. ${ cur.getCmdKey() }`;
 		}, "" );
-		await i.sendMessage( title + keys, false );
+		await i.sendMessage( title + keys );
 	} else {
-		const msgList: string[] = commands.map( el => `${ el.getDesc() }` );
-		await getHelpMessage( title, msgList, i );
+		const msgList: string[] = commands.map( el => `${ ++ID }. ${ el.getDesc() }` );
+		await getHelpMessage( title, version, commands, msgList, i );
 	}
 }

@@ -60,18 +60,28 @@ const announce: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-announce",
 	desc: [ "发送公告", "" ],
-	headers: [ "announce" ],
+	headers: [ "sanno" ],
 	regexps: [ ".+" ],
 	auth: AuthLevel.Master,
 	main: "announce",
 	detail: "该指令用于全局发送公告"
 }
 
+const get_announce: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-get-announce",
+	desc: [ "获取公告", "" ],
+	headers: [ "anno" ],
+	regexps: [ "" ],
+	main: "announce",
+	detail: "该指令用于获取开发者公告"
+}
+
 export async function init(): Promise<PluginSetting> {
 	return {
 		pluginName: "@management",
 		cfgList: [
-			manager, refresh, ban, limit, announce
+			manager, refresh, ban, limit, announce, get_announce
 		]
 	}
 }
