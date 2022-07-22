@@ -124,11 +124,11 @@ export class Adachi {
 				if ( data.eventType === 'DIRECT_MESSAGE_CREATE' )
 					this.parsePrivateMsg( this )( data );
 			} );
-			/* 成员变动相关 */
-			this.bot.ws.on( "GUILD_MEMBERS", ( data: MemberMessage ) => {
-				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
-					this.membersDecrease( this )( data.msg.user.id );
-			} )
+			/* 成员变动相关, 频道过多容易造成内存泄漏？暂时注释试试 */
+			// this.bot.ws.on( "GUILD_MEMBERS", ( data: MemberMessage ) => {
+			// 	if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
+			// 		this.membersDecrease( this )( data.msg.user.id );
+			// } )
 			/* 当机器人进入或者离开频道,更新频道数量信息 */
 			this.bot.ws.on( "GUILDS", ( data: GuildsMove ) => {
 				this.getBotBaseInfo( this );
@@ -141,7 +141,7 @@ export class Adachi {
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
 		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
-		scheduleJob( "0 1 0/6 * * *", this.clearExitUser( this ) );
+		scheduleJob( "0 1 */3 * * *", this.clearExitUser( this ) );
 		return this.bot;
 	}
 	
@@ -399,6 +399,7 @@ export class Adachi {
 			}
 			await this.bot.redis.setString( `adachi.user-bot-id`, res.data.id );
 		} );
+		//一次性最多获取100个，准备递归实现获取
 		bot.client.meApi.meGuilds().then( async r => {
 			const guilds: sdk.IGuild[] = r.data;
 			if ( guilds.length <= 0 ) {
