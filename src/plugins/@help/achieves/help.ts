@@ -146,7 +146,7 @@ export async function main( i: InputParameter ): Promise<void> {
 			return;
 		}
 		const allCommands: BasicConfig[] = i.command
-			.get( AuthLevel.Master, MessageScope.Private )
+			.get( AuthLevel.Master, MessageScope.Group )
 			.filter( el => el.display );
 		const image = await cardStyle( i, allCommands, version );
 		if ( /图片渲染异常/.test( image ) ) {

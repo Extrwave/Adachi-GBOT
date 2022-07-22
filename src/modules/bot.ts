@@ -204,7 +204,7 @@ export class Adachi {
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		const content: string = messageData.msg.content.trim() || '';
-		if ( this.bot.config.autoChat && content.length < 20 && !unionRegExp.test( content ) && isAt ) {
+		if ( this.bot.config.autoChat && content.length < 20 && !unionRegExp.test( content ) && isAt && !isPrivate ) {
 			await autoReply( messageData, sendMessage );
 			return;
 		}
