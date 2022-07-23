@@ -278,6 +278,11 @@ export class Adachi {
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
+			//暂存一下msg_id，供私信推送消息使用
+			const number = await that.bot.redis.getTimeOut( `adachi.msgId-temp` );
+			if ( number <= 0 )
+				await that.bot.redis.setString( `adachi.msgId-temp`, msgID, 290 );
+			
 			const guildInfo = <sdk.IGuild>( await bot.client.guildApi.guild( guild ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
 			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guild }` );

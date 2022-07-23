@@ -157,7 +157,6 @@ export class NoteService implements Service {
 			const time = new Date( now + remaining * 1000 );
 			
 			const job: Job = scheduleJob( time, async () => {
-				
 				await this.sendMessage( `[UID${ this.parent.setting.uid }] - 树脂量已经到达 ${ t } 了哦~` );
 			} );
 			this.events.push( { type: "resin", job } );
@@ -188,8 +187,6 @@ export class NoteService implements Service {
 		
 		for ( let c of compressed ) {
 			const time = new Date( now + parseInt( c.remainedTime ) * 1000 );
-			
-			
 			const job: Job = scheduleJob( time, async () => {
 				await this.sendMessage( `[UID${ this.parent.setting.uid }] - 已有 ${ c.num } 个探索派遣任务完成` );
 			} );
@@ -200,13 +197,15 @@ export class NoteService implements Service {
 	/* 因为sendMessage需要异步获取，无法写进构造器 */
 	public async sendMessage( data: string ) {
 		const userID = this.parent.setting.userID;
+		const temp = await bot.redis.getString( `adachi.msgId-temp` );
+		const msgId = temp === "" ? undefined : temp;
 		//此处私发逻辑已更改
 		const guildID = await getGidMemberIn( userID );
 		if ( !guildID ) {
 			bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
 			return;
 		}
-		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
+		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID, msgId );
 		await sendMessage( data );
 	}
 }

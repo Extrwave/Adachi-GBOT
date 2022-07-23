@@ -100,13 +100,15 @@ export class SignInService implements Service {
 	/* 因为sendMessage需要异步获取，无法写进构造器 */
 	public async sendMessage( data: string ) {
 		const userID = this.parent.setting.userID;
+		const temp = await bot.redis.getString( `adachi.msgId-temp` );
+		const msgId = temp === "" ? undefined : temp;
 		//此处私发逻辑已更改
 		const guildID = await getGidMemberIn( userID );
 		if ( !guildID ) {
 			bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
 			return;
 		}
-		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
+		const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID, msgId );
 		await sendMessage( data );
 	}
 }
