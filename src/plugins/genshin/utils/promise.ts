@@ -4,7 +4,8 @@ import bot from "ROOT";
 import { Cookies } from "#genshin/module";
 import { omit, pick } from "lodash";
 import { characterID, cookies } from "../init";
-import { CharacterCon, Abyss } from "../types";
+import { CharacterCon } from "../types";
+import { getCalendarDetail, getCalendarList } from "./api";
 
 export enum ErrorMsg {
 	NOT_FOUND = "未查询到角色数据，请检查米哈游通行证（非UID）是否有误或是否设置角色信息公开",
@@ -445,4 +446,67 @@ export async function signInResultPromise(
 		bot.logger.info( `用户 ${ uid } 今日米游社签到成功` );
 		resolve( data );
 	} );
+}
+
+export async function calendarPromise(): Promise<ApiType.CalendarData[]> {
+	const { data: detail, retcode: dRetCode, message: dMessage } = await getCalendarDetail();
+	const { data: list, retcode: lRetCode, message: lMessage } = await getCalendarList();
+	if ( !ApiType.isCalendarDetail( detail ) || !ApiType.isCalendarList( list ) ) {
+		throw ErrorMsg.UNKNOWN;
+	}
+	
+	if ( dRetCode !== 0 ) {
+		throw ErrorMsg.FORM_MESSAGE + dMessage;
+	}
+	
+	if ( lRetCode !== 0 ) {
+		throw ErrorMsg.FORM_MESSAGE + lMessage;
+	}
+	
+	const ignoredReg = /(修复|社区|周边|礼包|问卷|调研|米游社|pv|有奖活动|内容专题页|专项意见|更新|防沉迷|公平运营|先行展示页|预下载|新剧情|邀约事件|传说任务)/i;
+	
+	const detailInfo: Record<number, ApiType.CalendarDetailItem> = {};
+	for ( const d of detail.list ) {
+		detailInfo[d.annId] = d;
+	}
+	
+	/* 日历数据 */
+	const calcDataList: ApiType.CalendarData[] = [];
+	
+	for ( const listData of list.list ) {
+		for ( const data of listData.list ) {
+			/* 过滤非活动公告 */
+			if ( ignoredReg.test( data.title ) ) {
+				continue;
+			}
+			
+			let start = new Date( data.startTime );
+			let end = new Date( data.endTime );
+			
+			/* 若存在详情，修正列表数据的开始结束时间 */
+			const detailItem = detailInfo[data.annId];
+			if ( detailItem ) {
+				const content = detailItem.content.replace( /(<|&lt;).+?(>|&gt;)/g, "" );
+				const dateList = content.match( /(\d+\/\d+\/\d+\s\d+:\d+:\d+)~?(\d+\/\d+\/\d+\s\d+:\d+:\d+)?/i );
+				/* 修正开始时间 */
+				if ( dateList && dateList[1] ) {
+					start = new Date( dateList[1] );
+				}
+				/* 修正结束时间 */
+				if ( dateList && dateList[2] ) {
+					end = new Date( dateList[2] );
+				}
+			}
+			
+			calcDataList.push( {
+				banner: data.banner,
+				title: data.title,
+				subTitle: data.subtitle,
+				startTime: start.getTime(),
+				endTime: end.getTime()
+			} );
+		}
+	}
+	bot.logger.info( "活动数据查询成功" );
+	return calcDataList;
 }

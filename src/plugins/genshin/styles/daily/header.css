@@ -1,0 +1,38 @@
+.header {
+	position: relative;
+	display: flex;
+	padding: 12px 12px 0;
+	height: 69px;
+	background-color: var(--primary-dark);
+	box-shadow: 0 10px 20px var(--shadow-base);
+	color: #fff;
+	z-index: 10;
+}
+
+.header > .container {
+	position: relative;
+	flex: 1;
+	border: 4px solid var(--primary-base);
+	border-bottom: none;
+	border-radius: 8px 8px 0 0;
+	line-height: 65px;
+	text-align: center;
+}
+
+.header .time {
+	position: absolute;
+	top: 0;
+	left: 28px;
+	font-size: 20px;
+}
+
+.header .title {
+	font-size: 32px;
+}
+
+.header .author {
+	position: absolute;
+	top: 0;
+	right: 28px;
+	font-size: 18px;
+}

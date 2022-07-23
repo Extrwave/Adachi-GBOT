@@ -4,7 +4,9 @@ import { dailyClass } from "../init";
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
 	const userID: string = messageData.msg.author.id;
 	
-	const { code, data } = await dailyClass.getUserSubscription( userID );
+	const week = messageData.msg.content;
+	
+	const { code, data } = await dailyClass.getUserSubscription( userID, week ? parseInt( week ) : undefined );
 	if ( code === "ok" )
 		await sendMessage( { image: data } );
 	else

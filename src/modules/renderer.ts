@@ -71,6 +71,7 @@ export class Renderer {
 	): Promise<RenderResult> {
 		try {
 			const url: string = this.getURL( route, params );
+			console.log( url );
 			const base64: string = await bot.renderer.screenshot( url, viewPort, selector );
 			const { code, data } = await bot.qiniuyun.upBase64Oss( base64 );
 			if ( code === "ok" ) {
