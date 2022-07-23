@@ -58,7 +58,9 @@ export default class WebConfiguration {
 			categories: {
 				default: Default,
 				"[Adachi-GBot]": Device
-			}
+			},
+			pm2: true,
+			disableClustering: true
 		};
 	}
 	
