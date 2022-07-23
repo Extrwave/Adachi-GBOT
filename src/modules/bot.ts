@@ -278,11 +278,6 @@ export class Adachi {
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
-			//暂存一下msg_id，供私信推送消息使用
-			const number = await that.bot.redis.getTimeOut( `adachi.msgId-temp` );
-			if ( number <= 0 )
-				await that.bot.redis.setString( `adachi.msgId-temp`, msgID, 290 );
-			
 			const guildInfo = <sdk.IGuild>( await bot.client.guildApi.guild( guild ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
 			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guild }` );
@@ -292,8 +287,11 @@ export class Adachi {
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Group );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );
 			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false, isAt );
+			
+			//暂存一下msg_id, guildId, channelId 供推送消息使用
 			await bot.redis.setHashField( `adachi.guild-used-channel`, guild, channelID ); //记录可以推送消息的频道
-			bot.logger.info( `[A: ${ authorName }][G: ${ guildInfo.name }]: ${ content }` );
+			await bot.redis.setString( `adachi.msgId-temp-${ guild }-${ channelID }`, msgID, 290 ); //记录推送消息引用的msgID，被动
+			await bot.logger.info( `[A: ${ authorName }][G: ${ guildInfo.name }]: ${ content }` );
 		}
 	}
 	
