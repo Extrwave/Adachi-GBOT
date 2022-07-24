@@ -213,7 +213,7 @@ export class NoteService implements Service {
 		} else {
 			//存在可用消息，则发送到频道
 			const sendMessage = await bot.message.sendGuildMessage( channelID, msgId );
-			await sendMessage( { content: `<@!${ userID }>\n` + data } );
+			await sendMessage( { content: `<@!${ userID }>\n${ data }` } );
 		}
 	}
 }

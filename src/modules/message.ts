@@ -49,6 +49,7 @@ export default class MsgManager implements MsgManagementMethod {
 	/*获取私信发送方法 构建*/
 	public async getPrivateSendFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
 		const client = this.client;
+		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
 		return async function ( content: MessageToCreate | string ): Promise<IMessage | any> {
 			if ( msgId ) {
@@ -77,6 +78,7 @@ export default class MsgManager implements MsgManagementMethod {
 	
 	/* 给管理员发送消息的方法，主动/被动 */
 	public async sendToMaster( msgId?: string ): Promise<SendFunc> {
+		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const masterGuildId = await this.redis.getString( `adachi.guild-master` ); //当前BOT主人所在频道
 		return await this.getPrivateSendFunc( masterGuildId, this.config.master, msgId );
 	}
@@ -84,6 +86,7 @@ export default class MsgManager implements MsgManagementMethod {
 	/*私信回复方法 被动回复*/
 	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
 		const client = this.client;
+		msgId = "1000"; //随时都可能失效，失效后删掉此行
 		return async function ( content: MessageToCreate | string ): Promise<IMessage> {
 			if ( typeof content === 'string' ) {
 				const response = await client.directMessageApi.postDirectMessage( guildId, {
