@@ -21,10 +21,13 @@ export async function main
 	const header = ( <OrderMatchResult>matchResult ).header;
 	const au: AuthLevel = await auth.get( userID );
 	
-	const SANNO = <Order>command.getSingle( "adachi-announce", au );
 	const ANNO = <Order>command.getSingle( "adachi-get-announce", au );
+	const SANNO = <Order>command.getSingle( "adachi-announce", au ); //权限高，优先判断存在undefined情况
 	
-	if ( SANNO.getHeaders().includes( header ) ) {
+	if ( ANNO.getHeaders().includes( header ) ) {
+		const data = await redis.getString( dbKey );
+		await sendMessage( `当前BOT公告：\n    ${ data }` );
+	} else if ( SANNO.getHeaders().includes( header ) ) {
 		await redis.setString( dbKey, content );
 		const guildIds: string[] = await redis.getSet( `adachi.guild-used` );
 		guildIds.forEach( guild => {
@@ -33,8 +36,5 @@ export async function main
 				sendMessage( content );
 			} )
 		} );
-	} else if ( ANNO.getHeaders().includes( header ) ) {
-		const data = await redis.getString( dbKey );
-		await sendMessage( `当前BOT公告：\n    ${ data }` );
 	}
 }
