@@ -106,6 +106,11 @@ export class Order extends BasicConfig {
 	}
 	
 	public getHeaders(): string[] {
-		return this.regPairs.map( el => el.header );
+		let headers: string[];
+		headers = this.regPairs.map( el => el.header );
+		if ( this.desc[0].length > 0 ) {
+			headers.push( this.desc[0] );
+		}
+		return headers;
 	}
 }

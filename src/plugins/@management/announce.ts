@@ -32,8 +32,9 @@ export async function main
 		const guildIds: string[] = await redis.getSet( `adachi.guild-used` );
 		guildIds.forEach( guild => {
 			redis.getHashField( `adachi.guild-used-channel`, guild ).then( channelId => {
-				const sendMessage = message.sendGuildMessage( channelId, msgId );
-				sendMessage( content );
+				setTimeout( () => {
+					message.sendGuildMessage( channelId, msgId )( content );
+				}, 1500 );
 			} )
 		} );
 	}
