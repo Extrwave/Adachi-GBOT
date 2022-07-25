@@ -172,7 +172,7 @@ const privateSubscribe: OrderConfig = {
 	headers: [ "ps" ],
 	regexps: [],
 	main: "achieves/private/subscribe",
-	// scope: MessageScope.Private,
+	scope: MessageScope.Private,
 	detail: "授权服务，一类通过使用个人 cookie 获取私密信息\n" +
 		"目前包含实时便笺订阅功能，未来可能会添加新功能"
 };
@@ -186,7 +186,7 @@ const privateConfirm: OrderConfig = {
 	display: false,
 	ignoreCase: false,
 	main: "achieves/private/subscribe",
-	// scope: MessageScope.Private
+	scope: MessageScope.Private
 };
 
 const privateSubList: OrderConfig = {
@@ -196,7 +196,6 @@ const privateSubList: OrderConfig = {
 	headers: [ "pl" ],
 	regexps: [],
 	main: "achieves/private/get-list",
-	// scope: MessageScope.Private,
 	detail: "当开启多个米游社账号的授权服务，" +
 		"序号用于区分不同的米游社账号"
 };
@@ -232,7 +231,7 @@ const privateReplace: OrderConfig = {
 	regexps: [ "\\d+", ".+" ],
 	ignoreCase: false,
 	main: "achieves/private/replace",
-	// scope: MessageScope.Private,
+	scope: MessageScope.Private,
 	detail: "序号在授权服务列表中查看\n" +
 		"该指令用于更换授权服务所绑定的 cookie"
 };

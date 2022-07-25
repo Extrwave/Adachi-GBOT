@@ -15,7 +15,7 @@ const signEnable: OrderConfig = {
 	headers: [ "onyys" ],
 	regexps: [],
 	main: "achieves/enable_sign",
-	// scope: MessageScope.Private,
+	scope: MessageScope.Private,
 };
 
 const signConfirm: OrderConfig = {
@@ -25,7 +25,7 @@ const signConfirm: OrderConfig = {
 	headers: [ "yconfirm" ],
 	regexps: [ ".+" ],
 	main: "achieves/enable_sign",
-	// scope: MessageScope.Private,
+	scope: MessageScope.Private,
 	display: false,
 	ignoreCase: false
 }
@@ -37,7 +37,7 @@ const signDisable: OrderConfig = {
 	headers: [ "offyys" ],
 	regexps: [],
 	main: "achieves/disable_sign",
-	// scope: MessageScope.Private,
+	scope: MessageScope.Private,
 };
 
 const signRemedy: OrderConfig = {
