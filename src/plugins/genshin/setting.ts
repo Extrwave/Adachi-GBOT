@@ -252,7 +252,7 @@ const privateReorder: OrderConfig = {
 const privateNowNote: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-now-note",
-	desc: [ "实时便笺", "" ],
+	desc: [ "树脂", "" ],
 	headers: [ "note" ],
 	regexps: [],
 	main: "achieves/private/note/now"
