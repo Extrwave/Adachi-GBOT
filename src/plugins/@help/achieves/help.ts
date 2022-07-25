@@ -95,7 +95,7 @@ async function cardStyle( i: InputParameter, commands: BasicConfig[], version: s
 	if ( res.code === "ok" ) {
 		return res.data;
 	} else {
-		i.logger.error( res );
+		i.logger.error( res.error );
 		const CALL = <Order>bot.command.getSingle( "adachi.call", AuthLevel.User );
 		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
 		return `图片渲染异常，请${ appendMsg }联系开发者进行反馈`;

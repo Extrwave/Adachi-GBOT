@@ -135,9 +135,7 @@ export async function main(
 		await sendMessage( { image: res.data } );
 		await redis.setString( dbTempKey, res.data, 3600 * 0.5 );
 	} else if ( res.code === "error" ) {
-		await sendMessage( res.error );
-	} else {
-		logger.error( res.err );
-		await sendMessage( "图片渲染异常，请联系开发者进行反馈" );
+		logger.error( res.error );
+		await sendMessage( "图片渲染异常，请联系开发者进行反馈\n" + res.error );
 	}
 }

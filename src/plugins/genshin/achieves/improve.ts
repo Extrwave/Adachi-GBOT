@@ -19,9 +19,7 @@ export async function main(
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
 	} else if ( res.code === "error" ) {
-		await sendMessage( res.error );
-	} else {
-		logger.error( res.err );
-		await sendMessage( "图片渲染异常，请联系开发者进行反馈" );
+		logger.error( res.error );
+		await sendMessage( "图片渲染异常，请联系开发者进行反馈\n" + res.error );
 	}
 }

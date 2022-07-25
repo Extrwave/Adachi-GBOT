@@ -10,7 +10,7 @@ interface RenderSuccess {
 
 interface RenderError {
 	code: "err";
-	err: string;
+	error: string;
 }
 
 interface UpLoadError {
@@ -80,7 +80,7 @@ export class Renderer {
 				return { code: "error", error: data };
 		} catch ( error ) {
 			const err = <string>( <Error>error ).stack;
-			return { code: "err", err: err };
+			return { code: "err", error: err };
 		}
 	}
 	

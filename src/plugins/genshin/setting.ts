@@ -121,21 +121,20 @@ const alias: SwitchConfig = {
 		"「天帝」会被自动识别为「枫原万叶」"
 };
 
-// const daily: SwitchConfig = {
-// 	type: "switch",
-// 	mode: "single",
-// 	cmdKey: "silvery-star-daily",
-// 	desc: [ "材料订阅", "#{OPT} [角色|武器名|群号]" ],
-// 	header: "sub",
-// 	regexp: [ "#{OPT}", "[\\w\\u4e00-\\u9fa5]+" ],
-// 	main: "achieves/daily",
-// 	onKey: "add",
-// 	offKey: "rem",
-// 	display: false,
-// 	detail: "为自己添加/删除角色天赋/武器的突破材料\n" +
-// 		"每天的 6:00~7:00 随机时间进行推送\n" +
-// 		"若使用群号，则将在 6:00 向该群发送所有信息"
-// };
+const daily: SwitchConfig = {
+	type: "switch",
+	mode: "single",
+	cmdKey: "silvery-star-daily",
+	desc: [ "材料订阅", "#{OPT} [角色|武器|群号|活动]" ],
+	header: "sub",
+	regexp: [ "#{OPT}", "[\\w\\u4e00-\\u9fa5]+" ],
+	main: "achieves/daily",
+	onKey: "add",
+	offKey: "rem",
+	detail: "为自己添加/删除角色天赋/武器的突破材料以及当前进行中的活动订阅\n" +
+		"每天的 6:00~7:00 随机时间进行推送\n" +
+		"若使用群号，则将在 6:00 向该群发送所有信息"
+};
 
 const today: OrderConfig = {
 	type: "order",
