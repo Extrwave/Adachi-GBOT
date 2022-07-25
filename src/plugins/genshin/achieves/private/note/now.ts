@@ -18,7 +18,7 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 				"授权后你将拥有以下进阶功能\n\n" +
 				"树脂查询         达量推送\n" +
 				"深渊查询         自动签到\n" +
-				"旅行札记                \n\n" +
+				"旅行札记         角色详情\n\n" +
 				"如需添加授权，请私聊本BOT\n" +
 				"发送 " + PRIVATE_ADD.getHeaders()[0] + " 并按照提示完成操作"
 		} ];
@@ -39,7 +39,7 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 			imageList.push( { code: "msg", data: res.error } );
 		} else {
 			bot.logger.error( res.err );
-			imageList.push( { code: "msg", data: "图片渲染异常，请联系持有者进行反馈" } );
+			imageList.push( { code: "msg", data: "图片渲染异常，请联系开发者进行反馈" } );
 		}
 	}
 	return imageList;

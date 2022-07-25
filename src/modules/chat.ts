@@ -2,9 +2,12 @@
 Author: Ethereal
 CreateTime: 2022/6/21
  */
+import bot from "ROOT";
 import * as msg from "@modules/message";
 import { API, getChatResponse, getEmoji, getTextResponse, getWeDog } from "@modules/utils/api";
 import { Message } from "@modules/utils/message";
+import { Order } from "@modules/command";
+import { AuthLevel } from "@modules/management/auth";
 
 export async function autoReply( messageData: Message, sendMessage: msg.SendFunc ) {
 	//处理传入的数据
@@ -14,10 +17,13 @@ export async function autoReply( messageData: Message, sendMessage: msg.SendFunc
 		//随即回复一个表情包
 		await sendMessage( { content: "找我有何贵干？", image: getEmoji() } );
 	} else {
-		let message = "";
+		let message;
 		switch ( true ) {
 			case /\//.test( msg ):
-				message = "请输入正确的指令和参数\n具体用法查阅：/help ";
+				const HELP = <Order>bot.command.getSingle( `adachi-help`, AuthLevel.Master );
+				message = "请输入正确的指令和参数\n" +
+					"[ ] 必填, ( ) 选填, | 选择\n" +
+					`具体用法查阅：${ HELP.getHeaders()[0] } `;
 				break;
 			case /渣/.test( msg ):
 				message = await getTextResponse( API.lovelive );

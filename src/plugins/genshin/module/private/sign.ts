@@ -68,13 +68,16 @@ export class SignInService implements Service {
 			}
 			await signInResultPromise( uid, server, cookie );
 			await this.sendMessage(
-				`[UID ${ uid }]\n` +
+				`[ UID ${ uid } ]\n` +
 				`今日已完成签到\n` +
 				`本月累计签到 ${ info.totalSignDay + 1 } 天\n` +
 				`明天同一时间见~`
 			);
 		} catch ( error ) {
-			await this.sendMessage( "米游社原神签到失败：" + <string>error );
+			await this.sendMessage(
+				"米游社原神签到失败：\n" +
+				"可能是网络波动或者cookie失效\n" +
+				<string>error );
 			bot.logger.warn( `[UID ${ uid }] ` + <string>error );
 		}
 	}
@@ -108,10 +111,10 @@ export class SignInService implements Service {
 		}
 		const channelID = await bot.redis.getHashField( `adachi.guild-used-channel`, guildID );
 		const temp = await bot.redis.getString( `adachi.msgId-temp-${ guildID }-${ channelID }` );
-		const msgId = temp === "" ? "1000" : temp;
+		const msgId = temp === "" ? undefined : temp;
 		if ( temp === "" ) {
-			//缓存为空，则推送主动消息过去, 1000利用了他们自己留的后门，不稳定，随时修复
-			const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID, msgId );
+			//缓存为空，则推送主动消息过去
+			const sendMessage = await bot.message.getSendPrivateFunc( guildID, userID, msgId );
 			await sendMessage( { content: data } );
 		} else {
 			//存在可用消息，则发送到频道

@@ -35,9 +35,9 @@ export async function getPrivateAccount( userID: string, idMsg: string, auth: Au
 			"授权后你将拥有以下进阶功能\n\n" +
 			"树脂查询         达量推送\n" +
 			"深渊查询         自动签到\n" +
-			"旅行札记                \n\n" +
+			"旅行札记         角色详情\n\n" +
 			"如需添加授权，请私聊本BOT\n" +
-			"发送 " + PRIVATE_SUBSCRIBE.getHeaders()[0] + "并按照提示完成操作";
+			"发送 " + PRIVATE_SUBSCRIBE.getHeaders()[0] + " 并按照提示完成操作";
 	} else if ( accounts.length - 1 < id || id === -1 ) {
 		const PRIVATE_LIST = <Order>bot.command.getSingle( "silvery-star-private-list", a );
 		return `无效的序号，请使用 ${ PRIVATE_LIST.getHeaders()[0] } 检查，序号为前面数字，不是UID`;

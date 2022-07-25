@@ -395,7 +395,7 @@ export async function dailyNotePromise(
 			bot.logger.info( `用户 ${ uid } 的实时便笺数据查询成功` );
 			resolve( data );
 		} catch ( error ) {
-			reject( "便笺数据查询错误，可能服务器出现了网络波动或米游社API故障，请联系持有者进行反馈" );
+			reject( "便笺数据查询错误，可能服务器出现了网络波动或米游社API故障，请联系开发者进行反馈" );
 		}
 	} );
 }

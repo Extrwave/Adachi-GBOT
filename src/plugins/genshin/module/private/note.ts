@@ -157,7 +157,7 @@ export class NoteService implements Service {
 			const time = new Date( now + remaining * 1000 );
 			
 			const job: Job = scheduleJob( time, async () => {
-				await this.sendMessage( `[UID${ this.parent.setting.uid }] - 树脂量已经到达 ${ t } 了哦~` );
+				await this.sendMessage( `[ UID${ this.parent.setting.uid } ] - 树脂量已经到达 ${ t } 了哦~` );
 			} );
 			this.events.push( { type: "resin", job } );
 		}
@@ -188,7 +188,7 @@ export class NoteService implements Service {
 		for ( let c of compressed ) {
 			const time = new Date( now + parseInt( c.remainedTime ) * 1000 );
 			const job: Job = scheduleJob( time, async () => {
-				await this.sendMessage( `[UID${ this.parent.setting.uid }] - 已有 ${ c.num } 个探索派遣任务完成` );
+				await this.sendMessage( `[ UID${ this.parent.setting.uid } ] - 已有 ${ c.num } 个探索派遣任务完成` );
 			} );
 			this.events.push( { type: "expedition", job } );
 		}
@@ -205,10 +205,10 @@ export class NoteService implements Service {
 		}
 		const channelID = await bot.redis.getHashField( `adachi.guild-used-channel`, guildID );
 		const temp = await bot.redis.getString( `adachi.msgId-temp-${ guildID }-${ channelID }` );
-		const msgId = temp === "" ? "1000" : temp;
+		const msgId = temp === "" ? undefined : temp;
 		if ( temp === "" ) {
-			//缓存为空，则推送主动消息过去, 1000利用频道自己留的后门，不稳定，随时修复
-			const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID, msgId );
+			//缓存为空，则推送主动消息过去
+			const sendMessage = await bot.message.getSendPrivateFunc( guildID, userID, msgId );
 			await sendMessage( { content: data } );
 		} else {
 			//存在可用消息，则发送到频道

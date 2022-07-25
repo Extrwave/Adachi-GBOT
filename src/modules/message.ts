@@ -12,8 +12,8 @@ import { Message, MessageType } from "@modules/utils/message";
 export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<IMessage | void>;
 
 interface MsgManagementMethod {
-	getPrivateSendFunc( guildId: string, userId: string ): Promise<SendFunc>;
-	sendToMaster( msgId: string ): Promise<SendFunc>;
+	getSendPrivateFunc( guildId: string, userId: string ): Promise<SendFunc>;
+	getSendMasterFunc( msgId: string ): Promise<SendFunc>;
 	sendPrivateMessage( guildId: string, msgId: string ): SendFunc;
 	sendGuildMessage( channelId: string, msgId: string ): SendFunc;
 }
@@ -33,7 +33,7 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	/*构建私聊会话*/
-	async getPrivateSender( guildId: string, userId: string ): Promise<IDirectMessage> {
+	async getPrivateSendParam( guildId: string, userId: string ): Promise<IDirectMessage> {
 		const response = await this.client.directMessageApi.createDirectMessage( {
 			source_guild_id: guildId,
 			recipient_id: userId
@@ -47,10 +47,10 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	/*获取私信发送方法 构建*/
-	public async getPrivateSendFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
+	public async getSendPrivateFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
 		const client = this.client;
 		msgId = "1000";//随时都可能失效，失效后删掉此行
-		const { guild_id, channel_id, create_time } = await this.getPrivateSender( guildId, userId );
+		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
 		return async function ( content: MessageToCreate | string ): Promise<IMessage | any> {
 			if ( msgId ) {
 				if ( typeof content === 'string' ) {
@@ -77,10 +77,10 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	/* 给管理员发送消息的方法，主动/被动 */
-	public async sendToMaster( msgId?: string ): Promise<SendFunc> {
+	public async getSendMasterFunc( msgId?: string ): Promise<SendFunc> {
 		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const masterGuildId = await this.redis.getString( `adachi.guild-master` ); //当前BOT主人所在频道
-		return await this.getPrivateSendFunc( masterGuildId, this.config.master, msgId );
+		return await this.getSendPrivateFunc( masterGuildId, this.config.master, msgId );
 	}
 	
 	/*私信回复方法 被动回复*/

@@ -75,7 +75,7 @@ async function exitGuildClean( userId: string ) {
 	await cancelToken( userId );
 	const info = await getMemberInfo( userId );
 	if ( info ) {
-		const sendMessage = await bot.message.getPrivateSendFunc( info.guildID, userId );
+		const sendMessage = await bot.message.getSendPrivateFunc( info.guildID, userId );
 		await sendMessage( `你的云原神签到配置已被管理员取消` );
 	}
 }

@@ -43,9 +43,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 		`「 ${ CONFIRM.getHeaders()[0] } token 」\n` +
 		"token 请你按照教程获取并替换\n" +
 		"请在 3 分钟内进行，超时会自动取消\n" +
-		"教程获取：@BOT发送：cookie教程 \n\n" +
-		"因为私信无法发送任何链接消息\n" +
-		"所以请到频道 @BOT 发送 教程";
+		"教程获取：@BOT发送：token教程 \n\n";
 }
 
 async function confirm(
@@ -53,7 +51,7 @@ async function confirm(
 	a: AuthLevel, SUBSCRIBE: Order
 ): Promise<string> {
 	if ( !tempSubscriptionList.some( el => el === userID ) ) {
-		return `你还未申请云原神签到服务，请先使用「${ SUBSCRIBE.getHeaders()[0] }」`;
+		return `你还未申请云原神签到服务，请先使用「${ SUBSCRIBE.getHeaders()[0] }」申请`;
 	}
 	
 	/* 由于腾讯默认屏蔽含有cookie消息，故采用base64加密一下？试试 */
@@ -65,9 +63,8 @@ async function confirm(
 			"正在尝试Base64解码token...\n"
 		if ( execResBase64 === null )
 			return resMsg + "抱歉，请重新提交正确的 token" +
-				`cookie是需要按照教程获取并替换\n` +
-				`不是直接发 "cookie"，比如 /confirm _ga=GA1.2...\n` +
-				`实在有问题请前往BOT头像个人信息上面的官方频道反馈`;
+				`token需要按照教程获取并替换\n` +
+				`有问题请前往BOT头像主页的官频反馈`;
 		else {
 			token = decode( token );
 		}

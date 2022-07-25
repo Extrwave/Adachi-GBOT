@@ -21,7 +21,7 @@ async function sendMessageToUser( userID: string ) {
 		bot.logger.error( "获取成员信息失败，检查成员是否退出频道 ID：" + userID )
 		return;
 	}
-	const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
+	const sendMessage = await bot.message.getSendPrivateFunc( guildID, userID );
 	await sendMessage( "你的授权服务已被管理员取消" );
 }
 

@@ -54,7 +54,7 @@ async function decreaseFriend( userId: string, { redis }: BOT ) {
 	await redis.deleteKey( `silvery-star-daily-sub-${ userId }` );
 	const info = await getMemberInfo( userId );
 	if ( info ) {
-		const sendMessage = await bot.message.getPrivateSendFunc( info.guildID, userId );
+		const sendMessage = await bot.message.getSendPrivateFunc( info.guildID, userId );
 		await sendMessage( `你的授权服务已被管理员取消` );
 	}
 }

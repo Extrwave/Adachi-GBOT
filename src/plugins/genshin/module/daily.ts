@@ -173,7 +173,7 @@ export class DailyClass {
 					if ( !guildID ) {
 						bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
 					} else {
-						const sendMessage = await bot.message.getPrivateSendFunc( guildID, userID );
+						const sendMessage = await bot.message.getSendPrivateFunc( guildID, userID );
 						await sendMessage( { content: "今日材料如下", image: res.data } );
 					}
 				} );
@@ -219,7 +219,6 @@ export class DailyClass {
 				}
 			} catch ( e ) {
 				bot.logger.error( `「${ targetName }」信息获取失败: ${ e }` );
-				continue;
 			}
 		}
 	}
@@ -294,7 +293,7 @@ export class DailyClass {
 			return { code: "error", data: res.error }
 		} else {
 			bot.logger.error( res.err );
-			return { code: "error", data: "图片渲染异常，请联系持有者进行反馈" };
+			return { code: "error", data: "图片渲染异常，请联系开发者进行反馈" };
 		}
 	}
 	

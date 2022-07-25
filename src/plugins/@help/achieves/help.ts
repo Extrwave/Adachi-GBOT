@@ -7,7 +7,7 @@ import { getArkListMessage } from "@modules/utils/arks";
 import { RenderResult } from "@modules/renderer";
 import { renderer } from "../init";
 import bot from "ROOT";
-import { MessageScope, MessageType } from "@modules/utils/message";
+import { MessageScope } from "@modules/utils/message";
 import { AuthLevel } from "@modules/management/auth";
 
 
@@ -96,9 +96,9 @@ async function cardStyle( i: InputParameter, commands: BasicConfig[], version: s
 		return res.data;
 	} else {
 		i.logger.error( res );
-		const CALL = <Order>bot.command.getSingle( "adachi.call", await i.auth.get( i.messageData.msg.author.id ) );
+		const CALL = <Order>bot.command.getSingle( "adachi.call", AuthLevel.User );
 		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
-		return `图片渲染异常，请${ appendMsg }联系持有者进行反馈`;
+		return `图片渲染异常，请${ appendMsg }联系开发者进行反馈`;
 	}
 }
 

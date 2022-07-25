@@ -1,6 +1,6 @@
 import bot from "ROOT";
 import { scheduleJob } from "node-schedule";
-import { getWalletURL, getAnnouncementURL, getNotificationURL, HEADERS } from "../util/api";
+import { getWalletURL, HEADERS } from "../util/api";
 import { getHeaders } from "#yyscloud/util/header";
 import { getMemberInfo } from "@modules/utils/account";
 import { InputParameter } from "@modules/command";
@@ -34,7 +34,7 @@ async function allSign( auto: boolean, sendMessage?: Msg.SendFunc ) {
 		const headers: HEADERS = await getHeaders( userId );
 		const message = await getWalletURL( headers );
 		const data = JSON.parse( message );
-		const sendPostMessage = await bot.message.getPrivateSendFunc( account.guildID, userId );
+		const sendPostMessage = await bot.message.getSendPrivateFunc( account.guildID, userId );
 		if ( data.retcode === 0 && data.message === "OK" ) {
 			if ( auto ) {
 				await sendPostMessage(
