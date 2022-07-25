@@ -77,11 +77,33 @@ const getAnnounce: OrderConfig = {
 	detail: "该指令用于获取开发者公告"
 }
 
+const callMaster: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-call-master",
+	desc: [ "给开发者留言", "" ],
+	headers: [ "call" ],
+	regexps: [ "(.+\\s?)*" ],
+	main: "call",
+	detail: "通过BOT与机器人开发者联系 ~ "
+}
+
+const replyUser: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-reply-user",
+	desc: [ "回复用户留言", "" ],
+	headers: [ "user" ],
+	regexps: [ "(.+\\s?)*" ],
+	main: "call",
+	auth: AuthLevel.Master,
+	detail: "BOT开发者回复用户消息 ~ "
+}
+
 export async function init(): Promise<PluginSetting> {
 	return {
 		pluginName: "@management",
 		cfgList: [
-			manager, refresh, ban, limit, announce, getAnnounce
+			manager, refresh, ban, limit,
+			announce, getAnnounce, callMaster, replyUser
 		]
 	}
 }
