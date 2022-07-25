@@ -129,18 +129,15 @@ export class Adachi {
 			// 	if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
 			// 		this.membersDecrease( this )( data.msg.user.id );
 			// } )
-			/* 当机器人进入或者离开频道,更新频道数量信息 */
-			
 			this.bot.logger.info( "事件监听启动成功" );
-			await this.bot.redis.deleteKey( `adachi.help-image` ); //每次启动删除help缓存
-			await this.bot.redis.deleteKey( `adachi.guild-used` ); //重启重新获取BOT所在频道信息
-			await this.getBotBaseInfo( this );
+			this.getBotBaseInfo( this )();
 		} );
 		
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
 		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
 		scheduleJob( "0 1 */3 * * *", this.clearExitUser( this ) );
+		scheduleJob( "0 30 */4 * * *", this.getBotBaseInfo( this ) );
 		return this.bot;
 	}
 	
@@ -392,41 +389,45 @@ export class Adachi {
 	
 	
 	/* 获取BOT所在频道基础信息 */
-	private async getBotBaseInfo( that: Adachi ) {
+	private getBotBaseInfo( that: Adachi ): JobCallback {
 		const bot = that.bot;
-		const responseMeApi = await bot.client.meApi.me();
-		if ( !responseMeApi.data.id ) {
-			bot.logger.error( "获取BOT自身信息失败..." );
-			return;
-		}
-		await bot.redis.setString( `adachi.user-bot-id`, responseMeApi.data.id );
-		
-		let currentId = "", over = false, ackMaster = false, count = 10;
-		while ( !over && count >= 0 ) {
-			let responseMeGuilds;
-			if ( currentId !== "" ) {
-				responseMeGuilds = await bot.client.meApi.meGuilds( { after: currentId } );
-			} else {
-				responseMeGuilds = await bot.client.meApi.meGuilds();
+		return async function () {
+			console.log( "开始获取自身信息" )
+			await bot.redis.deleteKey( `adachi.guild-used` ); //重启重新获取BOT所在频道信息
+			const responseMeApi = await bot.client.meApi.me();
+			if ( !responseMeApi.data.id ) {
+				bot.logger.error( "获取BOT自身信息失败..." );
+				return;
 			}
-			const guilds: sdk.IGuild[] = responseMeGuilds.data;
-			if ( guilds.length <= 0 && currentId === "" ) {
-				bot.logger.error( "获取频道信息失败..." );
-			} else if ( guilds.length <= 0 ) {
-				over = true;
-			} else {
-				for ( let guild of guilds ) {
-					await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
-					if ( !ackMaster && guild.owner_id === bot.config.master ) {
-						await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
-						ackMaster = true;
-					}
+			await bot.redis.setString( `adachi.user-bot-id`, responseMeApi.data.id );
+			
+			let currentId = "", over = false, ackMaster = false, count = 10;
+			while ( !over && count >= 0 ) {
+				let responseMeGuilds;
+				if ( currentId !== "" ) {
+					responseMeGuilds = await bot.client.meApi.meGuilds( { after: currentId } );
+				} else {
+					responseMeGuilds = await bot.client.meApi.meGuilds();
 				}
-				currentId = guilds[guilds.length - 1].id;
+				const guilds: sdk.IGuild[] = responseMeGuilds.data;
+				if ( guilds.length <= 0 && currentId === "" ) {
+					bot.logger.error( "获取频道信息失败..." );
+				} else if ( guilds.length <= 0 ) {
+					over = true;
+				} else {
+					for ( let guild of guilds ) {
+						await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
+						if ( !ackMaster && guild.owner_id === bot.config.master ) {
+							await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
+							ackMaster = true;
+						}
+					}
+					currentId = guilds[guilds.length - 1].id;
+				}
 			}
-		}
-		if ( !ackMaster ) {
-			bot.logger.error( "MasterID设置错误，部分功能会受到影响" );
+			if ( !ackMaster ) {
+				bot.logger.error( "MasterID设置错误，部分功能会受到影响" );
+			}
 		}
 	}
 	

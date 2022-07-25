@@ -138,7 +138,7 @@ const daily: SwitchConfig = {
 
 const today: OrderConfig = {
 	type: "order",
-	cmdKey: "silvery-star.today",
+	cmdKey: "silvery-star-today",
 	desc: [ "今日素材/活动", "(星期)" ],
 	headers: [ "today" ],
 	regexps: [ "[1-7]?" ],

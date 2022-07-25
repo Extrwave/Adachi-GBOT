@@ -138,7 +138,7 @@ export async function main( i: InputParameter ): Promise<void> {
 	}
 	
 	/* 使用图片帮助,默认获取全部指令 */
-	const dbKey = `adachi.help-image`;
+	const dbKey = `adachi-help-image`;
 	if ( i.config.helpMessageStyle === "card" ) {
 		const helpCard = await i.redis.getString( dbKey );
 		if ( helpCard !== "" ) {

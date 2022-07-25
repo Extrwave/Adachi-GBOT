@@ -153,6 +153,7 @@ export default class Command {
 				commands.push( ...cmd );
 			}
 			this.add( commands );
+			await bot.redis.deleteKey( "adachi-help-image" );
 			return "指令配置重新加载完毕";
 		} catch ( error ) {
 			throw <RefreshCatch>{
