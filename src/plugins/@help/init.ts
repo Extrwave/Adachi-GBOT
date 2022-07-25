@@ -7,7 +7,7 @@ import { createServer } from "#@help/server";
 const help: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-help",
-	desc: [ "全指令", "(-k)" ],
+	desc: [ "帮助", "(-k)" ],
 	headers: [ "help" ],
 	regexps: [ "(-k)?" ],
 	main: "achieves/help"

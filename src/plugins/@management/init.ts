@@ -80,7 +80,7 @@ const getAnnounce: OrderConfig = {
 const callMaster: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-call-master",
-	desc: [ "给开发者留言", "" ],
+	desc: [ "给我留言", "" ],
 	headers: [ "call" ],
 	regexps: [ "(.+\\s?)*" ],
 	main: "call",
@@ -90,7 +90,7 @@ const callMaster: OrderConfig = {
 const replyUser: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-reply-user",
-	desc: [ "回复用户留言", "" ],
+	desc: [ "回复留言", "" ],
 	headers: [ "user" ],
 	regexps: [ "(.+\\s?)*" ],
 	main: "call",

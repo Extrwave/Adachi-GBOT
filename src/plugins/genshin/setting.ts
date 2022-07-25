@@ -6,7 +6,7 @@ import { PluginSetting } from "@modules/plugin";
 const bind: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-bind",
-	desc: [ "米游社绑定", "[UID|-r]" ],
+	desc: [ "绑定", "[UID|-r]" ],
 	headers: [ "bind" ],
 	regexps: [ "(\\d{9}|-r)" ],
 	main: "achieves/bind",
@@ -16,7 +16,7 @@ const bind: OrderConfig = {
 const uidQuery: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-uid-query",
-	desc: [ "游戏查询", "[UID|@]" ],
+	desc: [ "他人主页", "[UID|@]" ],
 	headers: [ "uid" ],
 	regexps: [
 		[ "(\\d{9})?" ],
@@ -57,7 +57,7 @@ const wish: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-wish",
 	desc: [ "祈愿抽卡", "(次数|until)" ],
-	headers: [ "wish", "w" ],
+	headers: [ "wish" ],
 	regexps: [ "(\\d+|until)?" ],
 	main: "achieves/wish",
 	detail: "抽卡次数可以填写 1~99，表示十连抽的次数，默认为 1\n" +
@@ -79,7 +79,7 @@ const choosePool: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-choose-pool",
 	desc: [ "切换卡池", "[角色|武器|常驻|角色2]" ],
-	headers: [ "choose", "t" ],
+	headers: [ "choose" ],
 	regexps: [ "(角色|武器|常驻|角色2)" ],
 	main: "achieves/choose"
 };
@@ -87,7 +87,7 @@ const choosePool: OrderConfig = {
 const information: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-information",
-	desc: [ "信息查询", "[角色|武器名|圣遗物] (-skill)" ],
+	desc: [ "信息", "[角色|武器名|圣遗物] (-skill)" ],
 	headers: [ "info" ],
 	regexps: [ "[\\w\\u4e00-\\u9fa5]+", "(-skill)?" ],
 	main: "achieves/info",
@@ -139,7 +139,7 @@ const daily: SwitchConfig = {
 const today: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-today",
-	desc: [ "今日素材/活动", "(星期)" ],
+	desc: [ "今日材料", "(星期)" ],
 	headers: [ "today" ],
 	regexps: [ "[1-7]?" ],
 	main: "achieves/today",
@@ -149,7 +149,7 @@ const today: OrderConfig = {
 const guide: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-guide",
-	desc: [ "角色攻略", "[角色名]" ],
+	desc: [ "攻略", "[角色名]" ],
 	headers: [ "guide" ],
 	regexps: [ "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/guide"
@@ -168,11 +168,11 @@ const almanac: OrderConfig = {
 const privateSubscribe: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-subscribe",
-	desc: [ "添加授权服务", "" ],
+	desc: [ "添加授权", "" ],
 	headers: [ "ps" ],
 	regexps: [],
 	main: "achieves/private/subscribe",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "授权服务，一类通过使用个人 cookie 获取私密信息\n" +
 		"目前包含实时便笺订阅功能，未来可能会添加新功能"
 };
@@ -180,40 +180,42 @@ const privateSubscribe: OrderConfig = {
 const privateConfirm: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-confirm",
-	desc: [ "验证授权服务", "" ],
+	desc: [ "验证授权", "" ],
 	headers: [ "confirm" ],
 	regexps: [ ".+" ],
 	display: false,
 	ignoreCase: false,
 	main: "achieves/private/subscribe",
-	scope: MessageScope.Private
+	// scope: MessageScope.Private
 };
 
 const privateSubList: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-list",
-	desc: [ "授权服务列表", "" ],
+	desc: [ "授权列表", "" ],
 	headers: [ "pl" ],
 	regexps: [],
 	main: "achieves/private/get-list",
-	scope: MessageScope.Private
+	// scope: MessageScope.Private,
+	detail: "当开启多个米游社账号的授权服务，" +
+		"序号用于区分不同的米游社账号"
 };
 
 const privateCancel: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-cancel",
-	desc: [ "取消授权服务", "[序号]" ],
+	desc: [ "取消授权", "[序号]" ],
 	headers: [ "pc" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/cancel",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "序号在授权服务列表查看"
 };
 
 const privateRemove: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-remove",
-	desc: [ "移除授权", "[@用户]" ],
+	desc: [ "取消他人授权", "[@用户]" ],
 	headers: [ "remove" ],
 	regexps: [ "<@!\\d+>" ],
 	main: "achieves/private/remove",
@@ -230,7 +232,7 @@ const privateReplace: OrderConfig = {
 	regexps: [ "\\d+", ".+" ],
 	ignoreCase: false,
 	main: "achieves/private/replace",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "序号在授权服务列表中查看\n" +
 		"该指令用于更换授权服务所绑定的 cookie"
 };
@@ -242,7 +244,7 @@ const privateReorder: OrderConfig = {
 	headers: [ "reorder" ],
 	regexps: [ "(\\s|\\d)+" ],
 	main: "achieves/private/reorder",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "对当前的授权服务列表的顺序重新调整\n" +
 		"例如用户有 5 个订阅的授权服务账号，则新排序列表的格式为：5 2 3 1 4"
 };
@@ -259,11 +261,11 @@ const privateNowNote: OrderConfig = {
 const privateNoteEvent: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-note-set-time",
-	desc: [ "便笺推送时间", "[序号] [树脂量]" ],
+	desc: [ "树脂推送量", "[序号] [树脂量]" ],
 	headers: [ "nt" ],
 	regexps: [ "[\\d ]+" ],
 	main: "achieves/private/note/set-time",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "用于设置 BOT 自动提醒时间点，树脂量可设置多个\n" +
 		"如: 60 90 120 160，数字间用空格隔开，频道私信受限，无法正常推送"
 };
@@ -275,14 +277,14 @@ const privateMysSetAppoint: OrderConfig = {
 	headers: [ "appoint" ],
 	regexps: [ "\\d+", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/private/query/appoint",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "该指令用于指定查询卡片中的头像图片"
 };
 
 const privateMysQuery: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-mys",
-	desc: [ "游戏查询", "(序号)" ],
+	desc: [ "我的主页", "(序号)" ],
 	headers: [ "mys" ],
 	regexps: [ "(\\d+)?" ],
 	main: "achieves/private/query/mys"
@@ -305,7 +307,7 @@ const privateAbyssQuery: SwitchConfig = {
 const privateCharQuery: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-character",
-	desc: [ "角色信息", "(序号) [角色名]" ],
+	desc: [ "我的角色", "(序号) [角色名]" ],
 	headers: [ "char" ],
 	regexps: [ "(\\d+)?", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/private/query/character",
@@ -316,11 +318,11 @@ const privateCharQuery: OrderConfig = {
 const privateToggleSign: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-toggle-sign",
-	desc: [ "米游社签到", "[序号]" ],
+	desc: [ "签到开关", "[序号]" ],
 	headers: [ "signin" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/sign-in/main",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "该指令用于切换米游社签到的开/关状态"
 };
 
@@ -331,7 +333,7 @@ const privateToggleNote: OrderConfig = {
 	headers: [ "tnote" ],
 	regexps: [ "\\d+" ],
 	main: "achieves/private/note/toggle",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	detail: "该指令用于切换树脂及冒险探索定时提示的开/关状态"
 };
 

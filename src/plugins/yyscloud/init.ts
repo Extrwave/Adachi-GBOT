@@ -11,21 +11,21 @@ import bot from "ROOT";
 const signEnable: OrderConfig = {
 	type: "order",
 	cmdKey: "extr-wave-yysign-enable",
-	desc: [ "开启云原神签到", "" ],
+	desc: [ "开启云原神授权", "" ],
 	headers: [ "onyys" ],
 	regexps: [],
 	main: "achieves/enable_sign",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 };
 
 const signConfirm: OrderConfig = {
 	type: "order",
 	cmdKey: "extr-wave-yysign-confirm",
-	desc: [ "验证云原神Token", "" ],
+	desc: [ "验证云原神授权", "" ],
 	headers: [ "yconfirm" ],
 	regexps: [ ".+" ],
 	main: "achieves/enable_sign",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 	display: false,
 	ignoreCase: false
 }
@@ -33,17 +33,17 @@ const signConfirm: OrderConfig = {
 const signDisable: OrderConfig = {
 	type: "order",
 	cmdKey: "extr-wave-yysign-disable",
-	desc: [ "取消云原神签到", "" ],
+	desc: [ "取消云原神授权", "" ],
 	headers: [ "offyys" ],
 	regexps: [],
 	main: "achieves/disable_sign",
-	scope: MessageScope.Private,
+	// scope: MessageScope.Private,
 };
 
 const signRemedy: OrderConfig = {
 	type: "order",
 	cmdKey: "extr-wave-yysign-remedy",
-	desc: [ "云原神全员签到", "" ],
+	desc: [ "云原神全签", "" ],
 	headers: [ "allyys" ],
 	regexps: [],
 	main: "achieves/auto_sign",

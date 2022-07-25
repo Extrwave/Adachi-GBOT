@@ -72,6 +72,12 @@ export class Order extends BasicConfig {
 	
 	public match( content: string ): OrderMatchResult | Unmatch {
 		try {
+			if ( this.desc[0].length > 0 ) {
+				const cnReg = new RegExp( this.desc[0] );
+				if ( cnReg.test( content ) ) {
+					throw { type: "order", header: cnReg.source };
+				}
+			}
 			this.regPairs.forEach( pair => pair.genRegExps.forEach( reg => {
 				if ( reg.test( content ) ) {
 					throw { type: "order", header: pair.header };
