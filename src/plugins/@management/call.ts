@@ -2,7 +2,7 @@ import { InputParameter, Order, OrderMatchResult } from "@modules/command";
 import { Embed, MessageToCreate } from "qq-guild-bot";
 import { ErrorMsg, MessageType } from "@modules/utils/message";
 import { AuthLevel } from "@modules/management/auth";
-import { getMessageType } from "@modules/message";
+import { getMessageType, SendFunc } from "@modules/message";
 import { getGuildBaseInfo } from "@modules/utils/account";
 
 /**
@@ -14,14 +14,17 @@ export async function main(
 	
 	const userID: string = messageData.msg.author.id;
 	
+	const attachments = messageData.msg.attachments;
+	
 	const header = ( <OrderMatchResult>matchResult ).header;
 	const au: AuthLevel = await auth.get( userID );
 	
 	const CALL_MASTER = <Order>command.getSingle( "adachi-call-master", au );
 	const REPLY_USER = <Order>command.getSingle( "adachi-reply-user", au );
+	
 	if ( CALL_MASTER.getHeaders().includes( header ) ) {
 		const content = messageData.msg.content;
-		if ( content.length <= 0 ) {
+		if ( content.length <= 0 && !attachments ) {
 			await sendMessage( "需要反馈什么呢？请带上内容 ~ " );
 			return;
 		}
@@ -38,7 +41,6 @@ export async function main(
 		/* 获取发送给Master的方法 ~ */
 		const sendMasterFunc = await message.getSendMasterFunc( msgId );
 		const guildInfo = await getGuildBaseInfo( guildId );
-		
 		
 		const embedMsg: Embed = {
 			title: '有人给你留言啦 ~ ',
@@ -62,8 +64,13 @@ export async function main(
 		};
 		try {
 			await sendMasterFunc( { embed: embedMsg } );
+			if ( attachments ) {
+				attachments.forEach( value => {
+					sendMasterFunc( { image: "https://" + value.url } );
+				} );
+			}
 			const messageRes = await sendMasterFunc( `引用此消息回复：[ ${ name } ]` );
-			await sendMessage( `已将消息发送给Master啦 ~ ` );
+			await sendMessage( `已将消息发送给开发者啦 ~ ` );
 			if ( !messageRes || !messageRes.id ) {
 				throw new Error( "发送消息返回对象异常" );
 			}
@@ -87,7 +94,7 @@ export async function main(
 			return;
 		}
 	} else if ( REPLY_USER.getHeaders().includes( header ) ) {
-		const rawContent: string = "Master：" + messageData.msg.content;
+		const rawContent: string = "开发者回复：" + messageData.msg.content;
 		const msgRefId = messageData.msg.message_reference?.message_id;
 		if ( !msgRefId ) {
 			await sendMessage( "请引用需要回复的消息" );
@@ -112,19 +119,25 @@ export async function main(
 			}
 		}
 		try {
+			let sendToUser: SendFunc;
 			if ( fakeGuildId !== "" ) {
 				//首先处理私聊信息回复逻辑
-				const sendToUser = message.sendPrivateMessage( fakeGuildId, msgId );
-				await sendToUser( content );
+				sendToUser = message.sendPrivateMessage( fakeGuildId, msgId );
 			} else if ( channelId !== "" ) {
-				const sendToUser = message.sendGuildMessage( channelId, msgId );
-				await sendToUser( content );
+				sendToUser = message.sendGuildMessage( channelId, msgId );
 			} else {
-				//消息ID已超过五分钟，采用主动推送发送，有些频道无法主动推送，所以先暂时采用私聊推送
-				const sendToUser = await message.getSendPrivateFunc( guildId, userId );
+				//消息ID已超过五分钟，采用私聊推送
+				sendToUser = await message.getSendPrivateFunc( guildId, userId );
 				content.message_reference = undefined;
-				await sendToUser( content );
 			}
+			//发送消息
+			await sendToUser( content );
+			//引用回复无法携带附件
+			// if ( attachments ) {
+			// 	attachments.forEach( value => {
+			// 		sendToUser( { image: "https://" + value.url } );
+			// 	} );
+			// }
 		} catch ( error ) {
 			const err = <ErrorMsg>error;
 			await sendMessage( err.message );

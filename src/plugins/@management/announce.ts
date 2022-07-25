@@ -17,6 +17,7 @@ export async function main
 	const userID: string = messageData.msg.author.id;
 	const content = messageData.msg.content;
 	const msgId = messageData.msg.id;
+	const attachments = messageData.msg.attachments;
 	
 	const header = ( <OrderMatchResult>matchResult ).header;
 	const au: AuthLevel = await auth.get( userID );
@@ -34,6 +35,11 @@ export async function main
 			redis.getHashField( `adachi.guild-used-channel`, guild ).then( channelId => {
 				setTimeout( () => {
 					message.sendGuildMessage( channelId, msgId )( content );
+					if ( attachments ) {
+						attachments.forEach( value => {
+							message.sendGuildMessage( channelId, msgId )( { image: "https://" + value.url } );
+						} )
+					}
 				}, 1500 );
 			} )
 		} );

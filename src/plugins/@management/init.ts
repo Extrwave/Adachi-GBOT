@@ -61,7 +61,7 @@ const announce: OrderConfig = {
 	cmdKey: "adachi-announce",
 	desc: [ "发送公告", "" ],
 	headers: [ "sanno" ],
-	regexps: [ ".+" ],
+	regexps: [ "(.+\\s?)*" ],
 	auth: AuthLevel.Master,
 	main: "announce",
 	detail: "该指令用于全局发送公告"
