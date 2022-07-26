@@ -26,9 +26,9 @@ const detail: OrderConfig = {
 const sponsor: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-help-sponsor",
-	desc: [ "赞助", "(支付方式)" ],
+	desc: [ "赞助", "(qq|wx|zfb)" ],
 	headers: [ "sponsor" ],
-	regexps: [ "(qq|wechat|alipay)?" ],
+	regexps: [ "(qq|wx|zfb)?" ],
 	main: "achieves/sponsor",
 }
 
