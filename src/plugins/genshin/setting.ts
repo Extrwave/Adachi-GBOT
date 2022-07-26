@@ -139,7 +139,7 @@ const daily: SwitchConfig = {
 const today: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-today",
-	desc: [ "今日材料", "(星期)" ],
+	desc: [ "材料", "(星期)" ],
 	headers: [ "today" ],
 	regexps: [ "[1-7]?" ],
 	main: "achieves/today",
@@ -350,14 +350,15 @@ const privateLedger: OrderConfig = {
 export default <PluginSetting>{
 	pluginName: "genshin",
 	cfgList: [
-		bind, today, guide, getArtifact, almanac,
-		wish, alias, impArtifact, domain, choosePool,
-		slip, uidQuery, epitomizedPath, information,
-		privateNowNote, privateNoteEvent, privateSubList,
+		bind, today, guide, information, alias, domain,
+		getArtifact, impArtifact, wish, choosePool,
+		slip, uidQuery, epitomizedPath, almanac,
+		privateNoteEvent, privateNowNote, privateSubList,
 		privateConfirm, privateSubscribe, privateReplace,
 		privateAbyssQuery, privateCancel, privateRemove,
 		privateReorder, privateToggleSign, privateLedger,
 		privateCharQuery, privateToggleNote, privateMysQuery,
 		privateMysSetAppoint
 	]
-};
+}
+;
