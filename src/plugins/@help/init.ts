@@ -23,6 +23,15 @@ const detail: OrderConfig = {
 	display: false
 }
 
+const sponsor: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-help-sponsor",
+	desc: [ "赞助", "(支付方式)" ],
+	headers: [ "sponsor" ],
+	regexps: [ "(qq|wechat|alipay)?" ],
+	main: "achieves/sponsor",
+}
+
 export let renderer: Renderer;
 
 export async function init( bot: BOT ): Promise<PluginSetting> {
@@ -40,6 +49,6 @@ export async function init( bot: BOT ): Promise<PluginSetting> {
 	
 	return {
 		pluginName: "@help",
-		cfgList: [ help, detail ]
+		cfgList: [ help, detail, sponsor ]
 	};
 }
