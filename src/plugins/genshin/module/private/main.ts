@@ -215,7 +215,9 @@ export class PrivateClass {
 		
 		const values: Service[] = Object.values( newPrivate.services );
 		const contents: string[] = await Promise.all( values.map( async el => await el.initTest() ) );
-		return `授权服务开启成功，UID: ${ uid }` + [ "", ...contents ].join( "\n" );
+		const msg = `授权服务开启成功，UID: ${ uid }` + [ "", ...contents ].join( "\n" ) +
+			`记得点击BOT头像开放推送限制，不然每天能发送三条消息...`;
+		return msg;
 	}
 	
 	public async delPrivate( p: Private ): Promise<void> {

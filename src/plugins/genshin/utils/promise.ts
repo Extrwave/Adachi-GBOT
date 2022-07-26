@@ -23,7 +23,7 @@ async function checkQueryTimes( message: string ): Promise<string> {
 			return "所有cookie查询次数已用尽，请前往BOT官方频道反馈";
 		}
 		await bot.logger.warn( "当前cookie查询次数已用尽，已切换下一个" );
-		return "当前cookie查询次数已用尽，已切换下一个";
+		return "当前cookie查询次数已用尽，已切换下一个，请再次尝试";
 	}
 	return message;
 }

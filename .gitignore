@@ -16,4 +16,3 @@ src/plugins/*
 !/src/plugins/@management/
 !/src/plugins/genshin/
 !/src/plugins/yyscloud/
-!/src/plugins/mari-plugin/
