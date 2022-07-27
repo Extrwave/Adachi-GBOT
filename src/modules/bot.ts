@@ -25,6 +25,7 @@ import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
 import { autoReply } from "@modules/chat";
 import { getMemberInfo } from "@modules/utils/account";
+import { EmbedMsg } from "@modules/utils/embed";
 
 
 export interface BOT {
@@ -219,8 +220,13 @@ export class Adachi {
 			const res: MatchResult = cmd.match( content );
 			if ( res.type === "unmatch" ) {
 				if ( res.missParam ) {
-					await sendMessage( `指令参数缺失或者错误:  ${ cmd.desc[1] }\n` +
-						`参数说明：\n${ cmd.detail.length > 0 ? cmd.detail : "暂无" }` );
+					const embedMsg = new EmbedMsg( `指令参数缺失或者错误`,
+						undefined,
+						`指令参数缺失或者错误`,
+						messageData.msg.author.avatar,
+						`参数说明：\n`,
+						`${ cmd.detail.length > 0 ? cmd.detail : "暂无" }` );
+					await sendMessage( { embed: embedMsg } );
 				}
 				continue;
 			}
