@@ -147,7 +147,7 @@ export class Switch extends BasicConfig {
 			};
 		}
 		
-		return { type: "unmatch" };
+		return { type: "unmatch", missParam: false };
 	}
 	
 	public getFollow(): string {

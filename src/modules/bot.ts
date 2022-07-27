@@ -218,6 +218,10 @@ export class Adachi {
 		for ( let cmd of usable ) {
 			const res: MatchResult = cmd.match( content );
 			if ( res.type === "unmatch" ) {
+				if ( res.missParam ) {
+					await sendMessage( `指令参数缺失或者错误:  ${ cmd.desc[1] }\n` +
+						`参数说明：\n${ cmd.detail.length > 0 ? cmd.detail : "暂无" }` );
+				}
 				continue;
 			}
 			if ( res.type === "order" ) {

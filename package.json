@@ -1,6 +1,6 @@
 {
   "name": "Adachi-GBot",
-  "version": "2.3.7-fix",
+  "version": "2.3.8",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node -r tsconfig-paths/register app.ts --files",

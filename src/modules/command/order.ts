@@ -30,6 +30,9 @@ export class Order extends BasicConfig {
 		
 		const globalHeader: string = botCfg.header;
 		const headers: string[] = config.headers.map( el => Order.header( el, globalHeader ) );
+		if ( this.desc[0].length > 0 ) {
+			headers.push( this.desc[0] ); //添加中文指令名作为识别
+		}
 		
 		let rawRegs = <string[][]>config.regexps;
 		const isDeep: boolean = config.regexps.some( el => el instanceof Array );
@@ -72,21 +75,17 @@ export class Order extends BasicConfig {
 	
 	public match( content: string ): OrderMatchResult | Unmatch {
 		try {
-			if ( this.desc[0].length > 0 ) {
-				const cnReg = new RegExp( this.desc[0] );
-				if ( cnReg.test( content ) ) {
-					throw { type: "order", header: cnReg.source };
-				}
-			}
 			this.regPairs.forEach( pair => pair.genRegExps.forEach( reg => {
 				if ( reg.test( content ) ) {
 					throw { type: "order", header: pair.header };
+				} else if ( new RegExp( pair.header ).test( content ) ) {
+					throw { type: "unmatch", missParam: true };
 				}
 			} ) );
 		} catch ( data ) {
 			return <OrderMatchResult | Unmatch>data;
 		}
-		return { type: "unmatch" };
+		return { type: "unmatch", missParam: false };
 	}
 	
 	public getFollow(): string {
@@ -106,11 +105,6 @@ export class Order extends BasicConfig {
 	}
 	
 	public getHeaders(): string[] {
-		let headers: string[];
-		headers = this.regPairs.map( el => el.header );
-		if ( this.desc[0].length > 0 ) {
-			headers.push( this.desc[0] );
-		}
-		return headers;
+		return this.regPairs.map( el => el.header );
 	}
 }

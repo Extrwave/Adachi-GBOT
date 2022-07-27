@@ -19,6 +19,7 @@ type Required<T, K extends keyof T> = T & {
 
 export interface Unmatch {
 	type: "unmatch";
+	missParam: boolean;
 }
 
 export type MatchResult = cmd.OrderMatchResult |
@@ -189,10 +190,6 @@ export default class Command {
 					cmd.regPairs.forEach( el => list.push(
 						...el.genRegExps.map( r => `(${ r.source })` )
 					) );
-					if ( cmd.desc[0].length > 0 ) {
-						const regExp = new RegExp( cmd.desc[0] );
-						list.push( `(${ regExp.source })` );
-					}
 				} else if ( cmd.type === "switch" ) {
 					list.push( ...cmd.regexps.map( r => `(${ r.source })` ) );
 				} else if ( cmd.type === "enquire" ) {
