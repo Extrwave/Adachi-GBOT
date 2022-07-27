@@ -259,10 +259,8 @@ export class Adachi {
 			/* 指令数据统计与收集 */
 			await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
 			await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
+			return;
 		}
-		/* 所有指令都没有匹配到 */
-		
-		
 	}
 	
 	/* 处理私聊事件 */

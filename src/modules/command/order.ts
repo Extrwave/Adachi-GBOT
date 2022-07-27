@@ -29,10 +29,12 @@ export class Order extends BasicConfig {
 		super( config, pluginName );
 		
 		const globalHeader: string = botCfg.header;
-		const headers: string[] = config.headers.map( el => Order.header( el, globalHeader ) );
+		const headers: string[] = [];
 		if ( this.desc[0].length > 0 ) {
 			headers.push( this.desc[0] ); //添加中文指令名作为识别
 		}
+		headers.push( ...config.headers.map( el => Order.header( el, globalHeader ) ) );
+		
 		
 		let rawRegs = <string[][]>config.regexps;
 		const isDeep: boolean = config.regexps.some( el => el instanceof Array );
@@ -89,12 +91,10 @@ export class Order extends BasicConfig {
 	}
 	
 	public getFollow(): string {
-		const pairs = this.regPairs.filter( value => {
-			if ( /[\u4e00-\u9fa5]+/.test( value.header ) )
-				return false;
-			return true;
-		} );
-		
+		const pairs = this.regPairs.concat();
+		if ( pairs[0].header === this.desc[0] ) {
+			pairs.shift();
+		}
 		const headers: string = pairs
 			.map( el => el.header )
 			.join( "|" );
