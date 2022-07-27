@@ -19,8 +19,8 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 				"树脂查询         达量推送\n" +
 				"深渊查询         自动签到\n" +
 				"旅行札记         角色详情\n\n" +
-				"如需添加授权，请私聊本BOT\n" +
-				"发送 " + PRIVATE_ADD.getHeaders()[0] + " 并按照提示完成操作"
+				"如需添加授权，请私聊本BOT发送\n" +
+				`[  ${ PRIVATE_ADD.getHeaders()[0] }  ] 并按照提示完成操作`
 		} ];
 	}
 	

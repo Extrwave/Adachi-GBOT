@@ -56,7 +56,7 @@ const domain: OrderConfig = {
 const wish: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-wish",
-	desc: [ "祈愿抽卡", "(次数|until)" ],
+	desc: [ "祈愿", "(次数|until)" ],
 	headers: [ "wish" ],
 	regexps: [ "(\\d+|until)?" ],
 	main: "achieves/wish",
@@ -347,13 +347,11 @@ export default <PluginSetting>{
 		bind, today, guide, information, alias, domain,
 		getArtifact, impArtifact, wish, choosePool,
 		epitomizedPath, slip, uidQuery, privateMysQuery,
-		almanac, privateMysSetAppoint, privateNoteEvent,
-		privateNowNote, privateSubscribe, privateReplace,
+		almanac, privateMysSetAppoint, privateSubscribe, privateReplace,
 		privateConfirm, privateCancel, privateRemove,
 		privateSubList, privateReorder, privateToggleSign,
-		privateToggleNote, privateAbyssQuery, privateLedger,
-		privateCharQuery,
-	
+		privateToggleNote, privateNoteEvent, privateNowNote,
+		privateAbyssQuery, privateLedger, privateCharQuery,
 	]
 }
 ;
