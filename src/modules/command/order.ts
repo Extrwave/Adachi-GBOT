@@ -89,7 +89,13 @@ export class Order extends BasicConfig {
 	}
 	
 	public getFollow(): string {
-		const headers: string = this.regPairs
+		const pairs = this.regPairs.filter( value => {
+			if ( /[\u4e00-\u9fa5]+/.test( value.header ) )
+				return false;
+			return true;
+		} );
+		
+		const headers: string = pairs
 			.map( el => el.header )
 			.join( "|" );
 		const param = this.desc[1];
