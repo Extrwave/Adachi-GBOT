@@ -4,6 +4,7 @@ import { ErrorMsg, MessageType } from "@modules/utils/message";
 import { AuthLevel } from "@modules/management/auth";
 import { getMessageType, SendFunc } from "@modules/message";
 import { getGuildBaseInfo } from "@modules/utils/account";
+import { EmbedMsg } from "@modules/utils/embed";
 
 /**
 Author: Ethereal
@@ -42,26 +43,18 @@ export async function main(
 		const sendMasterFunc = await message.getSendMasterFunc( msgId );
 		const guildInfo = await getGuildBaseInfo( guildId );
 		
-		const embedMsg: Embed = {
-			title: '有人给你留言啦 ~ ',
-			prompt: '频道反馈消息',
-			thumbnail: {
-				url: avatar,
-			},
-			fields: [ {
-				name: `用户：${ name }`
-			}, {
-				name: `频道：${ guildInfo?.name }`
-			}, {
-				name: `方式：${ type }`
-			}, {
-				name: `消息：\n\n`
-			}, {
-				name: `${ content }\n\n`
-			}, {
-				name: `使用 ${ REPLY_USER.getHeaders()[0] } 引用消息快捷回复 ~ `
-			} ]
-		};
+		const embedMsg: Embed = new EmbedMsg(
+			'有人给你留言啦 ~ ',
+			"",
+			'频道反馈消息',
+			avatar,
+			`用户：${ name }`,
+			`方式：${ type }`,
+			`频道：${ guildInfo?.name }`,
+			`消息：\n\n`,
+			`${ content }\n\n`,
+			`使用 ${ REPLY_USER.getHeaders()[0] } 引用消息快捷回复 ~ `
+		)
 		try {
 			await sendMasterFunc( { embed: embedMsg } );
 			if ( attachments ) {
