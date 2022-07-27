@@ -11,7 +11,7 @@ import { AuthLevel } from "@modules/management/auth";
 
 export async function autoReply( messageData: Message, sendMessage: msg.SendFunc ) {
 	//处理传入的数据
-	const msg: string = messageData.msg.content.trim() || "";
+	const msg: string = messageData.msg.content;
 	//开始匹配回答
 	if ( msg.length <= 0 ) {
 		//随即回复一个表情包

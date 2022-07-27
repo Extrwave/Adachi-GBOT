@@ -237,7 +237,8 @@ export class Adachi {
 						messageData.msg.author.avatar,
 						`你的参数：${ messageData.msg.content }`,
 						`参数格式：${ cmd.desc[1] }`,
-						`参数说明：${ cmd.detail.length > 0 ? cmd.detail : "暂无" }` );
+						`参数说明：${ cmd.detail }`,
+						`\n[ ] 必填, ( ) 选填, | 选择` );
 					await sendMessage( { embed: embedMsg } );
 					return;
 				}

@@ -24,6 +24,7 @@ interface RegPair {
 export class Order extends BasicConfig {
 	public readonly type = "order";
 	public readonly regPairs: RegPair[] = [];
+	public readonly regParam;
 	
 	constructor( config: OrderConfig, botCfg: BotConfig, pluginName: string ) {
 		super( config, pluginName );
@@ -35,12 +36,12 @@ export class Order extends BasicConfig {
 		}
 		headers.push( ...config.headers.map( el => Order.header( el, globalHeader ) ) );
 		
-		
 		let rawRegs = <string[][]>config.regexps;
 		const isDeep: boolean = config.regexps.some( el => el instanceof Array );
 		if ( !isDeep ) {
 			rawRegs = [ <string[]>config.regexps ];
 		}
+		this.regParam = rawRegs;
 		
 		for ( let header of headers ) {
 			const pair: RegPair = { header, genRegExps: [] };
@@ -81,6 +82,19 @@ export class Order extends BasicConfig {
 				if ( reg.test( content ) ) {
 					throw { type: "order", header: pair.header };
 				} else if ( new RegExp( pair.header ).test( content ) ) {
+					content = content.replace( new RegExp( pair.header ), "" );
+					for ( let params of this.regParam ) {
+						let matchParam = true;
+						for ( let param of params ) {
+							if ( !new RegExp( param ).test( content ) ) {
+								matchParam = false;
+								break;
+							}
+						}
+						if ( matchParam ) {
+							throw { type: "order", header: pair.header };
+						}
+					}
 					throw { type: "unmatch", missParam: true, header: pair.header };
 				}
 			} ) );
