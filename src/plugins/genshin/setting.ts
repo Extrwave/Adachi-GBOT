@@ -263,7 +263,7 @@ const privateNoteEvent: OrderConfig = {
 	regexps: [ "[\\d ]+" ],
 	main: "achieves/private/note/set-time",
 	detail: "用于设置 BOT 自动提醒时间点，树脂量可设置多个\n" +
-		"如: 60 90 120 160，数字间用空格隔开，频道私信受限，无法正常推送"
+		"如: 60 90 120 160，数字间用空格隔开"
 };
 
 const privateMysSetAppoint: OrderConfig = {
@@ -289,9 +289,9 @@ const privateAbyssQuery: SwitchConfig = {
 	type: "switch",
 	mode: "divided",
 	cmdKey: "silvery-star-private-abyss",
-	desc: [ "深渊查询", "(序号) (-l)" ],
+	desc: [ "深渊查询", "(序号)" ],
 	header: "",
-	regexp: [ "(\\d+)?", "(-l)?" ],
+	regexp: [ "(\\d+)?" ],
 	main: "achieves/private/query/abyss",
 	stop: false,
 	onKey: "caby",

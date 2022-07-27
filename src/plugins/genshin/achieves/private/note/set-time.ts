@@ -13,6 +13,10 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 	if ( typeof single === "string" ) {
 		await sendMessage( single );
 	} else {
+		if ( list.length <= 0 ) {
+			await sendMessage( "请输入需要设定的树脂量，空格分开" );
+			return;
+		}
 		await single.services[NoteService.FixedField].modifyTimePoint( list );
 		await sendMessage( "推送量修改成功" );
 	}
