@@ -199,6 +199,11 @@ export class Adachi {
 			return;
 		}
 		
+		/* 针对私域机器人做出 @优化 */
+		if ( this.bot.config.area === "private" && this.bot.config.atBot && !isPrivate && !isAt ) {
+			return;
+		}
+		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		const content: string = messageData.msg.content.trim() || '';
 		if ( this.bot.config.autoChat && content.length < 20 && !unionRegExp.test( content ) && isAt && !isPrivate ) {
@@ -209,6 +214,7 @@ export class Adachi {
 		/* 用户数据统计与收集，当用户使用了指令之后才统计 */
 		const userID: string = messageData.msg.author.id;
 		const guildID: string = isPrivate ? "-1" : messageData.msg.guild_id; // -1 代表私聊使用
+		
 		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
 		if ( isPrivate && messageData.msg.src_guild_id ) { //私聊源频道也记录，修复未在频道使用用户信息读取问题
 			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, messageData.msg.src_guild_id );
@@ -219,14 +225,21 @@ export class Adachi {
 		for ( let cmd of usable ) {
 			const res: MatchResult = cmd.match( content );
 			if ( res.type === "unmatch" ) {
-				if ( res.missParam ) {
+				if ( res.missParam && res.header ) {
+					const text: string = cmd.ignoreCase ? content.toLowerCase() : content;
+					messageData.msg.content = trim(
+						Msg.removeStringPrefix( text, res.header.toLowerCase() )
+							.replace( / +/g, " " )
+					);
 					const embedMsg = new EmbedMsg( `指令参数缺失或者错误`,
 						undefined,
 						`指令参数缺失或者错误`,
 						messageData.msg.author.avatar,
-						`参数说明：\n`,
-						`${ cmd.detail.length > 0 ? cmd.detail : "暂无" }` );
+						`你的参数：${ messageData.msg.content }`,
+						`参数格式：${ cmd.desc[1] }`,
+						`参数说明：${ cmd.detail.length > 0 ? cmd.detail : "暂无" }` );
 					await sendMessage( { embed: embedMsg } );
+					return;
 				}
 				continue;
 			}
@@ -246,8 +259,8 @@ export class Adachi {
 			/* 指令数据统计与收集 */
 			await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
 			await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
-			return;
 		}
+		/* 所有指令都没有匹配到 */
 		
 		
 	}
@@ -305,15 +318,18 @@ export class Adachi {
 	/*去掉消息中的@自己信息*/
 	private async checkAtBOT( msg: Message ): Promise<boolean> {
 		const botID = await this.bot.redis.getString( `adachi.user-bot-id` );
-		let atBOTReg: RegExp;
-		if ( botID ) { //如果自身信息获取失败，默认去除第一个@信息
-			atBOTReg = new RegExp( `<@!${botID}>` );
-		} else {
-			atBOTReg = new RegExp( `<@!\\d+>` );
-		}
-		const content: string = msg.msg.content;
+		const mention = msg.msg.mentions;
 		
-		if ( atBOTReg.test( content ) ) {
+		if ( !mention || mention.length <= 0 ) {
+			return false;
+		}
+		const isAtBot = msg.msg.mentions.filter( value => {
+			return value.id === botID;
+		} );
+		
+		if ( isAtBot.length > 0 ) {
+			const atBOTReg: RegExp = new RegExp( `<@!${botID}>` );
+			const content: string = msg.msg.content;
 			msg.msg.content = content
 				.replace( atBOTReg, "" )
 				.trim();

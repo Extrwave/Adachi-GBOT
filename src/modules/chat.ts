@@ -19,12 +19,6 @@ export async function autoReply( messageData: Message, sendMessage: msg.SendFunc
 	} else {
 		let message;
 		switch ( true ) {
-			case /\//.test( msg ):
-				const HELP = <Order>bot.command.getSingle( `adachi-help`, AuthLevel.Master );
-				message = "请输入正确的指令和参数\n" +
-					"[ ] 必填, ( ) 选填, | 选择\n" +
-					`具体用法查阅：${ HELP.getHeaders()[0] } `;
-				break;
 			case /渣/.test( msg ):
 				message = await getTextResponse( API.lovelive );
 				break;

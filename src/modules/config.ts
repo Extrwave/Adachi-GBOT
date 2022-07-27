@@ -7,6 +7,7 @@ export default class BotConfig {
 	public readonly area: string;
 	public readonly master: string;
 	public readonly header: string;
+	public readonly atBot: boolean;
 	public readonly atUser: boolean;
 	public readonly autoChat: boolean;
 	public readonly dbPort: number;
@@ -44,6 +45,7 @@ export default class BotConfig {
 		master: "masterID",
 		area: "private",
 		header: "/",
+		atBot: false,
 		atUser: false,
 		autoChat: false,
 		dbPort: 6379,
@@ -79,7 +81,7 @@ export default class BotConfig {
 	
 	constructor( file: FileManagement ) {
 		const config: any = file.loadYAML( "setting" );
-		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword", "autoChat", "helpPort" ];
+		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword", "atBot" ];
 		
 		for ( let key of checkFields ) {
 			if ( config[key] === undefined ) {
@@ -95,6 +97,7 @@ export default class BotConfig {
 		this.header = config.header;
 		this.dbPort = config.dbPort;
 		this.dbPassword = config.dbPassword;
+		this.atBot = config.atBot;
 		this.atUser = config.atUser;
 		this.autoChat = config.autoChat;
 		this.helpPort = config.helpPort;

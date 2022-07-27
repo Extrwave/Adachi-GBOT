@@ -20,6 +20,7 @@ type Required<T, K extends keyof T> = T & {
 export interface Unmatch {
 	type: "unmatch";
 	missParam: boolean;
+	header?: string;
 }
 
 export type MatchResult = cmd.OrderMatchResult |
@@ -187,9 +188,12 @@ export default class Command {
 			const list: string[] = [];
 			cmdSet.forEach( cmd => {
 				if ( cmd.type === "order" ) {
-					cmd.regPairs.forEach( el => list.push(
-						...el.genRegExps.map( r => `(${ r.source })` )
-					) );
+					cmd.regPairs.forEach( el => {
+						list.push(
+							...el.genRegExps.map( r => `(${ r.source })` )
+						);
+						list.push( `(${ el.header })` ); //适配缺少参数的unmatch
+					} );
 				} else if ( cmd.type === "switch" ) {
 					list.push( ...cmd.regexps.map( r => `(${ r.source })` ) );
 				} else if ( cmd.type === "enquire" ) {

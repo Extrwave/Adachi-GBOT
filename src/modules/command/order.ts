@@ -79,7 +79,7 @@ export class Order extends BasicConfig {
 				if ( reg.test( content ) ) {
 					throw { type: "order", header: pair.header };
 				} else if ( new RegExp( pair.header ).test( content ) ) {
-					throw { type: "unmatch", missParam: true };
+					throw { type: "unmatch", missParam: true, header: pair.header };
 				}
 			} ) );
 		} catch ( data ) {
