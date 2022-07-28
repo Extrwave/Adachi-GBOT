@@ -102,7 +102,7 @@ export class Adachi {
 	}
 	
 	public run(): BOT {
-		Plugin.load( this.bot ).then( async commands => {
+		Plugin.load( this.bot ).then( commands => {
 			this.bot.command.add( commands );
 			//是否登陆成功
 			this.botOnline();
@@ -417,7 +417,6 @@ export class Adachi {
 	private getBotBaseInfo( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return async function () {
-			console.log( "开始获取自身信息" )
 			await bot.redis.deleteKey( `adachi.guild-used` ); //重启重新获取BOT所在频道信息
 			const responseMeApi = await bot.client.meApi.me();
 			if ( !responseMeApi.data.id ) {

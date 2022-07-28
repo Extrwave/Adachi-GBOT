@@ -3,6 +3,7 @@ import { OrderConfig } from "@modules/command";
 import { Renderer } from "@modules/renderer";
 import { BOT } from "@modules/bot";
 import { createServer } from "#@help/server";
+import { MessageScope } from "@modules/utils/message";
 
 const help: OrderConfig = {
 	type: "order",
@@ -32,6 +33,18 @@ const sponsor: OrderConfig = {
 	main: "achieves/sponsor",
 }
 
+const push: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-push-user",
+	desc: [ "推送一条消息", "" ],
+	headers: [ "push" ],
+	regexps: [],
+	main: "achieves/push",
+	scope: MessageScope.Group,
+	display: false,
+	detail: "通过频道推送一条私信给自己"
+}
+
 export let renderer: Renderer;
 
 export async function init( bot: BOT ): Promise<PluginSetting> {
@@ -49,6 +62,6 @@ export async function init( bot: BOT ): Promise<PluginSetting> {
 	
 	return {
 		pluginName: "@help",
-		cfgList: [ help, detail, sponsor ]
+		cfgList: [ help, detail, sponsor, push ]
 	};
 }

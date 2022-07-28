@@ -63,7 +63,7 @@ const announce: OrderConfig = {
 	headers: [ "sanno" ],
 	regexps: [ "(.+\\s?)*" ],
 	auth: AuthLevel.Master,
-	main: "announce",
+	main: "anno",
 	detail: "该指令用于全局发送公告"
 }
 
@@ -73,7 +73,7 @@ const getAnnounce: OrderConfig = {
 	desc: [ "获取公告", "" ],
 	headers: [ "anno" ],
 	regexps: [],
-	main: "announce",
+	main: "anno",
 	detail: "该指令用于获取开发者公告"
 }
 
