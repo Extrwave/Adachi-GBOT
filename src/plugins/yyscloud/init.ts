@@ -54,12 +54,13 @@ const signRemedy: OrderConfig = {
 export async function subs( { redis }: BOT ): Promise<SubInfo[]> {
 	const yysSub: string[] = await redis.getKeysByPrefix( "extr-wave-yys-sign-" );
 	const yysSubUsers: string[] = yysSub.map( el => {
-		return <string>el.split( "-" ).pop();
+		return <string>el.split( "-" )[4];
 	} );
+	const subUsers = Array.from( new Set( yysSubUsers ) );
 	
 	return [ {
 		name: "云原神签到",
-		users: yysSubUsers
+		users: subUsers
 	} ]
 }
 

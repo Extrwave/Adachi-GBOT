@@ -4,7 +4,6 @@ import { SendFunc } from "@modules/message";
 import { AuthLevel } from "@modules/management/auth";
 import { scheduleJob } from "node-schedule";
 import { pull } from "lodash";
-import { decode } from "js-base64";
 import { Account, getMemberInfo } from "@modules/utils/account";
 
 const tempSubscriptionList: string[] = [];
