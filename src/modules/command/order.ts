@@ -84,13 +84,9 @@ export class Order extends BasicConfig {
 				} else if ( new RegExp( pair.header ).test( content ) ) {
 					content = content.replace( new RegExp( pair.header ), "" );
 					for ( let params of this.regParam ) {
-						let matchParam = true;
-						for ( let param of params ) {
-							if ( !new RegExp( param ).test( content ) ) {
-								matchParam = false;
-								break;
-							}
-						}
+						const matchParam = params.every( param => {
+							new RegExp( param ).test( content );
+						} );
 						if ( matchParam ) {
 							throw { type: "order", header: pair.header };
 						}
