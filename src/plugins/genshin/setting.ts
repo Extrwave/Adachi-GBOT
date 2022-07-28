@@ -99,7 +99,7 @@ const slip: OrderConfig = {
 	type: "order",
 	cmdKey: "by-ha-slip",
 	desc: [ "御神签", "" ],
-	headers: [ "s" ],
+	headers: [ "ysq" ],
 	regexps: [],
 	main: "achieves/slip"
 };

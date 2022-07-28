@@ -75,8 +75,8 @@ export class SignInService implements Service {
 			);
 		} catch ( error ) {
 			await this.sendMessage(
-				"米游社原神签到失败：\n" +
-				"可能是网络波动或者cookie失效\n" +
+				"米游社原神签到出错：\n" +
+				"网络波动或者cookie失效\n" +
 				<string>error );
 			bot.logger.warn( `[UID ${ uid }] ` + <string>error );
 		}

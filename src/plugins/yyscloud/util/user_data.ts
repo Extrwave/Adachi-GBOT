@@ -4,38 +4,33 @@ import { getHeaders } from "#yyscloud/util/header";
 import { Account, getMemberInfo } from "@modules/utils/account";
 
 //redis保存用户信息
-export async function savaUserData( token: string, userID: string ): Promise<string> {
-	const dbKey = "extr-wave-yys-sign-" + userID;
+export async function savaUserData( token: string, userID: string, yysID: string ): Promise<string> {
+	const dbKey = `extr-wave-yys-sign-${ userID }-${ yysID }`;
 	await bot.redis.setHashField( dbKey, "token", token );
 	await bot.redis.setHashField( dbKey, "device_name", getDevice( "name" ) );
 	await bot.redis.setHashField( dbKey, "device_model", getDevice( "model" ) );
 	await bot.redis.setHashField( dbKey, "device_id", getDevice( "id" ) );
 	//检查token有效性
-	const bool = await checkToken( userID );
+	const bool = await checkToken( userID, yysID );
 	if ( !bool ) {
 		return "云原神Token无效，请重新获取~";
 	}
 	
-	const info: Account | undefined = await getMemberInfo( userID );
-	if ( info ) {
-		return `『 ${ info.account.nick } 』 已开启云原神签到服务`
-	}
-	return `[ ${ userID } ] 已开启云原神签到服务`
+	return `[ ${ yysID } ] 已开启云原神签到服务`
 }
 
 export async function cancelToken( userID: string ) {
-	const dbKey = "extr-wave-yys-sign-" + userID;
-	await bot.redis.deleteKey( dbKey );
+	const dbKey = await bot.redis.getKeysByPrefix( `extr-wave-yys-sign-${ userID }` );
+	await bot.redis.deleteKey( ...dbKey );
 }
 
 
 //检查token有效性
-export async function checkToken( userId: string ) {
+export async function checkToken( userId: string, accountId: string ) {
 	//获取用户信息填充header
-	const headers = await getHeaders( userId );
+	const headers = await getHeaders( userId, accountId );
 	const message = await getWalletURL( headers );
 	const data = JSON.parse( message );
-	console.log( data );
 	return data.retcode === 0 && data.message === "OK";
 }
 

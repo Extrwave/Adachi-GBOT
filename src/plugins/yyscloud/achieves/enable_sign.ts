@@ -42,7 +42,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 		`「 ${ CONFIRM.getHeaders()[0] } token 」 来继续\n` +
 		"token是需要按照教程获取并替换\n" +
 		"请在 3 分钟内进行超时会自动取消\n" +
-		"频道发送「 @BOT 教程 」获取教程 \n";
+		"频道发送「 @BOT 教程 」获取教程";
 }
 
 async function confirm(
@@ -55,20 +55,14 @@ async function confirm(
 	
 	const reg = new RegExp( /.*?oi=([0-9]+).*?/g );
 	let execRes: RegExpExecArray | null = reg.exec( token );
-	let execResBase64: RegExpExecArray | null = reg.exec( decode( token ) );
 	if ( execRes === null ) {
-		let resMsg = "正在尝试Base64解码token...\n"
-		if ( execResBase64 === null )
-			return resMsg + "抱歉，请重新提交正确的 token" +
-				`token是需要按照教程获取并替换\n` +
-				`实在有问题请前往BOT官方频道反馈`;
-		else {
-			token = decode( token );
-		}
+		return "抱歉，请重新提交正确的 token\n" +
+			`token是需要按照教程获取并替换\n` +
+			`实在有问题请前往BOT官方频道反馈`;
 	}
 	pull( tempSubscriptionList, userID );
 	//进行操作
-	return await savaUserData( token, userID );
+	return await savaUserData( token, userID, execRes[1] );
 }
 
 
