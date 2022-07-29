@@ -26,6 +26,7 @@ import Qiniuyun from "@modules/qiniuyun";
 import { autoReply } from "@modules/chat";
 import { getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
+import user from "@web-console/backend/routes/user";
 
 
 export interface BOT {
@@ -124,15 +125,13 @@ export class Adachi {
 				if ( data.eventType === 'DIRECT_MESSAGE_CREATE' )
 					this.parsePrivateMsg( this )( data );
 			} );
-			/* 成员变动相关, 频道过多容易造成内存泄漏？暂时注释试试 */
+			/* 成员变动相关 */
 			this.bot.ws.on( "GUILD_MEMBERS", ( data: MemberMessage ) => {
 				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
 					this.userDecrease( this )( data.msg.guild_id, data.msg.user.id );
 			} )
-			//是否登陆成功
-			this.botOnline();
-			this.bot.logger.info( "事件监听启动成功" );
 			this.getBotBaseInfo( this )();
+			this.bot.logger.info( "BOT启动成功" );
 		} );
 		
 		
@@ -145,9 +144,7 @@ export class Adachi {
 	
 	private static setEnv( file: FileManagement ): void {
 		file.createDir( "config", "root" );
-		const exist
-			:
-			boolean = file.createYAML( "setting", BotConfig.initObject );
+		const exist: boolean = file.createYAML( "setting", BotConfig.initObject );
 		if ( exist ) {
 			return;
 		}
@@ -453,12 +450,6 @@ export class Adachi {
 			if ( !ackMaster ) {
 				bot.logger.error( "MasterID设置错误，部分功能会受到影响" );
 			}
-		}
-	}
-	
-	private botOnline() {
-		if ( this.bot.ws.alive ) {
-			this.bot.logger.info( "BOT启动成功" );
 		}
 	}
 	
