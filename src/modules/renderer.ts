@@ -76,11 +76,14 @@ export class Renderer {
 			const { code, data } = await bot.qiniuyun.upBase64Oss( base64 );
 			if ( code === "ok" ) {
 				return { code: "ok", data: data };
-			} else
+			} else {
+				bot.logger.error( data );
 				return { code: "error", error: data };
+			}
 		} catch ( error ) {
-			const err = <string>( <Error>error ).stack;
-			return { code: "err", error: err };
+			const err = <Error>error;
+			bot.logger.error( `图片渲染异常\n` + err.stack );
+			return { code: "err", error: `图片渲染异常，请联系开发者进行反馈\n` + err.message };
 		}
 	}
 	

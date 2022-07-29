@@ -36,8 +36,7 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 		if ( res.code === "ok" ) {
 			imageList.push( { code: "image", data: res.data } );
 		} else {
-			bot.logger.error( res.error );
-			imageList.push( { code: "msg", data: "图片渲染异常，请联系开发者进行反馈\n" + res.error } );
+			imageList.push( { code: "msg", data: res.error } );
 		}
 	}
 	return imageList;

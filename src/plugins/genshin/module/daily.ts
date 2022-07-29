@@ -251,12 +251,13 @@ export class DailyClass {
 	}
 	
 	public async getUserSubscription( userID: string, initWeek?: number ): Promise<{ code: string, data: string }> {
-		const dbKey: string = `adachi-temp-daily-material`;
-		const week: number = DailyClass.getWeek( initWeek );
 		
+		const week: number = DailyClass.getWeek( initWeek );
 		if ( initWeek === 7 ) {
 			return { code: "error", data: "周日所有材料都可以刷取哦~" };
 		}
+		
+		const dbKey: string = `adachi-temp-daily-material-${ week }`;
 		
 		/* 当日已经缓存过每日材料数据 */
 		const daily = await bot.redis.getString( dbKey );
@@ -275,8 +276,7 @@ export class DailyClass {
 			await bot.redis.setString( dbKey, res.data, 3600 * 8 ); //应对频道高频使用场景优化
 			return res;
 		} else {
-			bot.logger.error( res.error );
-			return { code: "error", data: `图片渲染异常，请联系开发者进行反馈\n` + res.error };
+			return { code: "error", data: res.error };
 		}
 	}
 	
