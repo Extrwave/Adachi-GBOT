@@ -104,8 +104,7 @@ export class Adachi {
 	public run(): BOT {
 		Plugin.load( this.bot ).then( commands => {
 			this.bot.command.add( commands );
-			//是否登陆成功
-			this.botOnline();
+			
 			/* 事件监听 ,根据机器人类型选择能够监听的事件 */
 			if ( this.bot.config.area === "private" ) {
 				/* 私域机器人 */
@@ -126,10 +125,12 @@ export class Adachi {
 					this.parsePrivateMsg( this )( data );
 			} );
 			/* 成员变动相关, 频道过多容易造成内存泄漏？暂时注释试试 */
-			// this.bot.ws.on( "GUILD_MEMBERS", ( data: MemberMessage ) => {
-			// 	if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
-			// 		this.membersDecrease( this )( data.msg.user.id );
-			// } )
+			this.bot.ws.on( "GUILD_MEMBERS", ( data: MemberMessage ) => {
+				if ( data.eventType === 'GUILD_MEMBER_REMOVE' )
+					this.userDecrease( this )( data.msg.guild_id, data.msg.user.id );
+			} )
+			//是否登陆成功
+			this.botOnline();
 			this.bot.logger.info( "事件监听启动成功" );
 			this.getBotBaseInfo( this )();
 		} );
@@ -137,7 +138,7 @@ export class Adachi {
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
 		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
-		scheduleJob( "0 1 */3 * * *", this.clearExitUser( this ) );
+		scheduleJob( "0 1 */6 * * *", this.clearExitUser( this ) );
 		scheduleJob( "0 30 */4 * * *", this.getBotBaseInfo( this ) );
 		return this.bot;
 	}
@@ -461,18 +462,26 @@ export class Adachi {
 		}
 	}
 	
-	/* 用户退出频道事件 */
-	private membersDecrease( that: Adachi ) {
+	/* 用户退出频道 */
+	private userDecrease( that: Adachi ) {
+		const bot = that.bot
+		return async function ( guildId: string, userId: string ) {
+			const dbKey = `adachi.user-used-groups-${ userId }`;
+			await bot.redis.delSetMember( dbKey, guildId );
+		}
+	}
+	
+	/* 清除用户使用记录 */
+	private clearUsedInfo( that: Adachi ) {
 		const bot = that.bot
 		return async function ( userId: string ) {
 			
-			/* 范获取用户信息新增错误删除功能 */
 			const userInfo = await getMemberInfo( userId );
-			
 			const dbKey = `adachi.user-used-groups-${ userId }`;
+			const guilds = await bot.redis.getSet( `adachi.user-used-groups-${ userId }` );
 			
-			/* 与机器人还有共同频道就不清除数据 */
-			if ( userInfo ) {
+			/* 与机器人还有共同频道就不清除数据，或者只是信息获取失败，暂时不处理 */
+			if ( userInfo || guilds.length > 1 ) {
 				return;
 			}
 			
@@ -495,12 +504,12 @@ export class Adachi {
 	private clearExitUser( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return function (): void {
+			bot.logger.info( "开始检测用户是否退出BOT相关频道~" );
 			bot.redis.getKeysByPrefix( `adachi.user-used-groups-*` ).then( async data => {
 				data.forEach( value => {
 					const userId = value.split( "-" )[3];
-					that.membersDecrease( that )( userId );
+					that.clearUsedInfo( that )( userId );
 				} );
-				bot.logger.info( "重新检测用户使用数据完成~" );
 			} );
 		}
 	}

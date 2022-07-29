@@ -30,10 +30,11 @@ export async function getMemberInfo( userID: string ): Promise<Account | undefin
 			const response = await bot.client.guildApi.guildMember( guild, userID );
 			if ( response.status === 200 && response.data.user !== null ) {
 				return { guildID: guild, account: response.data };
+			} else {
+				await bot.redis.delSetMember( `adachi.user-used-groups-${ userID }`, guild );
 			}
 		} catch ( err ) {
 			//如果获取失败，隐藏错误输出
-			await bot.redis.delSetMember( `adachi.user-used-groups-${ userID }`, guild );
 		}
 	}
 }
