@@ -227,7 +227,7 @@ const privateReplace: OrderConfig = {
 	cmdKey: "silvery-star-private-replace",
 	desc: [ "更新授权", "[序号] [cookie]" ],
 	headers: [ "pr" ],
-	regexps: [ "\\d+", ".+" ],
+	regexps: [ "\\d+\\s", ".+" ],
 	ignoreCase: false,
 	main: "achieves/private/replace",
 	scope: MessageScope.Private,
