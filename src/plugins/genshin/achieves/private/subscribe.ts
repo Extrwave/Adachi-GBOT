@@ -27,7 +27,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 			pull( tempSubscriptionList, userID );
 			await send( "授权服务申请超时，BOT 自动取消\n" +
 				"请先检查发送消息内容是否符合要求\n" +
-				"私聊可能会屏蔽掉发送的cookie信息\n" );
+				"私聊可能会屏蔽掉发送的cookie信息" );
 		}
 	} );
 	
@@ -44,7 +44,7 @@ async function subscribe( userID: string, send: SendFunc, a: AuthLevel, CONFIRM:
 		`「 ${ CONFIRM.getHeaders()[0] } cookie 」 来继续\n` +
 		"cookie是需要按照教程获取并替换\n" +
 		"请在 3 分钟内进行超时会自动取消\n" +
-		"频道发送「 @BOT 教程 」获取教程 \n";
+		"频道发送「 @BOT 教程 」获取教程";
 	
 }
 

@@ -192,7 +192,8 @@ export default class Command {
 						list.push(
 							...el.genRegExps.map( r => `(${ r.source })` )
 						);
-						list.push( `(${ el.header })` ); //适配缺少参数的unmatch
+						/* 适配缺少参数的unmatch, 适配中文指令模糊识别 */
+						list.push( /[\u4e00-\u9fa5]/.test( el.header ) ? `(${ el.header.slice( 1 ) })` : `(${ el.header })` );
 					} );
 				} else if ( cmd.type === "switch" ) {
 					list.push( ...cmd.regexps.map( r => `(${ r.source })` ) );
@@ -231,6 +232,5 @@ export default class Command {
 }
 
 export function removeHeaderInContent( string: string, prefix: string ): string {
-	const globalHeader = bot.config.header;
-	return string.replace( new RegExp( `${ globalHeader }?${ prefix }`, "g" ), '' );
+	return string.replace( new RegExp( `${ prefix.charAt(0) }?${ prefix.slice(1) }`, "g" ), '' );
 }

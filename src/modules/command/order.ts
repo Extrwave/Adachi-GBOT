@@ -79,13 +79,13 @@ export class Order extends BasicConfig {
 	public match( content: string ): OrderMatchResult | Unmatch {
 		try {
 			this.regPairs.forEach( pair => pair.genRegExps.forEach( reg => {
-				const rawHeader = pair.header.replace( bot.config.header, "" );
 				if ( reg.test( content ) ) {
-					throw { type: "order", header: rawHeader };
+					throw { type: "order", header: pair.header };
 				} else {
 					/* 直接匹配失败，中文header支持模糊识别 */
+					const rawHeader = pair.header.replace( bot.config.header, "" );
 					const header = /[\u4e00-\u9fa5]/.test( rawHeader ) ?
-						`${ bot.config.header }?${ rawHeader }` : `${ bot.config.header }${ rawHeader }`;
+						`${ bot.config.header }?${ rawHeader }` : pair.header;
 					const fogReg = new RegExp( header, "g" );
 					/* 判断是否参数不符合要求 */
 					if ( fogReg.test( content ) ) {
@@ -95,10 +95,10 @@ export class Order extends BasicConfig {
 								return new RegExp( param ).test( content );
 							} );
 							if ( matchParam ) {
-								throw { type: "order", header: rawHeader };
+								throw { type: "order", header: pair.header };
 							}
 						}
-						throw { type: "unmatch", missParam: true, header: rawHeader };
+						throw { type: "unmatch", missParam: true, header: pair.header };
 					}
 				}
 			} ) );
