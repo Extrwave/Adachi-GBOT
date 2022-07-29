@@ -145,10 +145,6 @@ export default class MsgManager implements MsgManagementMethod {
 	
 }
 
-export function removeStringPrefix( string: string, prefix: string ): string {
-	return string.replace( prefix, "" );
-}
-
 export function getMessageType( data: Message ): MessageType {
 	if ( data.eventType === 'MESSAGE_CREATE' || data.eventType === 'AT_MESSAGE_CREATE' ) {
 		return MessageType.Group;

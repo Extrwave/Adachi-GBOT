@@ -1,9 +1,9 @@
 import * as cmd from "./index";
+import { Enquire, Order, Switch } from "./index";
 import bot from "ROOT";
 import Plugin, { PluginRawConfigs } from "@modules/plugin";
 import FileManagement from "@modules/file";
 import { RefreshCatch } from "@modules/management/refresh";
-import { Enquire, Order, Switch } from "./index";
 import { BOT } from "../bot";
 import { trimStart, without } from "lodash";
 import { AuthLevel } from '@modules/management/auth'
@@ -228,4 +228,9 @@ export default class Command {
 		const commands: BasicConfig[] = this[type][level];
 		return commands.find( el => el.cmdKey == key );
 	}
+}
+
+export function removeHeaderInContent( string: string, prefix: string ): string {
+	const globalHeader = bot.config.header;
+	return string.replace( new RegExp( `${ globalHeader }?${ prefix }`, "g" ), '' );
 }

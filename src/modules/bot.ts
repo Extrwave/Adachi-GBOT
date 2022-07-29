@@ -15,18 +15,17 @@ import WebConfiguration from "@modules/logger";
 import WebConsole from "@web-console/backend";
 import RefreshConfig from "@modules/management/refresh";
 import { BasicRenderer } from "@modules/renderer";
-import Command, { BasicConfig, MatchResult } from "@modules/command/main";
+import Command, { BasicConfig, MatchResult, removeHeaderInContent } from "@modules/command/main";
 import Authorization, { AuthLevel } from "@modules/management/auth";
 import MsgManager from "@modules/message";
 import MsgManagement, * as Msg from "@modules/message";
-import { GuildsMove, MemberMessage, Message, MessageScope } from "@modules/utils/message";
+import { MemberMessage, Message, MessageScope } from "@modules/utils/message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
 import { autoReply } from "@modules/chat";
 import { getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
-import user from "@web-console/backend/routes/user";
 
 
 export interface BOT {
@@ -203,7 +202,10 @@ export class Adachi {
 		}
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
-		const content: string = messageData.msg.content.trim() || '';
+		let content: string = messageData.msg.content.trim() || '';
+		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
+		messageData.msg.content = content = content.replace( /\[|\]|\(|\)|\|/g, "" );
+		
 		if ( this.bot.config.autoChat && content.length < 20 && !unionRegExp.test( content ) && isAt && !isPrivate ) {
 			await autoReply( messageData, sendMessage );
 			return;
@@ -220,13 +222,14 @@ export class Adachi {
 		
 		/* 获取匹配指令对应的处理方法 */
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
+		
 		for ( let cmd of usable ) {
 			const res: MatchResult = cmd.match( content );
 			if ( res.type === "unmatch" ) {
 				if ( res.missParam && res.header ) {
 					const text: string = cmd.ignoreCase ? content.toLowerCase() : content;
 					messageData.msg.content = trim(
-						Msg.removeStringPrefix( text, res.header.toLowerCase() )
+						removeHeaderInContent( text, res.header )
 							.replace( / +/g, " " )
 					);
 					const embedMsg = new EmbedMsg( `指令参数缺失或者错误`,
@@ -246,7 +249,7 @@ export class Adachi {
 				const text: string = cmd.ignoreCase
 					? content.toLowerCase() : content;
 				messageData.msg.content = trim(
-					Msg.removeStringPrefix( text, res.header.toLowerCase() )
+					removeHeaderInContent( text, res.header )
 						.replace( / +/g, " " )
 				);
 			}
