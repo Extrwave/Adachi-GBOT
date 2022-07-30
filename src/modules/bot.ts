@@ -227,16 +227,11 @@ export class Adachi {
 			const res: MatchResult = cmd.match( content );
 			if ( res.type === "unmatch" ) {
 				if ( res.missParam && res.header ) {
-					const text: string = cmd.ignoreCase ? content.toLowerCase() : content;
-					messageData.msg.content = trim(
-						removeHeaderInContent( text, res.header )
-							.replace( / +/g, " " )
-					);
 					const embedMsg = new EmbedMsg( `指令参数缺失或者错误`,
 						undefined,
 						`指令参数缺失或者错误`,
 						messageData.msg.author.avatar,
-						`你的参数：${ messageData.msg.content }`,
+						`你的参数：${ res.param ? res.param : "无" }`,
 						`参数格式：${ cmd.desc[1] }`,
 						`参数说明：${ cmd.detail }`,
 						`\n[ ] 必填, ( ) 选填, | 选择` );
@@ -249,7 +244,7 @@ export class Adachi {
 				const text: string = cmd.ignoreCase
 					? content.toLowerCase() : content;
 				messageData.msg.content = trim(
-					removeHeaderInContent( text, res.header )
+					removeHeaderInContent( text, res.header.toLowerCase() )
 						.replace( / +/g, " " )
 				);
 			}
@@ -328,7 +323,7 @@ export class Adachi {
 		} );
 		
 		if ( isAtBot.length > 0 ) {
-			const atBOTReg: RegExp = new RegExp( `<@!${botID}>` );
+			const atBOTReg: RegExp = new RegExp( `<@!${botID}>`, "g" );
 			const content: string = msg.msg.content;
 			msg.msg.content = content
 				.replace( atBOTReg, "" )
