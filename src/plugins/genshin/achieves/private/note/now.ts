@@ -26,7 +26,13 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 	
 	const imageList: SendMsgType[] = [];
 	for ( let a of accounts ) {
-		const data: string = await a.services[NoteService.FixedField].toJSON();
+		let data: string;
+		try {
+			data = await a.services[NoteService.FixedField].toJSON();
+		} catch ( error ) {
+			imageList.push( { code: "msg", data: ( <Error>error ).message } );
+			continue;
+		}
 		const uid: string = a.setting.uid;
 		const dbKey: string = `silvery-star.note-temp-${ uid }`;
 		await bot.redis.setString( dbKey, data );
