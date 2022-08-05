@@ -56,11 +56,13 @@ export async function getChatResponse( text: string ): Promise<string> {
 		return `接口挂掉啦~~`;
 	}
 	//API默认的名字是 “菲菲”，你可以改成你喜欢的名字
-	//修改可能导致部分返回错误，比如 “菲菲公主” ---> “七七公主”
+	//修改可能导致部分返回错误，比如 “菲菲公主” ---> “阿晴公主”
 	const reg = new RegExp( '菲菲', "g" );
 	const regExp = new RegExp( 'tianyu', "g" );
-	msg.content = msg.content.replace( reg, 'BOT' );
+	const regExp1 = new RegExp( '\{br\}', 'g' );
+	msg.content = msg.content.replace( reg, '阿晴' );
 	msg.content = msg.content.replace( regExp, '伍陆柒' ).trim();
+	msg.content = msg.content.replace( regExp1, '\n\n' );
 	return msg.content;
 }
 

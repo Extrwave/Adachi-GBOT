@@ -2,12 +2,9 @@
 Author: Ethereal
 CreateTime: 2022/6/21
  */
-import bot from "ROOT";
 import * as msg from "@modules/message";
 import { API, getChatResponse, getEmoji, getTextResponse, getWeDog } from "@modules/utils/api";
 import { Message } from "@modules/utils/message";
-import { Order } from "@modules/command";
-import { AuthLevel } from "@modules/management/auth";
 
 export async function autoReply( messageData: Message, sendMessage: msg.SendFunc ) {
 	//处理传入的数据
