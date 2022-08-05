@@ -37,9 +37,9 @@ const __API = {
 };
 
 const HEADERS = {
-	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
+	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.29.1",
 	"Referer": "https://webstatic.mihoyo.com/",
-	"x-rpc-app_version": "2.11.1",
+	"x-rpc-app_version": "2.29.1",
 	"x-rpc-client_type": 5,
 	"DS": "",
 	"Cookie": ""
@@ -410,15 +410,16 @@ export async function getUidHome(): Promise<any> {
 /* 参考 https://github.com/DGP-Studio/DGP.Genshin.MiHoYoAPI/blob/main/Sign/SignInProvider.cs */
 const activityID: string = "e202009291139501";
 const SIGN_HEADERS = {
-	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.10.1",
+	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.34.1",
 	"Referer": "https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html" +
 		`?bbs_auth_required=true&act_id=${ activityID }&utm_source=bbs&utm_medium=mys&utm_campaign=icon`,
 	"Accept": "application/json",
 	"Accept-Encoding": "gzip, deflate",
 	"X-Requested-With": "com.mihoyo.hyperion",
-	"x-rpc-app_version": "2.10.1",
+	"x-rpc-app_version": "2.34.1",
 	"x-rpc-client_type": 5,
-	"x-rpc-device_id": guid()
+	"x-rpc-device_id": guid(),
+	"DS": getDS2()
 };
 
 /* Sign In API */
@@ -437,7 +438,6 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 			headers: {
 				...SIGN_HEADERS,
 				"content-type": "application/json",
-				"DS": getDS2(),
 				"Cookie": cookie
 			}
 		} )
