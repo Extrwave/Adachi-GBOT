@@ -23,7 +23,6 @@ import { MemberMessage, Message, MessageScope } from "@modules/utils/message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
-import { autoReply } from "@modules/chat";
 import { getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
 
@@ -205,8 +204,9 @@ export class Adachi {
 		let content: string = messageData.msg.content.trim() || '';
 		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
 		messageData.msg.content = content = content.replace( /\[|\]|\(|\)|\|/g, "" );
-		
+		/* 人工智障聊天 */
 		if ( this.bot.config.autoChat && content.length < 20 && !unionRegExp.test( content ) && isAt && !isPrivate ) {
+			const { autoReply } = require( "@modules/chat" );
 			await autoReply( messageData, sendMessage );
 			return;
 		}
@@ -222,43 +222,67 @@ export class Adachi {
 		
 		/* 获取匹配指令对应的处理方法 */
 		const usable: BasicConfig[] = cmdSet.filter( el => !limits.includes( el.cmdKey ) );
+		const matchList: { matchResult: MatchResult; cmd: BasicConfig }[] = [];
 		
 		for ( let cmd of usable ) {
 			const res: MatchResult = cmd.match( content );
 			if ( res.type === "unmatch" ) {
 				if ( res.missParam && res.header ) {
-					const embedMsg = new EmbedMsg( `指令参数缺失或者错误`,
-						undefined,
-						`指令参数缺失或者错误`,
-						messageData.msg.author.avatar,
-						`你的参数：${ res.param ? res.param : "无" }`,
-						`参数格式：${ cmd.desc[1] }`,
-						`参数说明：${ cmd.detail }`,
-						`\n[ ] 必填, ( ) 选填, | 选择` );
-					await sendMessage( { embed: embedMsg } );
-					return;
+					matchList.push( { matchResult: res, cmd } );
 				}
 				continue;
 			}
-			if ( res.type === "order" ) {
-				const text: string = cmd.ignoreCase
-					? content.toLowerCase() : content;
-				messageData.msg.content = trim(
-					removeHeaderInContent( text, res.header.toLowerCase() )
-						.replace( / +/g, " " )
-				);
+			matchList.push( { matchResult: res, cmd } )
+		}
+		
+		if ( matchList.length === 0 ) return;
+		/* 选择最长的 header 作为成功匹配项 */
+		const { matchResult: res, cmd } = matchList.sort( ( prev, next ) => {
+			const getHeaderLength = ( { matchResult }: typeof prev ) => {
+				let length: number = 0;
+				if ( matchResult.type === "unmatch" || matchResult.type === "order" ) {
+					length = matchResult.header ? matchResult.header.length : 0;
+				} else if ( matchResult.type === "switch" ) {
+					length = matchResult.switch.length;
+				} else {
+					length = 233;
+				}
+				return length;
 			}
-			cmd.run( {
-				sendMessage, ...this.bot,
-				messageData, matchResult: res
-			} );
-			
-			/* 指令数据统计与收集 */
-			await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
-			await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
+			return getHeaderLength( next ) - getHeaderLength( prev );
+		} )[0]
+		
+		if ( res.type === "unmatch" ) {
+			const embedMsg = new EmbedMsg( `指令参数缺失或者错误`,
+				undefined,
+				`指令参数缺失或者错误`,
+				messageData.msg.author.avatar,
+				`你的参数：${ res.param ? res.param : "无" }`,
+				`参数格式：${ cmd.desc[1] }`,
+				`参数说明：${ cmd.detail }`,
+				`\n[ ] 必填, ( ) 选填, | 选择` );
+			await sendMessage( { embed: embedMsg } );
 			return;
 		}
+		if ( res.type === "order" ) {
+			const text: string = cmd.ignoreCase
+				? content.toLowerCase() : content;
+			messageData.msg.content = trim(
+				removeHeaderInContent( text, res.header.toLowerCase() )
+					.replace( / +/g, " " )
+			);
+		}
+		cmd.run( {
+			sendMessage, ...this.bot,
+			messageData, matchResult: res
+		} );
+		
+		/* 指令数据统计与收集 */
+		await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
+		await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
+		return;
 	}
+	
 	
 	/* 处理私聊事件 */
 	private parsePrivateMsg( that: Adachi ) {

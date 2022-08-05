@@ -193,8 +193,23 @@ export default class Command {
 						list.push(
 							...el.genRegExps.map( r => `(${ r.source })` )
 						);
-						/* 适配缺少参数的unmatch, 适配中文指令模糊识别 */
-						list.push( /[\u4e00-\u9fa5]/.test( el.header ) ? `(${ el.header.replace( bot.config.header, '' ) })` : `(${ el.header })` );
+						/* 是否存在指令起始符 */
+						const hasHeader = bot.config.header ? el.header.includes( bot.config.header ) : false;
+						const rawHeader = el.header.replace( bot.config.header, "" );
+						
+						/* 当指令头包括中文时，同时匹配是否存在起始符与指令头，否则不处理 */
+						/* 当未设置起始符时，不再添加指令头至unionReg */
+						const unMatchHeader: string = rawHeader.length !== 0 && /[\u4e00-\u9fa5]/.test( rawHeader )
+							? `${ hasHeader ? "(?=.*" + bot.config.header + ")" : "" }(?=.*${ rawHeader })`
+							: bot.config.header
+								? el.header
+								: "";
+						
+						if ( unMatchHeader.length === 0 ) {
+							return;
+						}
+						
+						list.push( `(${ unMatchHeader })` );
 					} );
 				} else if ( cmd.type === "switch" ) {
 					list.push( ...cmd.regexps.map( r => `(${ r.source })` ) );
@@ -202,7 +217,7 @@ export default class Command {
 					list.push( ...cmd.sentences.map( s => `(${ s.reg.source })` ) );
 				}
 			} );
-			return new RegExp( `(${ list.join( "|" ) })`, "gi" );
+			return new RegExp( `(${ list.join( "|" ) })`, "i" );
 		}
 	}
 	
@@ -233,8 +248,7 @@ export default class Command {
 }
 
 export function removeHeaderInContent( string: string, prefix: string ): string {
-	if ( prefix.charAt( 0 ) === bot.config.header )
-		return string.replace( new RegExp( `${ prefix.charAt(0) }?${ prefix.slice(1) }`, "g" ), '' );
-	else
-		return string.replace( new RegExp( prefix ), '' );
+	if ( bot.config.header !== "" )
+		return string.replace( new RegExp( `${ prefix.charAt(0) }|${ prefix.slice(1) }`, "g" ), '' );
+	return string.replace( new RegExp( prefix, "g" ), '' );
 }
