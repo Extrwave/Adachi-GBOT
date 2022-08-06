@@ -329,7 +329,7 @@ export class Adachi {
 			
 			//暂存一下msg_id, guildId, channelId 供推送消息使用
 			await bot.redis.setHashField( `adachi.guild-used-channel`, guild, channelID ); //记录可以推送消息的频道
-			await bot.redis.setString( `adachi.msgId-temp-${ guild }-${ channelID }`, msgID, 290 ); //记录推送消息引用的msgID，被动
+			// await bot.redis.setString( `adachi.msgId-temp-${ guild }-${ channelID }`, msgID, 290 ); //记录推送消息引用的msgID，被动
 			await bot.logger.info( `[A: ${ authorName }][G: ${ guildInfo.name }]: ${ content }` );
 		}
 	}
