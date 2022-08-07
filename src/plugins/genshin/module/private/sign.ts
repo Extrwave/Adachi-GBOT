@@ -58,7 +58,7 @@ export class SignInService implements Service {
 	}
 	
 	
-	private async sign( reply: boolean = true ): Promise<void> {
+	public async sign( reply: boolean = true ): Promise<void> {
 		const { uid, server, cookie } = this.parent.setting;
 		try {
 			const info = <SignInInfo>( await signInInfoPromise( uid, server, cookie ) );

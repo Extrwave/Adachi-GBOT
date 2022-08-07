@@ -320,6 +320,16 @@ const privateToggleSign: OrderConfig = {
 	detail: "该指令用于切换米游社签到的开/关状态"
 };
 
+const privateSign: OrderConfig = {
+	type: "order",
+	cmdKey: "silvery-star-private-sign",
+	desc: [ "签到", "[序号]" ],
+	headers: [ "sign" ],
+	regexps: [ "\\d+" ],
+	main: "achieves/private/sign-in/sign",
+	detail: "该指令用于手动米游社签到"
+};
+
 const privateToggleNote: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-toggle-note",
@@ -352,6 +362,7 @@ export default <PluginSetting>{
 		privateSubList, privateReorder, privateToggleSign,
 		privateToggleNote, privateNoteEvent, privateNowNote,
 		privateAbyssQuery, privateLedger, privateCharQuery,
+		privateSign
 	]
 }
 ;
