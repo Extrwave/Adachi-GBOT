@@ -1,6 +1,7 @@
 import { AuthLevel } from "@modules/management/auth";
 import { OrderConfig, SwitchConfig } from "@modules/command";
 import { PluginSetting } from "@modules/plugin";
+import { MessageScope } from "@modules/utils/message";
 
 const manager: SwitchConfig = {
 	type: "switch",
@@ -98,12 +99,41 @@ const replyUser: OrderConfig = {
 	detail: "BOT开发者回复用户消息 ~ "
 }
 
+const setUseChannel: SwitchConfig = {
+	type: "switch",
+	mode: "single",
+	cmdKey: "adachi-set-use-channel",
+	desc: [ "设置子频道", "#{OPT}" ],
+	header: "channel",
+	regexp: [ "(#.+)?", "#{OPT}" ],
+	onKey: "on",
+	offKey: "off",
+	auth: AuthLevel.Manager,
+	scope: MessageScope.Group,
+	main: "channel",
+	detail: "设置BOT专属可用子频道，即不会再其他地方响应指令\n" +
+		"并在非专属区域做出提示，引导前往专属子频道\n" +
+		"on 设置专属子频道 off 取消专属子频道"
+}
+
+const cancelUseChannel: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-cancel-use-channel",
+	desc: [ "取消子频道", "" ],
+	headers: [ "uchannel" ],
+	regexps: [],
+	main: "channel",
+	auth: AuthLevel.Manager,
+	detail: "该操作会使BOT取消所有专属子频道限制 ~ "
+}
+
 export async function init(): Promise<PluginSetting> {
 	return {
 		pluginName: "@management",
 		cfgList: [
 			manager, refresh, ban, limit,
-			announce, getAnnounce, callMaster, replyUser
+			announce, getAnnounce, callMaster,
+			replyUser, setUseChannel, cancelUseChannel
 		]
 	}
 }

@@ -25,6 +25,7 @@ import { trim } from "lodash";
 import Qiniuyun from "@modules/qiniuyun";
 import { getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
+import { checkChannelLimit } from "#@management/channel";
 
 
 export interface BOT {
@@ -198,6 +199,17 @@ export class Adachi {
 		/* 针对私域机器人做出 @优化 */
 		if ( this.bot.config.area === "private" && this.bot.config.atBot && !isPrivate && !isAt ) {
 			return;
+		}
+		
+		/* 对设置可用子频道做出适配 */
+		if ( !isPrivate ) {
+			const guildId = messageData.msg.guild_id;
+			const channelId = messageData.msg.channel_id;
+			const { status, msg } = await checkChannelLimit( guildId, channelId );
+			if ( status ) {
+				await sendMessage( msg );
+				return;
+			}
 		}
 		
 		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
