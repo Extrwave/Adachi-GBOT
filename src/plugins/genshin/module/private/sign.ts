@@ -74,10 +74,17 @@ export class SignInService implements Service {
 				`明天同一时间见~`
 			);
 		} catch ( error ) {
-			await this.sendMessage(
-				"米游社原神签到出错：\n" +
-				"网络波动或者cookie失效\n" +
-				<string>error );
+			let msg = '米游社原神签到出错：\n';
+			if ( <string>error === undefined ) {
+				msg += `网络波动,请稍后重试`;
+			} else if ( <string>error === '尚未登录' ) {
+				msg += `cookie过期，请更新 ~ `;
+			} else if ( <string>error === 'invalid request' ) {
+				msg += `接口报错，请向开发者反馈`;
+			} else {
+				msg += <string>error;
+			}
+			await this.sendMessage( msg );
 			bot.logger.warn( `[UID ${ uid }] ` + <string>error );
 		}
 	}
