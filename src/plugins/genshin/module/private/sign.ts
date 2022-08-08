@@ -82,7 +82,7 @@ export class SignInService implements Service {
 			} else if ( <string>error === 'invalid request' ) {
 				msg += `接口报错，请向开发者反馈`;
 			} else {
-				msg += <string>error;
+				msg += ( <Error>error ).message;
 			}
 			await this.sendMessage( msg );
 			bot.logger.warn( `[UID ${ uid }] ` + <string>error );

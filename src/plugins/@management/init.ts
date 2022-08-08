@@ -103,13 +103,12 @@ const setUseChannel: SwitchConfig = {
 	type: "switch",
 	mode: "single",
 	cmdKey: "adachi-set-use-channel",
-	desc: [ "设置子频道", "#{OPT}" ],
+	desc: [ "设置子频道", "(#子频道) #{OPT}" ],
 	header: "channel",
 	regexp: [ "(#.+)?", "#{OPT}" ],
 	onKey: "on",
 	offKey: "off",
 	auth: AuthLevel.Manager,
-	scope: MessageScope.Group,
 	main: "channel",
 	detail: "设置BOT专属可用子频道，即不会再其他地方响应指令\n" +
 		"并在非专属区域做出提示，引导前往专属子频道\n" +
