@@ -15,7 +15,7 @@ services:
       context: .
     image: adachi-bot:latest
     ports:
-      - "80:80"
+      - "80:10000"
     container_name: adachi-gbot
     environment:
       docker: "yes"
