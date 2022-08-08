@@ -9,7 +9,7 @@ export async function main( { sendMessage, messageData, interval, logger }: Inpu
 		await sendMessage( targetID );
 	} else {
 		await interval.set( targetID, "private", parseInt( time ) );
-		await sendMessage( `用户 ${ targetID } 的操作触发间隔已改为 ${ time }ms` );
+		await sendMessage( `用户 [ <@!${ targetID }> ] 的操作触发间隔已改为 ${ time }ms` );
 	}
 	
 }

@@ -189,7 +189,6 @@ export class Adachi {
 		isAt: boolean
 	): Promise<void> {
 		
-		
 		/* bot正在重载指令配置 */
 		if ( this.bot.refresh.isRefreshing ) {
 			await sendMessage( "BOT重载配置中，请稍后..." );
@@ -212,15 +211,31 @@ export class Adachi {
 			}
 		}
 		
-		/* 匹配不到任何指令，触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
+		/* 对封禁用户做出提示 */
+		const userId = messageData.msg.author.id;
+		const auth = await this.bot.auth.get( userId );
+		if ( auth === AuthLevel.Banned ) {
+			await sendMessage( `您已成为封禁用户，请与管理员协商 ~ ` );
+			return;
+		}
+		
 		let content: string = messageData.msg.content.trim() || '';
 		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
 		messageData.msg.content = content = content.replace( /\[|\]|\(|\)|\|/g, "" );
-		/* 人工智障聊天 */
-		if ( this.bot.config.autoChat && content.length < 20 && !unionRegExp.test( content ) && isAt && !isPrivate ) {
-			const { autoReply } = require( "@modules/chat" );
-			await autoReply( messageData, sendMessage );
-			return;
+		
+		/* 人工智障聊天, 匹配不到任何指令触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
+		if ( !unionRegExp.test( content ) ) {
+			/* 未识别指令匹配 */
+			const check = this.cmdLimitCheck( content, isPrivate );
+			if ( check ) {
+				await sendMessage( check );
+				return;
+			}
+			if ( this.bot.config.autoChat && content.length < 20 && isAt && !isPrivate ) {
+				const { autoReply } = require( "@modules/chat" );
+				await autoReply( messageData, sendMessage );
+				return;
+			}
 		}
 		
 		/* 用户数据统计与收集，当用户使用了指令之后才统计 */
@@ -367,6 +382,29 @@ export class Adachi {
 			return true;
 		}
 		return false;
+	}
+	
+	/* 判断缺少权限或者频道/私聊指令限制 */
+	private cmdLimitCheck( content: string, isPrivate: boolean ): string | undefined {
+		
+		let msg: string | undefined;
+		const privateUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Private );
+		const groupUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Group );
+		
+		if ( groupUnionReg.test( content ) ) {
+			if ( !isPrivate ) {
+				msg = `您没有权限执行此命令 ~ `;
+			} else {
+				msg = `该指令仅限群聊使用 ~ `;
+			}
+		} else if ( privateUnionReg.test( content ) ) {
+			if ( isPrivate ) {
+				msg = `您没有权限执行此命令 ~ `;
+			} else {
+				msg = `该指令仅限私聊使用 ~ `;
+			}
+		}
+		return msg;
 	}
 	
 	/* 数据统计 与 超量使用监看 */

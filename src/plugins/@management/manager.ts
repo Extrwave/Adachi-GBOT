@@ -13,10 +13,10 @@ export async function main( { sendMessage, redis, matchResult, logger }: InputPa
 	} else {
 		if ( isOn ) {
 			await redis.setString( `adachi.auth-level-${ targetID }`, AuthLevel.Manager );
-			await sendMessage( `用户 ${ targetID } 已被设置为管理员` );
+			await sendMessage( `用户 [ <@!${ targetID }> ] 已被设置为管理员` );
 		} else {
 			await redis.setString( `adachi.auth-level-${ targetID }`, AuthLevel.User );
-			await sendMessage( `用户 ${ targetID } 的管理员权限已取消` );
+			await sendMessage( `用户 [ <@!${ targetID }> ] 的管理员权限已取消` );
 		}
 	}
 	

@@ -13,22 +13,24 @@ export async function main(
 	} else {
 		const targetAuth: AuthLevel = await auth.get( targetID );
 		const mineAuth: AuthLevel = await auth.get( messageData.msg.author.id );
+		
+		
 		/* 封禁 */
 		if ( match.isOn() ) {
 			if ( targetAuth >= mineAuth ) {
-				await sendMessage( `你没有封禁用户 ${ targetID } 的权限` );
+				await sendMessage( `你没有封禁用户 [ <@!${ targetID }> ] 的权限` );
 			} else {
 				await redis.setString( `adachi.auth-level-${ targetID }`, AuthLevel.Banned );
-				await sendMessage( `用户 ${ targetID } 已被设为封禁用户` );
+				await sendMessage( `用户 [ <@!${ targetID }> ] 已被设为封禁用户` );
 			}
 		}
 		/* 解封 */
 		else {
 			if ( targetAuth >= mineAuth ) {
-				await sendMessage( `你没有解禁用户 ${ targetID } 的权限` );
+				await sendMessage( `你没有解禁用户 [ <@!${ targetID }> ] 的权限` );
 			} else {
 				await redis.setString( `adachi.auth-level-${ targetID }`, AuthLevel.User );
-				await sendMessage( `用户 ${ targetID } 已被解封` );
+				await sendMessage( `用户 [ <@!${ targetID }> ] 已被解封` );
 			}
 		}
 	}

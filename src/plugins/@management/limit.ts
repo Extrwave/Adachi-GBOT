@@ -17,7 +17,7 @@ export async function main
 	} else {
 		let dbKey: string, reply: string;
 		dbKey = `adachi.user-command-limit-${ targetID }`;
-		reply = `用户 ${ targetID } 的 ${ key } 权限已${ states }`;
+		reply = `用户 [ <@!${ targetID }> ] 的 ${ key } 权限已${ states }`;
 		if ( match.isOn() ) {
 			await redis.delListElement( dbKey, key );
 		} else {
