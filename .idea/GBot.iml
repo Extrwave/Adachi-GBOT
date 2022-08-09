@@ -9,6 +9,11 @@
       <excludeFolder url="file://$MODULE_DIR$/config" />
       <excludeFolder url="file://$MODULE_DIR$/database" />
       <excludeFolder url="file://$MODULE_DIR$/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/src" />
+      <excludeFolder url="file://$MODULE_DIR$/src/plugins/genshin/data" />
+      <excludeFolder url="file://$MODULE_DIR$/src/plugins/coser-image" />
+      <excludeFolder url="file://$MODULE_DIR$/src/plugins/mari-plugin" />
+      <excludeFolder url="file://$MODULE_DIR$/src/plugins/yyscloud" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
