@@ -1,201 +1,244 @@
 <!DOCTYPE html>
 <html lang="en-US">
-  <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      <title>配置文件 | Adachi-GBOT</title>
-      <meta name="generator" content="VuePress 1.9.7">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>配置文件 | Adachi-GBOT</title>
+    <meta name="generator" content="VuePress 1.9.7">
 
-      <meta name="description" content="无">
+    <meta name="description" content="无">
 
-      <link rel="preload" href="/assets/css/0.styles.c48c8230.css" as="style">
-      <link rel="preload" href="/assets/js/app.c23498d7.js" as="script">
-      <link rel="preload" href="/assets/js/2.0695181e.js" as="script">
-      <link rel="preload" href="/assets/js/7.14e9f18e.js" as="script">
-      <link rel="prefetch" href="/assets/js/10.fbea1242.js">
-      <link rel="prefetch" href="/assets/js/11.075ded8b.js">
-      <link rel="prefetch" href="/assets/js/12.4be3f41a.js">
-      <link rel="prefetch" href="/assets/js/13.4740c7bd.js">
-      <link rel="prefetch" href="/assets/js/14.bf209a41.js">
-      <link rel="prefetch" href="/assets/js/3.440fa464.js">
-      <link rel="prefetch" href="/assets/js/4.55d994cf.js">
-      <link rel="prefetch" href="/assets/js/5.644527a6.js">
-      <link rel="prefetch" href="/assets/js/6.4307e75f.js">
-      <link rel="prefetch" href="/assets/js/8.70f58686.js">
-      <link rel="prefetch" href="/assets/js/9.6efd865c.js">
-      <link rel="stylesheet" href="/assets/css/0.styles.c48c8230.css">
-  </head>
-  <body>
-    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Adachi-GBOT</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div>
-        <nav class="nav-links can-hide">
-            <div class="nav-item"><a href="/" class="nav-link">
-                首页
-            </a></div>
-            <div class="nav-item"><a href="/deploy/" class="nav-link">
-                部署
-            </a></div>
-            <div class="nav-item"><a href="/configuration/" aria-current="page"
-                                     class="nav-link router-link-exact-active router-link-active">
-                配置
-            </a></div>
-            <div class="nav-item"><a href="/thank/" class="nav-link">
-                致谢
-            </a></div>
-            <div class="nav-item"><a href="/image/" class="nav-link">
-                展示
-            </a></div>
-            <div class="nav-item"><a href="/plugin/" class="nav-link">
-                插件开发
-            </a></div>
-            <div class="nav-item"><a href="/question/" class="nav-link">
-                常见问题
-            </a></div>
-            <div class="nav-item"><a href="/update/" class="nav-link">
-  更新日志
-</a></div><div class="nav-item"><a href="https://github.com/Extrwave/Adachi-GBOT" target="_blank" rel="noopener noreferrer" class="nav-link external">
-  Github
-  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar">
-        <nav class="nav-links">
-            <div class="nav-item"><a href="/" class="nav-link">
-                首页
-            </a></div>
-            <div class="nav-item"><a href="/deploy/" class="nav-link">
-                部署
-            </a></div>
-            <div class="nav-item"><a href="/configuration/" aria-current="page"
-                                     class="nav-link router-link-exact-active router-link-active">
-                配置
-            </a></div>
-            <div class="nav-item"><a href="/thank/" class="nav-link">
-                致谢
-            </a></div>
-            <div class="nav-item"><a href="/image/" class="nav-link">
-                展示
-            </a></div>
-            <div class="nav-item"><a href="/plugin/" class="nav-link">
-                插件开发
-            </a></div>
-            <div class="nav-item"><a href="/question/" class="nav-link">
-                常见问题
-            </a></div>
-            <div class="nav-item"><a href="/update/" class="nav-link">
-                更新日志
-            </a></div>
-            <div class="nav-item"><a
-                    href="https://github.com/Extrwave/Adachi-GBOT"
-                    target="_blank" rel="noopener noreferrer"
-                    class="nav-link external">
-                Github
-                <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-                           focusable="false" x="0px" y="0px"
-                           viewBox="0 0 100 100" width="15" height="15"
-                           class="icon outbound"><path fill="currentColor"
-                                                       d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon
-                        fill="currentColor"
-                        points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span
-                        class="sr-only">(opens new window)</span></span></a>
-            </div> <!----></nav>
-        <ul class="sidebar-links">
-            <li>
-                <section class="sidebar-group depth-0"><p
-                        class="sidebar-heading open"><span>配置文件</span> <!---->
-                </p>
-                    <ul class="sidebar-links sidebar-group-items">
-                        <li><a href="/configuration/#setting-yaml"
-                               class="sidebar-link">setting.yaml</a>
-                            <ul class="sidebar-sub-headers">
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#示例文件"
-                                        class="sidebar-link">示例文件</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#appid-token"
-                                        class="sidebar-link">appID,token</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#sandbox"
-                                        class="sidebar-link">sandbox</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#area"
-                                        class="sidebar-link">area</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#master"
-                                        class="sidebar-link">master</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#countthreshold"
-                                        class="sidebar-link">countThreshold</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#groupintervaltime"
-                                        class="sidebar-link">groupIntervalTime</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#privateintervaltime"
-                                        class="sidebar-link">privateIntervalTime</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#helpmessagestyle"
-                                        class="sidebar-link">helpMessageStyle</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#loglevel"
-                                        class="sidebar-link">logLevel</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#dbport"
-                                        class="sidebar-link">dbPort</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#webconsole"
-                                        class="sidebar-link">webconsole</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#qiniu"
-                                        class="sidebar-link">qiniu</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="/configuration/#cookies-yml"
-                               class="sidebar-link">cookies.yml</a>
-                            <ul class="sidebar-sub-headers"></ul>
-                        </li>
-                        <li><a href="/configuration/#commands-yml"
-                               class="sidebar-link">commands.yml</a>
-                            <ul class="sidebar-sub-headers">
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#基本结构"
-                                        class="sidebar-link">基本结构</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#order-类指令"
-                                        class="sidebar-link">Order 类指令</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#switch-类指令"
-                                        class="sidebar-link">Switch 类指令</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#enquire-类指令"
-                                        class="sidebar-link">Enquire 类指令</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><a href="/configuration/#genshin-yml"
-                               class="sidebar-link">genshin.yml</a>
-                            <ul class="sidebar-sub-headers">
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#默认配置"
-                                        class="sidebar-link">默认配置</a></li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#cardweaponstyle"
-                                        class="sidebar-link">cardWeaponStyle</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#cardprofile"
-                                        class="sidebar-link">cardProfile</a>
-                                </li>
-                                <li class="sidebar-sub-header"><a
-                                        href="/configuration/#serverport"
-                                        class="sidebar-link">serverPort</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </section>
-            </li>
-        </ul>
-    </aside>
+    <link rel="preload" href="/assets/css/0.styles.c48c8230.css" as="style">
+    <link rel="preload" href="/assets/js/app.c23498d7.js" as="script">
+    <link rel="preload" href="/assets/js/2.0695181e.js" as="script">
+    <link rel="preload" href="/assets/js/7.14e9f18e.js" as="script">
+    <link rel="prefetch" href="/assets/js/10.fbea1242.js">
+    <link rel="prefetch" href="/assets/js/11.075ded8b.js">
+    <link rel="prefetch" href="/assets/js/12.4be3f41a.js">
+    <link rel="prefetch" href="/assets/js/13.4740c7bd.js">
+    <link rel="prefetch" href="/assets/js/14.bf209a41.js">
+    <link rel="prefetch" href="/assets/js/3.440fa464.js">
+    <link rel="prefetch" href="/assets/js/4.55d994cf.js">
+    <link rel="prefetch" href="/assets/js/5.644527a6.js">
+    <link rel="prefetch" href="/assets/js/6.4307e75f.js">
+    <link rel="prefetch" href="/assets/js/8.70f58686.js">
+    <link rel="prefetch" href="/assets/js/9.6efd865c.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.c48c8230.css">
+</head>
+<body>
+<div id="app" data-server-rendered="true">
+    <div class="theme-container">
+        <header class="navbar">
+            <div class="sidebar-button">
+                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                     role="img" viewBox="0 0 448 512" class="icon">
+                    <path fill="currentColor"
+                          d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path>
+                </svg>
+            </div>
+            <a href="/" class="home-link router-link-active"><!----> <span
+                    class="site-name">Adachi-GBOT</span></a>
+            <div class="links">
+                <div class="search-box"><input aria-label="Search"
+                                               autocomplete="off"
+                                               spellcheck="false" value="">
+                    <!----></div>
+                <nav class="nav-links can-hide">
+                    <div class="nav-item"><a href="/" class="nav-link">
+                        首页
+                    </a></div>
+                    <div class="nav-item"><a href="/deploy/" class="nav-link">
+                        部署
+                    </a></div>
+                    <div class="nav-item"><a href="/configuration/"
+                                             aria-current="page"
+                                             class="nav-link router-link-exact-active router-link-active">
+                        配置
+                    </a></div>
+                    <div class="nav-item"><a href="/thank/" class="nav-link">
+                        致谢
+                    </a></div>
+                    <div class="nav-item"><a href="/image/" class="nav-link">
+                        展示
+                    </a></div>
+                    <div class="nav-item"><a href="/plugin/" class="nav-link">
+                        插件开发
+                    </a></div>
+                    <div class="nav-item"><a href="/question/" class="nav-link">
+                        常见问题
+                    </a></div>
+                    <div class="nav-item"><a href="/update/" class="nav-link">
+                        更新日志
+                    </a></div>
+                    <div class="nav-item"><a
+                            href="https://github.com/Extrwave/Adachi-GBOT"
+                            target="_blank" rel="noopener noreferrer"
+                            class="nav-link external">
+                        Github
+                        <span><svg xmlns="http://www.w3.org/2000/svg"
+                                   aria-hidden="true" focusable="false" x="0px"
+                                   y="0px" viewBox="0 0 100 100" width="15"
+                                   height="15" class="icon outbound"><path
+                                fill="currentColor"
+                                d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon
+                                fill="currentColor"
+                                points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span
+                                class="sr-only">(opens new window)</span></span></a>
+                    </div> <!----></nav>
+            </div>
+        </header>
+        <div class="sidebar-mask"></div>
+        <aside class="sidebar">
+            <nav class="nav-links">
+                <div class="nav-item"><a href="/" class="nav-link">
+                    首页
+                </a></div>
+                <div class="nav-item"><a href="/deploy/" class="nav-link">
+                    部署
+                </a></div>
+                <div class="nav-item"><a href="/configuration/"
+                                         aria-current="page"
+                                         class="nav-link router-link-exact-active router-link-active">
+                    配置
+                </a></div>
+                <div class="nav-item"><a href="/thank/" class="nav-link">
+                    致谢
+                </a></div>
+                <div class="nav-item"><a href="/image/" class="nav-link">
+                    展示
+                </a></div>
+                <div class="nav-item"><a href="/plugin/" class="nav-link">
+                    插件开发
+                </a></div>
+                <div class="nav-item"><a href="/question/" class="nav-link">
+                    常见问题
+                </a></div>
+                <div class="nav-item"><a href="/update/" class="nav-link">
+                    更新日志
+                </a></div>
+                <div class="nav-item"><a
+                        href="https://github.com/Extrwave/Adachi-GBOT"
+                        target="_blank" rel="noopener noreferrer"
+                        class="nav-link external">
+                    Github
+                    <span><svg xmlns="http://www.w3.org/2000/svg"
+                               aria-hidden="true"
+                               focusable="false" x="0px" y="0px"
+                               viewBox="0 0 100 100" width="15" height="15"
+                               class="icon outbound"><path fill="currentColor"
+                                                           d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon
+                            fill="currentColor"
+                            points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span
+                            class="sr-only">(opens new window)</span></span></a>
+                </div> <!----></nav>
+            <ul class="sidebar-links">
+                <li>
+                    <section class="sidebar-group depth-0"><p
+                            class="sidebar-heading open"><span>配置文件</span>
+                        <!---->
+                    </p>
+                        <ul class="sidebar-links sidebar-group-items">
+                            <li><a href="/configuration/#setting-yaml"
+                                   class="sidebar-link">setting.yaml</a>
+                                <ul class="sidebar-sub-headers">
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#示例文件"
+                                            class="sidebar-link">示例文件</a></li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#appid-token"
+                                            class="sidebar-link">appID,token</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#sandbox"
+                                            class="sidebar-link">sandbox</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#area"
+                                            class="sidebar-link">area</a></li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#master"
+                                            class="sidebar-link">master</a></li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#countthreshold"
+                                            class="sidebar-link">countThreshold</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#groupintervaltime"
+                                            class="sidebar-link">groupIntervalTime</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#privateintervaltime"
+                                            class="sidebar-link">privateIntervalTime</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#helpmessagestyle"
+                                            class="sidebar-link">helpMessageStyle</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#loglevel"
+                                            class="sidebar-link">logLevel</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#dbport"
+                                            class="sidebar-link">dbPort</a></li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#webconsole"
+                                            class="sidebar-link">webconsole</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#qiniu"
+                                            class="sidebar-link">qiniu</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="/configuration/#cookies-yml"
+                                   class="sidebar-link">cookies.yml</a>
+                                <ul class="sidebar-sub-headers"></ul>
+                            </li>
+                            <li><a href="/configuration/#commands-yml"
+                                   class="sidebar-link">commands.yml</a>
+                                <ul class="sidebar-sub-headers">
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#基本结构"
+                                            class="sidebar-link">基本结构</a></li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#order-类指令"
+                                            class="sidebar-link">Order 类指令</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#switch-类指令"
+                                            class="sidebar-link">Switch 类指令</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#enquire-类指令"
+                                            class="sidebar-link">Enquire 类指令</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a href="/configuration/#genshin-yml"
+                                   class="sidebar-link">genshin.yml</a>
+                                <ul class="sidebar-sub-headers">
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#默认配置"
+                                            class="sidebar-link">默认配置</a></li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#cardweaponstyle"
+                                            class="sidebar-link">cardWeaponStyle</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#cardprofile"
+                                            class="sidebar-link">cardProfile</a>
+                                    </li>
+                                    <li class="sidebar-sub-header"><a
+                                            href="/configuration/#serverport"
+                                            class="sidebar-link">serverPort</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                </li>
+            </ul>
+        </aside>
         <main class="page">
             <div class="theme-default-content content__default"><h1 id="配置文件"><a
                     href="#配置文件" class="header-anchor">#</a> 配置文件</h1>
@@ -234,56 +277,329 @@
 <span class="token key atrule">groupIntervalTime</span><span
                             class="token punctuation">:</span> <span
                             class="token number">1500</span>
-<span class="token key atrule">privateIntervalTime</span><span class="token punctuation">:</span> <span class="token number">2000</span>
-<span class="token key atrule">helpMessageStyle</span><span class="token punctuation">:</span> message
-<span class="token key atrule">logLevel</span><span class="token punctuation">:</span> info
+<span class="token key atrule">privateIntervalTime</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">2000</span>
+<span class="token key atrule">helpMessageStyle</span><span
+                            class="token punctuation">:</span> message
+<span class="token key atrule">logLevel</span><span
+                            class="token punctuation">:</span> info
 <span class="token key atrule">webConsole</span><span class="token punctuation">:</span>
-  <span class="token key atrule">enable</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
-  <span class="token key atrule">consolePort</span><span class="token punctuation">:</span> <span class="token number">80</span>
-  <span class="token key atrule">tcpLoggerPort</span><span class="token punctuation">:</span> <span class="token number">55392</span>
-  <span class="token key atrule">jwtSecret</span><span class="token punctuation">:</span> Secret
-  <span class="token key atrule">adminName</span><span class="token punctuation">:</span> admin
+  <span class="token key atrule">enable</span><span
+                            class="token punctuation">:</span> <span
+                            class="token boolean important">true</span>
+  <span class="token key atrule">consolePort</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">80</span>
+  <span class="token key atrule">tcpLoggerPort</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">55392</span>
+  <span class="token key atrule">jwtSecret</span><span
+                            class="token punctuation">:</span> Secret
+  <span class="token key atrule">adminName</span><span
+                            class="token punctuation">:</span> admin
   <span class="token key atrule">adminPwd</span><span class="token punctuation">:</span> admin
-<span class="token key atrule">qiniu</span><span class="token punctuation">:</span>
-  <span class="token key atrule">QAccessKey</span><span class="token punctuation">:</span> accessKey
-  <span class="token key atrule">QSecretKey</span><span class="token punctuation">:</span> secretKey
-  <span class="token key atrule">CloudUrl</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>//your.com
-  <span class="token key atrule">Bucket</span><span class="token punctuation">:</span> YourBucketName
-</code></pre></div><h3 id="appid-token"><a href="#appid-token" class="header-anchor">#</a> <code>appID</code>,<code>token</code></h3> <p>频道BOT的登陆凭证，前往<a href="https://q.qq.com/bot/#/developer/developer-setting" target="_blank" rel="noopener noreferrer">QQ机器人管理端<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a>注册申请官方BOT</p> <p><img src="http://cloud.ethreal.cn/img/1655463595047-1655463596.png" alt=""></p> <h3 id="sandbox"><a href="#sandbox" class="header-anchor">#</a> <code>sandbox</code></h3> <p>沙箱环境，开启这个会在你机器人管理端设置的频道中主动消息无限制，具体查看腾讯官方文档：<a href="https://bot.q.qq.com/wiki/#_6-%E5%BC%80%E5%8F%91%E8%AE%BE%E7%BD%AE" target="_blank" rel="noopener noreferrer">QQ机器人文档<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></p> <p>监听消息类型，建议留空开启全部消息类型，本项目只用到了频道信息和私信信息</p> <h3 id="area"><a href="#area" class="header-anchor">#</a> <code>area</code></h3> <p>机器人类型，分为公域（<code>public</code>）或者私域（<code>private</code>），在你创建BOT时候自己选择</p> <p>私域机器人只能在自己的频道使用，公域可以拉近别人频道使用</p> <h3 id="master"><a href="#master" class="header-anchor">#</a> <code>master</code></h3> <p>你自己的频道账号ID，这个可以给BOT发送消息，日志终端会打印出来，错填会影响部分功能</p> <h3 id="countthreshold"><a href="#countthreshold" class="header-anchor">#</a> <code>countThreshold</code></h3> <p>用户在一小时使用指令的次数的阈值，按整点计算，如 <code>13:00~14:00</code> 。如果用户在过去一小时内使用指令的次数超过了该值，BOT 会向持有者发送私聊信息，提示所有超量使用的用户和使用次数，以便持有者对超量使用指令的用户进行处理。</p> <h3 id="groupintervaltime"><a href="#groupintervaltime" class="header-anchor">#</a> <code>groupIntervalTime</code></h3> <p>群聊中指令操作冷却时间，单位为毫秒(ms)，不支持小数。</p> <h3 id="privateintervaltime"><a href="#privateintervaltime" class="header-anchor">#</a> <code>privateIntervalTime</code></h3> <p>私聊中指令操作冷却时间，单位为毫秒(ms)，不支持小数。</p> <h3 id="helpmessagestyle"><a href="#helpmessagestyle" class="header-anchor">#</a> <code>helpMessageStyle</code></h3> <p>帮助信息样式，可以设置为 <code>message</code>, <code>forward</code> 和 <code>xml</code>。</p> <ul><li><code>message</code> 样式为所有指令以单条消息直接发送。</li> <li><code>forward</code> 样式为每条指令为单条消息，并整合为合并转发的形式发送。</li> <li><code>xml</code> 样式为所有指令以 xml 卡片的形式进行发送，此方式有一定封号风险，不建议大群使用。</li></ul> <h3 id="loglevel"><a href="#loglevel" class="header-anchor">#</a> <code>logLevel</code></h3> <p>日志输出等级。</p> <h3 id="dbport"><a href="#dbport" class="header-anchor">#</a> <code>dbPort</code></h3> <p>数据库端口。注意，<code>Docker</code> 启动修改此值时，需将 <code>redis.conf</code> 中的 <code>port</code> 修改为与此处相同的值。</p> <h3 id="webconsole"><a href="#webconsole" class="header-anchor">#</a> <code>webconsole</code></h3> <p><code>Web Console</code> 功能相关配置</p> <h4 id="enable"><a href="#enable" class="header-anchor">#</a> <code>enable</code></h4> <p>是否启用 <code>Web Console</code> 功能，<code>true</code> 表示启用。</p> <h4 id="consoleport"><a href="#consoleport" class="header-anchor">#</a> <code>consolePort</code></h4> <p><code>Web Console</code> 页面端口，默认情况下为 <code>80</code>，以便直接通过服务器 IP 或 <code>localhost</code> 进行访问，可以自行配置。注意，<code>Docker</code> 启动修改此值时，需将 <code>services.bot.ports</code> 的第一个数字修改为与此处相同的值。</p> <h4 id="tcploggerport"><a href="#tcploggerport" class="header-anchor">#</a> <code>tcpLoggerPort</code></h4> <p><code>log4js</code> 日志输出端口。</p> <h4 id="jwtsecret"><a href="#jwtsecret" class="header-anchor">#</a> <code>jwtSecret</code></h4> <p>JWT 验证秘钥，不提供默认配置，重要，可以随意输入长度为 6~16 的仅由字母和数字组成的字符串，最好不要有特殊含义。</p> <h4 id="adminname"><a href="#adminname" class="header-anchor">#</a> <code>adminName</code></h4> <p>网页控制台的登录名</p> <h4 id="adminpwd"><a href="#adminpwd" class="header-anchor">#</a> <code>adminPwd</code></h4> <p>网页控制台的登陆密码，需要开启网页控制台才生效</p> <h3 id="qiniu"><a href="#qiniu" class="header-anchor">#</a> <code>qiniu</code></h3> <p>配置图片上传<strong>对象存储</strong>，需要自行去注册：<a href="https://s.qiniu.com/YvYvMb" target="_blank" rel="noopener noreferrer">七牛云官网<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></p> <p>用户每人都有10G存储空间和10G CDN流量，给BOT用足够了</p> <h4 id="qaccesskey"><a href="#qaccesskey" class="header-anchor">#</a> <code>QAccessKey</code></h4> <p>七牛云官网给的<strong>资源访问</strong>密钥</p> <h4 id="qsecretkey"><a href="#qsecretkey" class="header-anchor">#</a> <code>QSecretKey</code></h4> <p>七牛云官网给<strong>的资源访问</strong>密钥</p> <h4 id="cloudurl"><a href="#cloudurl" class="header-anchor">#</a> <code>CloudUrl</code></h4> <p>图片上传到对象存储的访问地址，也就是你给<strong>对象存储</strong>设置的<strong>CDN加速域名</strong></p> <p>注意不要将域名绑定到源站，不然流量额外收费</p> <h4 id="bucket"><a href="#bucket" class="header-anchor">#</a> <code>Bucket</code></h4> <p>图片上传到<strong>对象存储</strong>的位置，建议类型设置为公有，不然还得自己带密钥访问</p> <h2 id="cookies-yml"><a href="#cookies-yml" class="header-anchor">#</a> <code>cookies.yml</code></h2> <p><code>genshin</code> 插件用于执行 <code>mys</code>, <code>uid</code>, <code>aby</code> 等指令所需的 <code>cookies</code> ，可配置多个。</p> <div class="language-yaml extra-class"><pre class="language-yaml"><code><span class="token key atrule">cookies</span><span class="token punctuation">:</span>
+<span class="token key atrule">qiniu</span><span
+                            class="token punctuation">:</span>
+  <span class="token key atrule">QAccessKey</span><span
+                            class="token punctuation">:</span> accessKey
+  <span class="token key atrule">QSecretKey</span><span
+                            class="token punctuation">:</span> secretKey
+  <span class="token key atrule">CloudUrl</span><span class="token punctuation">:</span> http<span
+                            class="token punctuation">:</span>//your.com
+  <span class="token key atrule">Bucket</span><span
+                            class="token punctuation">:</span> YourBucketName
+</code></pre>
+                </div>
+                <h3 id="appid-token"><a href="#appid-token"
+                                        class="header-anchor">#</a>
+                    <code>appID</code>,<code>token</code></h3>
+                <p>频道BOT的登陆凭证，前往<a
+                        href="https://q.qq.com/bot/#/developer/developer-setting"
+                        target="_blank" rel="noopener noreferrer">QQ机器人管理端<span><svg
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                        focusable="false" x="0px" y="0px" viewBox="0 0 100 100"
+                        width="15" height="15" class="icon outbound"><path
+                        fill="currentColor"
+                        d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon
+                        fill="currentColor"
+                        points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span
+                        class="sr-only">(opens new window)</span></span></a>注册申请官方BOT
+                </p>
+                <p>
+                    <img src="http://cloud.ethreal.cn/img/1655463595047-1655463596.png"
+                         alt=""></p>
+                <h3 id="sandbox"><a href="#sandbox" class="header-anchor">#</a>
+                    <code>sandbox</code></h3>
+                <p>沙箱环境，开启这个会在你机器人管理端设置的频道中主动消息无限制，具体查看腾讯官方文档：<a
+                        href="https://bot.q.qq.com/wiki/#_6-%E5%BC%80%E5%8F%91%E8%AE%BE%E7%BD%AE"
+                        target="_blank" rel="noopener noreferrer">QQ机器人文档<span><svg
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                        focusable="false" x="0px" y="0px" viewBox="0 0 100 100"
+                        width="15" height="15" class="icon outbound"><path
+                        fill="currentColor"
+                        d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon
+                        fill="currentColor"
+                        points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span
+                        class="sr-only">(opens new window)</span></span></a></p>
+                <p>监听消息类型，建议留空开启全部消息类型，本项目只用到了频道信息和私信信息</p>
+                <h3 id="area"><a href="#area" class="header-anchor">#</a> <code>area</code>
+                </h3>
+                <p>机器人类型，分为公域（<code>public</code>）或者私域（<code>private</code>），在你创建BOT时候自己选择
+                </p>
+                <p>私域机器人只能在自己的频道使用，公域可以拉近别人频道使用</p>
+                <h3 id="master"><a href="#master" class="header-anchor">#</a>
+                    <code>master</code></h3>
+                <p>你自己的频道账号ID，这个可以给BOT发送消息，日志终端会打印出来，错填会影响部分功能</p>
+                <h3 id="countthreshold"><a href="#countthreshold"
+                                           class="header-anchor">#</a> <code>countThreshold</code>
+                </h3>
+                <p>用户在一小时使用指令的次数的阈值，按整点计算，如 <code>13:00~14:00</code>
+                    。如果用户在过去一小时内使用指令的次数超过了该值，BOT
+                    会向持有者发送私聊信息，提示所有超量使用的用户和使用次数，以便持有者对超量使用指令的用户进行处理。</p>
+                <h3 id="groupintervaltime"><a href="#groupintervaltime"
+                                              class="header-anchor">#</a> <code>groupIntervalTime</code>
+                </h3>
+                <p>群聊中指令操作冷却时间，单位为毫秒(ms)，不支持小数。</p>
+                <h3 id="privateintervaltime"><a href="#privateintervaltime"
+                                                class="header-anchor">#</a>
+                    <code>privateIntervalTime</code></h3>
+                <p>私聊中指令操作冷却时间，单位为毫秒(ms)，不支持小数。</p>
+                <h3 id="helpmessagestyle"><a href="#helpmessagestyle"
+                                             class="header-anchor">#</a> <code>helpMessageStyle</code>
+                </h3>
+                <p>帮助信息样式，可以设置为 <code>message</code>, <code>forward</code> 和
+                    <code>xml</code>。</p>
+                <ul>
+                    <li><code>message</code> 样式为所有指令以单条消息直接发送。</li>
+                    <li><code>forward</code> 样式为每条指令为单条消息，并整合为合并转发的形式发送。</li>
+                    <li><code>xml</code> 样式为所有指令以 xml
+                        卡片的形式进行发送，此方式有一定封号风险，不建议大群使用。
+                    </li>
+                </ul>
+                <h3 id="loglevel"><a href="#loglevel"
+                                     class="header-anchor">#</a>
+                    <code>logLevel</code></h3>
+                <p>日志输出等级。</p>
+                <h3 id="dbport"><a href="#dbport" class="header-anchor">#</a>
+                    <code>dbPort</code></h3>
+                <p>数据库端口。注意，<code>Docker</code> 启动修改此值时，需将
+                    <code>redis.conf</code> 中的 <code>port</code> 修改为与此处相同的值。</p>
+                <h3 id="webconsole"><a href="#webconsole" class="header-anchor">#</a>
+                    <code>webconsole</code></h3>
+                <p><code>Web Console</code> 功能相关配置</p> <h4 id="enable"><a
+                        href="#enable" class="header-anchor">#</a>
+                    <code>enable</code></h4>
+                <p>是否启用 <code>Web Console</code> 功能，<code>true</code> 表示启用。</p>
+                <h4 id="consoleport"><a href="#consoleport"
+                                        class="header-anchor">#</a> <code>consolePort</code>
+                </h4>
+                <p><code>Web Console</code> 页面端口，默认情况下为 <code>80</code>，以便直接通过服务器
+                    IP 或 <code>localhost</code>
+                    进行访问，可以自行配置。注意，<code>Docker</code> 启动修改此值时，需将 <code>services.bot.ports</code>
+                    的第一个数字修改为与此处相同的值。</p> <h4 id="tcploggerport"><a
+                        href="#tcploggerport" class="header-anchor">#</a> <code>tcpLoggerPort</code>
+                </h4>
+                <p><code>log4js</code> 日志输出端口。</p> <h4 id="jwtsecret"><a
+                        href="#jwtsecret" class="header-anchor">#</a> <code>jwtSecret</code>
+                </h4>
+                <p>JWT 验证秘钥，不提供默认配置，重要，可以随意输入长度为 6~16
+                    的仅由字母和数字组成的字符串，最好不要有特殊含义。</p> <h4 id="adminname"><a
+                        href="#adminname" class="header-anchor">#</a> <code>adminName</code>
+                </h4>
+                <p>网页控制台的登录名</p> <h4 id="adminpwd"><a href="#adminpwd"
+                                                      class="header-anchor">#</a>
+                    <code>adminPwd</code></h4>
+                <p>网页控制台的登陆密码，需要开启网页控制台才生效</p>
+                <h3 id="qiniu"><a href="#qiniu" class="header-anchor">#</a>
+                    <code>qiniu</code></h3>
+                <p>配置图片上传<strong>对象存储</strong>，需要自行去注册：<a
+                        href="https://s.qiniu.com/YvYvMb" target="_blank"
+                        rel="noopener noreferrer">七牛云官网<span><svg
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                        focusable="false" x="0px" y="0px" viewBox="0 0 100 100"
+                        width="15" height="15" class="icon outbound"><path
+                        fill="currentColor"
+                        d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon
+                        fill="currentColor"
+                        points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span
+                        class="sr-only">(opens new window)</span></span></a></p>
+                <p>用户每人都有10G存储空间和10G CDN流量，给BOT用足够了</p> <h4 id="qaccesskey"><a
+                        href="#qaccesskey" class="header-anchor">#</a> <code>QAccessKey</code>
+                </h4>
+                <p>七牛云官网给的<strong>资源访问</strong>密钥</p> <h4 id="qsecretkey"><a
+                        href="#qsecretkey" class="header-anchor">#</a> <code>QSecretKey</code>
+                </h4>
+                <p>七牛云官网给<strong>的资源访问</strong>密钥</p> <h4 id="cloudurl"><a
+                        href="#cloudurl" class="header-anchor">#</a> <code>CloudUrl</code>
+                </h4>
+                <p>
+                    图片上传到对象存储的访问地址，也就是你给<strong>对象存储</strong>设置的<strong>CDN加速域名</strong>
+                </p>
+                <p>注意不要将域名绑定到源站，不然流量额外收费</p> <h4 id="bucket"><a href="#bucket"
+                                                                class="header-anchor">#</a>
+                    <code>Bucket</code></h4>
+                <p>图片上传到<strong>对象存储</strong>的位置，建议类型设置为公有，不然还得自己带密钥访问</p>
+                <h2 id="cookies-yml"><a href="#cookies-yml"
+                                        class="header-anchor">#</a> <code>cookies.yml</code>
+                </h2>
+                <p><code>genshin</code> 插件用于执行 <code>mys</code>,
+                    <code>uid</code>, <code>aby</code> 等指令所需的
+                    <code>cookies</code> ，可配置多个。</p>
+                <div class="language-yaml extra-class"><pre
+                        class="language-yaml"><code><span
+                        class="token key atrule">cookies</span><span
+                        class="token punctuation">:</span>
   <span class="token punctuation">-</span> cookieA
   <span class="token punctuation">-</span> cookieB
-</code></pre></div><h2 id="commands-yml"><a href="#commands-yml" class="header-anchor">#</a> <code>commands.yml</code></h2> <p>该文件将会在 BOT 初次运行后生成，所以你并不能在启动 BOT 前配置指令。</p> <h3 id="基本结构"><a href="#基本结构" class="header-anchor">#</a> 基本结构</h3> <p><code>Adachi-BOT</code> 中的指令被分为三类 <code>order</code>, <code>switch</code> 和 <code>enquire</code> ，你需要了解他们的共性和特性。每个指令都以 <code>cmdKey</code> 为顶级标识，你可以通过使用 <code>#help -k</code> 指令（或根据你的配置）来查看每个指令对应的 <code>key</code> 。每种指令都有四个公共配置字段：</p> <h4 id="type"><a href="#type" class="header-anchor">#</a> <code>type</code></h4> <p>分为 <code>order</code>, <code>switch</code>, <code>enquire</code> ，不可修改。</p> <h4 id="auth"><a href="#auth" class="header-anchor">#</a> <code>auth</code></h4> <p>最低操作权限，可设置为 1, 2, 3：</p> <ul><li><code>1</code> 表示除封禁用户外所有人可使用</li> <li><code>2</code> 表示 <strong>BOT 管理员</strong> 和持有者可使用</li> <li><code>3</code> 表示只有持有者可使用</li></ul> <h4 id="scope"><a href="#scope" class="header-anchor">#</a> <code>scope</code></h4> <p>指令使用位置，可设置为 1, 2, 3：</p> <ul><li><code>1</code> 表示仅群聊可使用</li> <li><code>2</code> 表示仅私聊可使用</li> <li><code>3</code> 表示群聊和私聊均可使用</li></ul> <h4 id="enable-2"><a href="#enable-2" class="header-anchor">#</a> <code>enable</code></h4> <p>是否启用指令。</p> <h3 id="order-类指令"><a href="#order-类指令" class="header-anchor">#</a> <code>Order</code> 类指令</h3> <p><code>Order</code> 具有唯一可配置项 <code>headers</code> ，表示指令头，为数组类型，可以设置多个。默认情况下，指令头前会被添加上 <code>setting.yml</code> 中的 <code>header</code> 的值，如果你不想在某条指令加上它，可以在指令头前加上双下划线 <code>__</code> 。如:</p> <div class="language-yaml extra-class"><pre class="language-yaml"><code><span class="token key atrule">silvery-star.wish</span><span class="token punctuation">:</span>
-  <span class="token key atrule">type</span><span class="token punctuation">:</span> order
-  <span class="token key atrule">auth</span><span class="token punctuation">:</span> <span class="token number">1</span>
-  <span class="token key atrule">scope</span><span class="token punctuation">:</span> <span class="token number">3</span>
-  <span class="token key atrule">headers</span><span class="token punctuation">:</span>
+</code></pre>
+                </div>
+                <h2 id="commands-yml"><a href="#commands-yml"
+                                         class="header-anchor">#</a> <code>commands.yml</code>
+                </h2>
+                <p>该文件将会在 BOT 初次运行后生成，所以你并不能在启动 BOT 前配置指令。</p>
+                <h3 id="基本结构"><a href="#基本结构" class="header-anchor">#</a> 基本结构
+                </h3>
+                <p><code>Adachi-BOT</code> 中的指令被分为三类 <code>order</code>, <code>switch</code>
+                    和 <code>enquire</code> ，你需要了解他们的共性和特性。每个指令都以
+                    <code>cmdKey</code> 为顶级标识，你可以通过使用 <code>#help -k</code>
+                    指令（或根据你的配置）来查看每个指令对应的 <code>key</code> 。每种指令都有四个公共配置字段：</p>
+                <h4 id="type"><a href="#type" class="header-anchor">#</a> <code>type</code>
+                </h4>
+                <p>分为 <code>order</code>, <code>switch</code>,
+                    <code>enquire</code> ，不可修改。</p> <h4 id="auth"><a
+                        href="#auth" class="header-anchor">#</a>
+                    <code>auth</code></h4>
+                <p>最低操作权限，可设置为 1, 2, 3：</p>
+                <ul>
+                    <li><code>1</code> 表示除封禁用户外所有人可使用</li>
+                    <li><code>2</code> 表示 <strong>BOT 管理员</strong> 和持有者可使用</li>
+                    <li><code>3</code> 表示只有持有者可使用</li>
+                </ul>
+                <h4 id="scope"><a href="#scope" class="header-anchor">#</a>
+                    <code>scope</code></h4>
+                <p>指令使用位置，可设置为 1, 2, 3：</p>
+                <ul>
+                    <li><code>1</code> 表示仅群聊可使用</li>
+                    <li><code>2</code> 表示仅私聊可使用</li>
+                    <li><code>3</code> 表示群聊和私聊均可使用</li>
+                </ul>
+                <h4 id="enable-2"><a href="#enable-2"
+                                     class="header-anchor">#</a>
+                    <code>enable</code></h4>
+                <p>是否启用指令。</p>
+                <h3 id="order-类指令"><a href="#order-类指令"
+                                      class="header-anchor">#</a>
+                    <code>Order</code> 类指令</h3>
+                <p><code>Order</code> 具有唯一可配置项 <code>headers</code>
+                    ，表示指令头，为数组类型，可以设置多个。默认情况下，指令头前会被添加上 <code>setting.yml</code>
+                    中的 <code>header</code> 的值，如果你不想在某条指令加上它，可以在指令头前加上双下划线 <code>__</code>
+                    。如:</p>
+                <div class="language-yaml extra-class"><pre
+                        class="language-yaml"><code><span
+                        class="token key atrule">silvery-star.wish</span><span
+                        class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span
+                            class="token punctuation">:</span> order
+  <span class="token key atrule">auth</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">1</span>
+  <span class="token key atrule">scope</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">3</span>
+  <span class="token key atrule">headers</span><span
+                            class="token punctuation">:</span>
     <span class="token punctuation">-</span> __wish
     <span class="token punctuation">-</span> w
-  <span class="token key atrule">enable</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
-</code></pre></div><p>这将为祈愿十连导出两个指令，<code>wish</code> <code>#w</code> ，当然，你也可以配置更多。</p> <h3 id="switch-类指令"><a href="#switch-类指令" class="header-anchor">#</a> <code>Switch</code> 类指令</h3> <p><code>Switch</code> 拥有四个可配置项，<code>header</code>, <code>onKey</code>, <code>offKey</code> 和 <code>mode</code>。</p> <ul><li><code>mode</code> 开关模式，分为 <code>single</code> 和 <code>divided</code> ，它们的作用将在下面阐述</li> <li><code>header</code> 指令头，只可配置一个，当 <code>mode</code> 设置为 <code>divided</code> 无效，此处同样可以通过双下划线来屏蔽 <code>setting</code> 中配置的 <code>header</code></li> <li><code>onKey/offKey</code> 表示开/关的关键词</li></ul> <p><code>single</code> 模式表示单指令头，使用关键词区分开/关状态，如：</p> <div class="language-yaml extra-class"><pre class="language-yaml"><code><span class="token comment"># setting.yml =&gt; header: &quot;#&quot;</span>
-<span class="token key atrule">silvery-star.alias-customize</span><span class="token punctuation">:</span>
-  <span class="token key atrule">type</span><span class="token punctuation">:</span> switch
-  <span class="token key atrule">auth</span><span class="token punctuation">:</span> <span class="token number">2</span>
-  <span class="token key atrule">scope</span><span class="token punctuation">:</span> <span class="token number">3</span>
-  <span class="token key atrule">mode</span><span class="token punctuation">:</span> single
-  <span class="token key atrule">onKey</span><span class="token punctuation">:</span> add
-  <span class="token key atrule">offKey</span><span class="token punctuation">:</span> rem
-  <span class="token key atrule">header</span><span class="token punctuation">:</span> alias
-  <span class="token key atrule">enable</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+  <span class="token key atrule">enable</span><span
+                            class="token punctuation">:</span> <span
+                            class="token boolean important">true</span>
+</code></pre>
+                </div>
+                <p>这将为祈愿十连导出两个指令，<code>wish</code> <code>#w</code> ，当然，你也可以配置更多。
+                </p>
+                <h3 id="switch-类指令"><a href="#switch-类指令" class="header-anchor">#</a>
+                    <code>Switch</code> 类指令</h3>
+                <p><code>Switch</code> 拥有四个可配置项，<code>header</code>,
+                    <code>onKey</code>, <code>offKey</code> 和 <code>mode</code>。
+                </p>
+                <ul>
+                    <li><code>mode</code> 开关模式，分为 <code>single</code> 和 <code>divided</code>
+                        ，它们的作用将在下面阐述
+                    </li>
+                    <li><code>header</code> 指令头，只可配置一个，当 <code>mode</code> 设置为
+                        <code>divided</code> 无效，此处同样可以通过双下划线来屏蔽
+                        <code>setting</code> 中配置的 <code>header</code></li>
+                    <li><code>onKey/offKey</code> 表示开/关的关键词</li>
+                </ul>
+                <p><code>single</code> 模式表示单指令头，使用关键词区分开/关状态，如：</p>
+                <div class="language-yaml extra-class"><pre
+                        class="language-yaml"><code><span class="token comment"># setting.yml =&gt; header: &quot;#&quot;</span>
+<span class="token key atrule">silvery-star.alias-customize</span><span
+                            class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span
+                            class="token punctuation">:</span> switch
+  <span class="token key atrule">auth</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">2</span>
+  <span class="token key atrule">scope</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">3</span>
+  <span class="token key atrule">mode</span><span
+                            class="token punctuation">:</span> single
+  <span class="token key atrule">onKey</span><span
+                            class="token punctuation">:</span> add
+  <span class="token key atrule">offKey</span><span
+                            class="token punctuation">:</span> rem
+  <span class="token key atrule">header</span><span
+                            class="token punctuation">:</span> alias
+  <span class="token key atrule">enable</span><span
+                            class="token punctuation">:</span> <span
+                            class="token boolean important">true</span>
 <span class="token comment"># 导出指令 #alias [add|rem] [本名] [别名] </span>
-</code></pre></div><p><code>divided</code> 模式表示拆分指令头，使用指令头区分开/关状态，如：</p> <div class="language-yaml extra-class"><pre class="language-yaml"><code><span class="token comment"># setting.yml =&gt; header: &quot;&quot;</span>
-<span class="token key atrule">silvery-star.alias-customize</span><span class="token punctuation">:</span>
-  <span class="token key atrule">type</span><span class="token punctuation">:</span> switch
-  <span class="token key atrule">auth</span><span class="token punctuation">:</span> <span class="token number">2</span>
-  <span class="token key atrule">scope</span><span class="token punctuation">:</span> <span class="token number">3</span>
-  <span class="token key atrule">mode</span><span class="token punctuation">:</span> divided
-  <span class="token key atrule">onKey</span><span class="token punctuation">:</span> 增加别名
-  <span class="token key atrule">offKey</span><span class="token punctuation">:</span> 删除别名
-  <span class="token key atrule">header</span><span class="token punctuation">:</span> <span class="token string">&quot;&quot;</span>
-  <span class="token key atrule">enable</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+</code></pre>
+                </div>
+                <p><code>divided</code> 模式表示拆分指令头，使用指令头区分开/关状态，如：</p>
+                <div class="language-yaml extra-class"><pre
+                        class="language-yaml"><code><span class="token comment"># setting.yml =&gt; header: &quot;&quot;</span>
+<span class="token key atrule">silvery-star.alias-customize</span><span
+                            class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span
+                            class="token punctuation">:</span> switch
+  <span class="token key atrule">auth</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">2</span>
+  <span class="token key atrule">scope</span><span
+                            class="token punctuation">:</span> <span
+                            class="token number">3</span>
+  <span class="token key atrule">mode</span><span
+                            class="token punctuation">:</span> divided
+  <span class="token key atrule">onKey</span><span
+                            class="token punctuation">:</span> 增加别名
+  <span class="token key atrule">offKey</span><span
+                            class="token punctuation">:</span> 删除别名
+  <span class="token key atrule">header</span><span
+                            class="token punctuation">:</span> <span
+                            class="token string">&quot;&quot;</span>
+  <span class="token key atrule">enable</span><span
+                            class="token punctuation">:</span> <span
+                            class="token boolean important">true</span>
 <span class="token comment"># 导出指令 1. 增加别名 [本名] [别名]  2. 删除别名 [本名] [别名]</span>
-</code></pre></div><h3 id="enquire-类指令"><a href="#enquire-类指令" class="header-anchor">#</a> <code>Enquire</code> 类指令</h3> <p><code>Enquire</code> 类指令只有一个单独的可配置项 <code>sentences</code> ，表示 “询问句式”。在一个句子中，包含由 <code>#{}</code> 包裹的关键字段和其余部分，在配置时，在保证保留所有的关键字段的前提下，你可以随意的打乱句式的顺序，指令都能正常的运行，如：</p> <div class="language-yaml extra-class"><pre class="language-yaml"><code><span class="token key atrule">enquire.example</span><span class="token punctuation">:</span>
-  <span class="token key atrule">type</span><span class="token punctuation">:</span> enquire
+</code></pre>
+                </div>
+                <h3 id="enquire-类指令"><a href="#enquire-类指令"
+                                        class="header-anchor">#</a> <code>Enquire</code>
+                    类指令</h3>
+                <p><code>Enquire</code> 类指令只有一个单独的可配置项 <code>sentences</code>
+                    ，表示 “询问句式”。在一个句子中，包含由 <code>#{}</code>
+                    包裹的关键字段和其余部分，在配置时，在保证保留所有的关键字段的前提下，你可以随意的打乱句式的顺序，指令都能正常的运行，如：
+                </p>
+                <div class="language-yaml extra-class"><pre
+                        class="language-yaml"><code><span
+                        class="token key atrule">enquire.example</span><span
+                        class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span
+                            class="token punctuation">:</span> enquire
   <span class="token key atrule">auth</span><span
                             class="token punctuation">:</span> <span
                             class="token number">1</span>
@@ -337,10 +653,10 @@
                 <p><code>genshin</code> 插件的后端端口</p></div>
             <footer class="page-edit"><!----> <!----></footer> <!----> </main>
     </div>
-        <div class="global-ui"></div>
-    </div>
-    <script src="/assets/js/app.c23498d7.js" defer></script>
-    <script src="/assets/js/2.0695181e.js" defer></script>
-    <script src="/assets/js/7.14e9f18e.js" defer></script>
-  </body>
+    <div class="global-ui"></div>
+</div>
+<script src="/assets/js/app.c23498d7.js" defer></script>
+<script src="/assets/js/2.0695181e.js" defer></script>
+<script src="/assets/js/7.14e9f18e.js" defer></script>
+</body>
 </html>
