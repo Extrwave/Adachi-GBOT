@@ -421,8 +421,13 @@ const SIGN_HEADERS = {
 	"X-Requested-With": "com.mihoyo.hyperion",
 	"x-rpc-app_version": "2.34.1",
 	"x-rpc-client_type": 5,
+	"x-rpc-platform": "ios",
+	"x-rpc-device_model": "iPhone7,1",
+	"x-rpc-device_name": "aaaaa",
+	"x-rpc-channel": "appstore",
+	"x-rpc-sys_version": "12.4.1",
 	"x-rpc-device_id": guid(),
-	"DS": getDS2()
+	"DS": ""
 };
 
 /* Sign In API */
@@ -441,7 +446,8 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 			headers: {
 				...SIGN_HEADERS,
 				"content-type": "application/json",
-				"Cookie": cookie
+				"Cookie": cookie,
+				"DS": getDS2()
 			}
 		} )
 			.then( ( result ) => {
