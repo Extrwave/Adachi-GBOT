@@ -66,7 +66,7 @@ export default defineComponent( {
 			return recoveryTime.reached ? "可使用" : "冷却中"
 		} );
 		
-		/* 获取质量参编仪时间 */
+		/* 获取参量质变仪显示值 */
 		const getTransformerSubtitle = computed( () => {
 			const { recoveryTime, obtained } = data.transformer;
 			if ( !obtained ) return "先去璃月完成「天遒宝迹」任务吧";

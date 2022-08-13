@@ -22,8 +22,7 @@ const uidQuery: OrderConfig = {
 		[ "(\\d{9})?" ],
 		[ "\\<@!\\d+.*>" ]
 	],
-	main: "achieves/uid-query",
-	stop: false
+	main: "achieves/uid-query"
 };
 
 const getArtifact: OrderConfig = {
