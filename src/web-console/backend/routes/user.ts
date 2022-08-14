@@ -86,6 +86,11 @@ export default express.Router()
 	} )
 	.get( "/info", async ( req, res ) => {
 		const userID: string = <string>req.query.id;
+		if ( userID ) {
+			res.status( 400 ).send( { code: 400, data: {}, msg: "Error Params" } );
+			return;
+		}
+		
 		const userInfo = await getUserInfo( userID );
 		
 		res.status( 200 ).send( JSON.stringify( userInfo ) );
@@ -129,14 +134,14 @@ export default express.Router()
 	} )
 	.delete( "/remove", async ( req, res ) => {
 		const userId = <string>req.query.userId;
-		const dbKey = `adachi.user-used-groups-${ userId }`;
+		const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
 		try {
 			if ( !userId ) {
 				res.status( 400 ).send( { code: 400, data: [], msg: "Error Params" } );
 				return;
 			}
 			//清除使用记录
-			await bot.redis.deleteKey( dbKey );
+			await bot.redis.deleteKey( ...dbKeys );
 			res.status( 200 ).send( { code: 200, data: {}, msg: "Success" } );
 		} catch ( error ) {
 			res.status( 500 ).send( { code: 500, data: [], msg: "Server Error" } );

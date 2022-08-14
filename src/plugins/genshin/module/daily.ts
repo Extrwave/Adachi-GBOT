@@ -116,7 +116,7 @@ export class DailyClass {
 			await this.getAllData( week, todayInfoSet, true );
 			
 			/* 群发订阅信息 */
-			const groupIDs: string[] = await bot.redis.getList( "silvery-star.daily-sub-group" );
+			const groupIDs: string[] = await bot.redis.getList( "silvery-star.daily-sub-guild" );
 			
 			const groupData = new DailySet( this.getDataSet( week ), this.eventData );
 			await groupData.save( "0" );
@@ -283,7 +283,7 @@ export class DailyClass {
 	public async modifySubscription( userID: string, operation: boolean, name: string, isGroup: boolean ): Promise<string> {
 		/* 添加/删除群聊订阅 */
 		if ( isGroup ) {
-			const dbKey: string = "silvery-star.daily-sub-group";
+			const dbKey: string = "silvery-star.daily-sub-guild";
 			const exist: boolean = await bot.redis.existListElement( dbKey, name );
 			
 			if ( exist === operation ) {

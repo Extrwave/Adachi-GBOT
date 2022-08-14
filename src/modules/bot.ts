@@ -3,7 +3,7 @@
  CreateTime: 2022/6/12
  */
 import * as sdk from "qq-guild-bot";
-import { AvailableIntentsEventsEnum } from "qq-guild-bot";
+import { AvailableIntentsEventsEnum, IGuild } from "qq-guild-bot";
 import * as log from "log4js";
 import moment from "moment";
 import BotConfig from "@modules/config";
@@ -426,7 +426,8 @@ export class Adachi {
 						`上个小时内有 ${ length } 个用户指令使用次数超过了阈值` +
 						[ "", ...cmdOverusedUser.map( el => `${ el }: ${ data[el] }次` ) ]
 							.join( "\n  - " );
-					// await bot.message.sendMaster(msg);
+					const sendMessage = await bot.message.getSendMasterFunc();
+					await sendMessage( msg );
 					/*频道限制BOT主动推送消息次数*/
 					bot.logger.info( msg );
 				}
@@ -495,28 +496,13 @@ export class Adachi {
 			}
 			await bot.redis.setString( `adachi.user-bot-id`, responseMeApi.data.id );
 			
-			let currentId = "", over = false, ackMaster = false, count = 10;
-			while ( !over && count >= 0 ) {
-				let responseMeGuilds;
-				if ( currentId !== "" ) {
-					responseMeGuilds = await bot.client.meApi.meGuilds( { after: currentId } );
-				} else {
-					responseMeGuilds = await bot.client.meApi.meGuilds();
-				}
-				const guilds: sdk.IGuild[] = responseMeGuilds.data;
-				if ( guilds.length <= 0 && currentId === "" ) {
-					bot.logger.error( "获取频道信息失败..." );
-				} else if ( guilds.length <= 0 ) {
-					over = true;
-				} else {
-					for ( let guild of guilds ) {
-						await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
-						if ( !ackMaster && guild.owner_id === bot.config.master ) {
-							await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
-							ackMaster = true;
-						}
-					}
-					currentId = guilds[guilds.length - 1].id;
+			let ackMaster = false;
+			const guilds = await that.getBotInGuilds( bot );
+			for ( let guild of guilds ) {
+				await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
+				if ( !ackMaster && guild.owner_id === bot.config.master ) {
+					await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
+					ackMaster = true;
 				}
 			}
 			if ( !ackMaster ) {
@@ -575,5 +561,29 @@ export class Adachi {
 				} );
 			} );
 		}
+	}
+	
+	/* 获取BOT所在所有频道信息 */
+	public async getBotInGuilds( bot: BOT ): Promise<sdk.IGuild[]> {
+		let currentId = "", over = false, ackMaster = false, count = 10;
+		const allGuilds: sdk.IGuild[] = [];
+		while ( !over && count >= 0 ) {
+			let responseMeGuilds;
+			if ( currentId !== "" ) {
+				responseMeGuilds = await bot.client.meApi.meGuilds( { after: currentId } );
+			} else {
+				responseMeGuilds = await bot.client.meApi.meGuilds();
+			}
+			const guilds: sdk.IGuild[] = responseMeGuilds.data;
+			if ( guilds.length <= 0 && currentId === "" ) {
+				bot.logger.error( "获取频道信息失败..." );
+			} else if ( guilds.length <= 0 ) {
+				over = true;
+			} else {
+				allGuilds.push( ...guilds );
+				currentId = guilds[guilds.length - 1].id;
+			}
+		}
+		return allGuilds;
 	}
 }

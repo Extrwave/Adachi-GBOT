@@ -26,7 +26,7 @@ export default class Interval {
     private readonly p: IntervalSetting;
     private readonly redis: Database;
 
-    private readonly gDBKey: string = "adachi.group-interval";
+    private readonly gDBKey: string = "adachi.guild-interval";
     private readonly pDBKey: string = "adachi.private-interval";
 
     constructor( config: BotConfig, redis: Database ) {
