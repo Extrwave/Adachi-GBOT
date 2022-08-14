@@ -44,7 +44,7 @@
 	width: 600px;
 }
 
-.user .group-detail-dialog {
+.user .guild-detail-dialog {
 	--dialog-height: 600px;
 	width: 600px;
 }
@@ -60,7 +60,7 @@
 		width: 90%;
 	}
 
-	.user .group-detail-dialog {
+	.user .guild-detail-dialog {
 		--dialog-height: 394px;
 		width: 90%;
 	}
