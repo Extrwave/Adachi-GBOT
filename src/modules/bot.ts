@@ -2,8 +2,10 @@
  Author: Ethereal
  CreateTime: 2022/6/12
  */
-import * as sdk from "qq-guild-bot";
-import { AvailableIntentsEventsEnum, IGuild } from "qq-guild-bot";
+import {
+	AvailableIntentsEventsEnum, createOpenAPI,
+	createWebsocket, IGuild, IOpenAPI
+} from "qq-guild-bot";
 import * as log from "log4js";
 import moment from "moment";
 import BotConfig from "@modules/config";
@@ -31,7 +33,7 @@ import { checkChannelLimit } from "#@management/channel";
 export interface BOT {
 	readonly redis: Database;
 	readonly config: BotConfig;
-	readonly client: sdk.IOpenAPI;
+	readonly client: IOpenAPI;
 	readonly ws;
 	readonly logger: log.Logger;
 	readonly qiniuyun: Qiniuyun;
@@ -62,13 +64,13 @@ export class Adachi {
 		/* 创建七牛云实例*/
 		const qiniuyun = new Qiniuyun( config );
 		/* 创建client实例*/
-		const client = sdk.createOpenAPI( {
+		const client = createOpenAPI( {
 			appID: config.appID,
 			token: config.token,
 			sandbox: config.sandbox
 		} );
 		// 创建 websocket 连接
-		const ws = sdk.createWebsocket( {
+		const ws = createWebsocket( {
 				appID: config.appID,
 				token: config.token,
 				sandbox: config.sandbox,
@@ -344,7 +346,7 @@ export class Adachi {
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
-			const guildInfo = <sdk.IGuild>( await bot.client.guildApi.guild( guild ) ).data;
+			const guildInfo = <IGuild>( await bot.client.guildApi.guild( guild ) ).data;
 			const auth: AuthLevel = await bot.auth.get( userID );
 			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guild }` );
 			const uLim: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
@@ -564,9 +566,9 @@ export class Adachi {
 	}
 	
 	/* 获取BOT所在所有频道信息 */
-	public async getBotInGuilds( bot: BOT ): Promise<sdk.IGuild[]> {
+	public async getBotInGuilds( bot: BOT ): Promise<IGuild[]> {
 		let currentId = "", over = false, ackMaster = false, count = 10;
-		const allGuilds: sdk.IGuild[] = [];
+		const allGuilds: IGuild[] = [];
 		while ( !over && count >= 0 ) {
 			let responseMeGuilds;
 			if ( currentId !== "" ) {
@@ -574,7 +576,7 @@ export class Adachi {
 			} else {
 				responseMeGuilds = await bot.client.meApi.meGuilds();
 			}
-			const guilds: sdk.IGuild[] = responseMeGuilds.data;
+			const guilds: IGuild[] = responseMeGuilds.data;
 			if ( guilds.length <= 0 && currentId === "" ) {
 				bot.logger.error( "获取频道信息失败..." );
 			} else if ( guilds.length <= 0 ) {

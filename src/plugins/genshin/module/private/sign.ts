@@ -76,11 +76,11 @@ export class SignInService implements Service {
 		} catch ( error ) {
 			let msg = '米游社原神签到出错：\n';
 			if ( <string>error === undefined ) {
-				msg += `网络波动,请稍后重试`;
+				msg += `网络波动,稍后会重试`;
 			} else if ( <string>error === '尚未登录' ) {
 				msg += `cookie过期，请更新 ~ `;
 			} else if ( <string>error === 'invalid request' ) {
-				msg += `接口报错，请向开发者反馈`;
+				msg += `接口报错，请手动签到`;
 			} else {
 				msg += ( <Error>error ).message;
 			}

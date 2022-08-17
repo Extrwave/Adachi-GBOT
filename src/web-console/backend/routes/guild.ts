@@ -35,19 +35,15 @@ export default express.Router()
 		try {
 			//获取BOT进入频道列表
 			let glMap = await bot.redis.getSet( `adachi.guild-used` );
-			glMap = glMap
+			const dateGlMap = glMap
 				// 过滤条件：id
 				.filter( ( key ) => {
 					return groupId ? key === groupId : true;
 				} )
-				// 按入群时间排序
-				.sort( ( a, b ) => {
-					return parseInt( a ) - parseInt( b );
-				} )
 				.slice( ( page - 1 ) * length, page * length )
 			
 			const guildInfos: GuildData[] = [];
-			for ( const id of glMap ) {
+			for ( const id of dateGlMap ) {
 				guildInfos.push( await getGroupInfo( id ) );
 			}
 			
