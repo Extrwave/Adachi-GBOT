@@ -10,7 +10,8 @@ import { getCalendarDetail, getCalendarList } from "./api";
 export enum ErrorMsg {
 	NOT_FOUND = "未查询到角色数据，请检查米哈游通行证（非UID）是否有误或是否设置角色信息公开",
 	UNKNOWN = "发生未知错误",
-	FORM_MESSAGE = "米游社接口报错: ",
+	QUERY_MESSAGE = "查询签到报错: ",
+	FORM_MESSAGE = "签到接口报错: ",
 	VERIFICATION_CODE = "签到失败，遇到验证码拦截，请自行手动签到"
 }
 
@@ -416,7 +417,7 @@ export async function signInInfoPromise(
 			reject( Cookies.checkExpired( cookie ) );
 			return;
 		} else if ( retcode !== 0 ) {
-			reject( ErrorMsg.FORM_MESSAGE + message );
+			reject( ErrorMsg.QUERY_MESSAGE + message );
 			return;
 		}
 		

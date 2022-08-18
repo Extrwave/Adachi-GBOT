@@ -74,24 +74,14 @@ export class SignInService implements Service {
 				`明天同一时间见~`
 			);
 		} catch ( error ) {
-			let msg = '米游社原神签到出错：\n';
-			if ( <string>error === undefined ) {
-				msg += `网络波动,稍后会重试`;
-			} else if ( <string>error === '尚未登录' ) {
-				msg += `cookie过期，请更新 ~ `;
-			} else if ( <string>error === 'invalid request' ) {
-				msg += `接口报错，请手动签到`;
-			} else {
-				msg += ( <Error>error ).message;
-			}
-			await this.sendMessage( msg );
+			await this.sendMessage( <string>error );
 			bot.logger.warn( `[UID ${ uid }] ` + <string>error );
 		}
 	}
 	
 	private setScheduleJob(): void {
-		this.job = scheduleJob( "0 0 8 * * *", () => {
-			const sec: number = randomInt( 0, 180 );
+		this.job = scheduleJob( "0 0 7 * * *", () => {
+			const sec: number = randomInt( 0, 360 );
 			const time = new Date().setSeconds( sec * 10 );
 			
 			const job: Job = scheduleJob( time, async () => {
