@@ -213,14 +213,6 @@ export class Adachi {
 			}
 		}
 		
-		/* 对封禁用户做出提示 */
-		const userId = messageData.msg.author.id;
-		const auth = await this.bot.auth.get( userId );
-		if ( auth === AuthLevel.Banned ) {
-			await sendMessage( `您已成为封禁用户，请与管理员协商 ~ ` );
-			return;
-		}
-		
 		let content: string = messageData.msg.content.trim() || '';
 		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
 		messageData.msg.content = content = content.replace( /\[|\]|\(|\)|\|/g, "" );
@@ -228,7 +220,8 @@ export class Adachi {
 		/* 人工智障聊天, 匹配不到任何指令触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		if ( !unionRegExp.test( content ) ) {
 			/* 未识别指令匹配 */
-			const check = this.cmdLimitCheck( content, isPrivate );
+			const auth = await this.bot.auth.get( messageData.msg.author.id );
+			const check = this.cmdLimitCheck( content, isPrivate, isAt, auth );
 			if ( check ) {
 				await sendMessage( check );
 				return;
@@ -387,9 +380,15 @@ export class Adachi {
 	}
 	
 	/* 判断缺少权限或者频道/私聊指令限制 */
-	private cmdLimitCheck( content: string, isPrivate: boolean ): string | undefined {
+	private cmdLimitCheck( content: string, isPrivate: boolean, isAt: boolean, auth: AuthLevel ): string | undefined {
 		
 		let msg: string | undefined;
+		
+		/* 对封禁用户做出提示，私域有问题 */
+		if ( auth === AuthLevel.Banned && isAt ) {
+			return `您已成为封禁用户，请与管理员协商 ~ `;
+		}
+		
 		const privateUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Private );
 		const groupUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Group );
 		
