@@ -277,7 +277,7 @@ export async function abyssInfoPromise(
 		const data: any = JSON.parse( detail );
 		if ( data.uid === uid && data.period === period ) {
 			bot.logger.info( `用户 ${ uid } 在一小时内进行过深渊查询操作，将返回上次数据` );
-			return Promise.reject( "gotten" );
+			throw "gotten";
 		}
 	}
 	

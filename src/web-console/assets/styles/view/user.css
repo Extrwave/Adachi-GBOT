@@ -44,13 +44,13 @@
 	width: 600px;
 }
 
-.user .guild-detail-dialog {
+.user .group-detail-dialog {
 	--dialog-height: 600px;
 	width: 600px;
 }
 
 .user .send-msg-dialog {
-	--dialog-height: 430px;
+	--dialog-height: 470px;
 	width: 550px;
 }
 
@@ -60,13 +60,13 @@
 		width: 90%;
 	}
 
-	.user .guild-detail-dialog {
+	.user .group-detail-dialog {
 		--dialog-height: 394px;
 		width: 90%;
 	}
 
 	.user .send-msg-dialog {
-		--dialog-height: 360px;
+		--dialog-height: 400px;
 		width: 90%;
 	}
 }
