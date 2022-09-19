@@ -2,14 +2,21 @@
  Author: Ethereal
  CreateTime: 2022/6/12
  */
-
+import bot from "ROOT";
+import { resolve } from 'path';
+import FormData from 'form-data';////需要自己安装
+import fetch from 'node-fetch';//需要自己安装
+import * as fs from 'fs';
 import BotConfig from "@modules/config";
 import { IDirectMessage, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
 import Database from "@modules/database";
 import { Message, MessageType } from "@modules/utils/message";
 
+interface MessageToSend extends MessageToCreate {
+	file_image?: fs.ReadStream;
+}
 
-export type SendFunc = ( content: MessageToCreate | string, allowAt?: boolean ) => Promise<IMessage | void>;
+export type SendFunc = ( content: MessageToSend | string, allowAt?: boolean ) => Promise<IMessage | void>;
 
 interface MsgManagementMethod {
 	getSendPrivateFunc( guildId: string, userId: string ): Promise<SendFunc>;
@@ -51,27 +58,39 @@ export default class MsgManager implements MsgManagementMethod {
 		const client = this.client;
 		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
-		return async function ( content: MessageToCreate | string ): Promise<IMessage | any> {
-			if ( msgId ) {
-				if ( typeof content === 'string' ) {
-					const response = await client.directMessageApi.postDirectMessage( guild_id, {
-						content: content,
-						msg_id: msgId,
-					} );
-					return <IMessage>response.data;
-				} else {
-					content.msg_id = msgId;
-					const response = await client.directMessageApi.postDirectMessage( guild_id, content );
-					return <IMessage>response.data;
-				}
+		return async function ( content: MessageToSend | string ): Promise<IMessage | any> {
+			if ( typeof content === 'string' ) {
+				const response = await client.directMessageApi.postDirectMessage( guild_id, {
+					content: content,
+					msg_id: msgId,
+				} );
+				return <IMessage>response.data;
+			} else if ( content.file_image ) {
+				let formdata = new FormData();
+				formdata.append( "file_image", content.file_image );
+				if ( msgId )
+					formdata.append( "msg_id", msgId );
+				if ( content )
+					formdata.append( "content", content.content );
+				await fetch( `https://api.sgroup.qq.com/dms/${ guildId }/messages`, {
+					method: "POST",
+					headers: {
+						"Content-Type": formdata.getHeaders()["content-type"],
+						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
+					},
+					body: formdata
+				} ).then( async res => {
+					if ( res.status !== 200 ) {
+						throw new Error( res.statusText );
+					}
+					return res.statusText;
+				} ).catch( error => {
+					console.log( error );
+				} )
 			} else {
-				if ( typeof content === 'string' ) {
-					await client.directMessageApi.postDirectMessage( guild_id, {
-						content: content,
-					} );
-				} else {
-					await client.directMessageApi.postDirectMessage( guild_id, content );
-				}
+				content.msg_id = msgId;
+				const response = await client.directMessageApi.postDirectMessage( guild_id, content );
+				return <IMessage>response.data;
 			}
 		}
 	}
@@ -87,13 +106,35 @@ export default class MsgManager implements MsgManagementMethod {
 	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
 		const client = this.client;
 		msgId = "1000"; //随时都可能失效，失效后删掉此行
-		return async function ( content: MessageToCreate | string ): Promise<IMessage> {
+		return async function ( content: MessageToSend | string ) {
 			if ( typeof content === 'string' ) {
 				const response = await client.directMessageApi.postDirectMessage( guildId, {
 					content: content,
 					msg_id: msgId
 				} );
 				return response.data;
+			} else if ( content.file_image ) {
+				let formdata = new FormData();
+				formdata.append( "file_image", content.file_image );
+				if ( msgId )
+					formdata.append( "msg_id", msgId );
+				if ( content )
+					formdata.append( "content", content.content );
+				await fetch( `https://api.sgroup.qq.com/dms/${ guildId }/messages`, {
+					method: "POST",
+					headers: {
+						"Content-Type": formdata.getHeaders()["content-type"],
+						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
+					},
+					body: formdata
+				} ).then( async res => {
+					if ( res.status !== 200 ) {
+						throw new Error( res.statusText );
+					}
+					return res.statusText;
+				} ).catch( error => {
+					console.log( error );
+				} )
 			} else {
 				content.msg_id = msgId;
 				const response = await client.directMessageApi.postDirectMessage( guildId, content );
@@ -105,39 +146,49 @@ export default class MsgManager implements MsgManagementMethod {
 	/* 回复频道消息方法，主动、被动*/
 	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
 		const client = this.client;
-		return async function ( content: MessageToCreate | string ) {
-			if ( msgId ) {
-				if ( typeof content === 'string' ) {
-					const response = await client.messageApi.postMessage( channelId, {
-						content: content,
-						msg_id: msgId,
-						message_reference: {
-							message_id: msgId,
-							ignore_get_message_error: true
-						}
-					} );
-					return response.data;
-				} else {
-					content.msg_id = msgId;
-					const response = await client.messageApi.postMessage( channelId, content );
-					return response.data;
-				}
+		return async function ( content: MessageToSend | string ) {
+			if ( typeof content === 'string' ) {
+				const response = await client.messageApi.postMessage( channelId, {
+					content: content,
+					msg_id: msgId,
+					message_reference: {
+						message_id: msgId ? msgId : "undefine",
+						ignore_get_message_error: true
+					}
+				} );
+				return response.data;
+			} else if ( content.file_image ) {
+				let formdata = new FormData();
+				formdata.append( "file_image", content.file_image );
+				if ( msgId )
+					formdata.append( "msg_id", msgId );
+				if ( content )
+					formdata.append( "content", content.content );
+				await fetch( `https://api.sgroup.qq.com/channels/${ channelId }/messages`, {
+					method: "POST",
+					headers: {
+						"Content-Type": formdata.getHeaders()["content-type"],
+						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
+					},
+					body: formdata
+				} ).then( async res => {
+					if ( res.status !== 200 ) {
+						throw new Error( res.statusText );
+					}
+					return res.statusText;
+				} ).catch( error => {
+					console.log( error );
+				} )
 			} else {
-				//主动消息发送
-				if ( typeof content === 'string' ) {
-					await client.messageApi.postMessage( channelId, {
-						content: content,
-					} );
-				} else {
-					content.msg_id = undefined;
-					await client.messageApi.postMessage( channelId, content );
-				}
-				
+				content.msg_id = msgId;
+				const response = await client.messageApi.postMessage( channelId, content );
+				return response.data;
 			}
 		}
 	}
 	
-	async getMessageInfo( channelId: string, msgId: string ): Promise<IMessageRes> {
+	async getMessageInfo( channelId: string, msgId: string ):
+		Promise<IMessageRes> {
 		const bot = this.client;
 		const response = await bot.messageApi.message( channelId, msgId );
 		return response.data;
