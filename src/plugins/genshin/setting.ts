@@ -268,11 +268,12 @@ const privateNoteEvent: OrderConfig = {
 const privateMysSetAppoint: OrderConfig = {
 	type: "order",
 	cmdKey: "silvery-star-private-set-appoint",
-	desc: [ "指定头像", "[序号] [角色名]" ],
+	desc: [ "指定头像", "[序号] [角色名|empty]" ],
 	headers: [ "appoint" ],
 	regexps: [ "\\d+", "[\\w\\u4e00-\\u9fa5]+" ],
 	main: "achieves/private/query/appoint",
-	detail: "该指令用于指定查询卡片中的头像图片"
+	detail: "该指令用于指定查询卡片中的头像图片" +
+		"使用 empty 恢复默认状态"
 };
 
 const privateMysQuery: OrderConfig = {

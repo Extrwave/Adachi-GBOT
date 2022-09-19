@@ -2,7 +2,7 @@ const template = `
 <div class="header-base">
 	<div class="card-avatar-box" :class="{ 'without-nickname': data.level === '0' }">
 		<img
-			:class="{ user: urlParams.profile === 'user' && urlParams.appoint === 'empty' }"
+			:class="{ user: urlParams.appoint === 'empty' }"
 			:src="defaultAvatar"
 			alt="ERROR"
 		/>
@@ -51,14 +51,19 @@ export default defineComponent( {
 		const charNum = avatars.length;
 		
 		/* 获取头像 */
-		const getProImg = ( id ) => `https://adachi-bot.oss-cn-beijing.aliyuncs.com/characters/profile/${ id }.png`;
+		function getProImg( name ) {
+			return `https://adachi-bot.oss-cn-beijing.aliyuncs.com/Version2/thumb/character/${ name }.png`;
+		}
 		
 		const userAvatar = props.data.userAvatar ? props.data.userAvatar : getProImg( avatars[Math.floor( Math.random() * charNum )].id );
 		
-		const defaultAvatar =
-			appoint === "empty" ? profile === "random" ? getProImg( avatars[Math.floor( Math.random() * charNum )].id )
+		const defaultAvatar = computed( () => {
+			return appoint === "empty"
+				? profile === "random"
+					? getProImg( avatars[Math.floor( Math.random() * charNum )].name )
 					: userAvatar
 				: getProImg( appoint );
+		} );
 		
 		/* 计算世界等级 */
 		const worldLevel = computed( () => {

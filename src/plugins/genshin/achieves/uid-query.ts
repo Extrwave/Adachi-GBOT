@@ -62,11 +62,12 @@ export async function main(
 	
 	try {
 		//此处个人信息获取逻辑已更改
-		const targetInfo = await getMemberInfo( userID );
-		const nickname: string = targetInfo ? targetInfo.account.user.username : "";
-		await redis.setHash( `silvery-star.card-data-${ uid }`, {
-			nickname, uid, level: 0
-		} );
+		// const targetInfo = await getMemberInfo( userID );
+		// const nickname: string = targetInfo ? targetInfo.account.user.username : "";
+		// await redis.setHash( `silvery-star.card-data-${ uid }`, {
+		// 	nickname, uid, level: 0
+		// } );
+		await redis.setHash( `silvery-star.card-data-${ uid }`, { uid } );
 		await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
 		
 		const charIDs = <number[]>await detailInfoPromise( target, server );

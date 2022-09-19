@@ -4,7 +4,7 @@ import { MysQueryService } from "#genshin/module/private/mys";
 import { RenderResult } from "@modules/renderer";
 import { mysInfoPromise } from "#genshin/utils/promise";
 import { getPrivateAccount } from "#genshin/utils/private";
-import { config, renderer } from "#genshin/init";
+import { characterID, config, renderer } from "#genshin/init";
 
 export async function main(
 	{ sendMessage, messageData, auth, logger, redis }: InputParameter
@@ -29,6 +29,19 @@ export async function main(
 		}
 	}
 	
+	const appointId = info.options[MysQueryService.FixedField].appoint;
+	let appointName: string = "empty";
+	
+	if ( appointId !== "empty" ) {
+		for ( const name in characterID.map ) {
+			const mapId = characterID.map[name];
+			if ( mapId === parseInt( appointId ) ) {
+				appointName = name;
+				break;
+			}
+		}
+	}
+	
 	/* 半小时内重复获取 */
 	const dbKey = `adachi-temp-mys-${ mysID }`;
 	const mysTemp = await redis.getString( dbKey );
@@ -43,7 +56,7 @@ export async function main(
 			qq: userID,
 			style: config.cardWeaponStyle,
 			profile: config.cardProfile,
-			appoint: info.options[MysQueryService.FixedField].appoint
+			appoint: appointName
 		} );
 	if ( res.code === "ok" ) {
 		await sendMessage( { image: res.data } );
