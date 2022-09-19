@@ -20,7 +20,7 @@ const template = `<div class="logger">
 				/>
 			</div>
 			<div class="log-nav-item">
-				<el-select v-model="queryParams.logLevel" placeholder="日志等级" @change="pageChange" @clear="pageChange" clearable>
+				<el-select v-model="queryParams.logLevel" placeholder="日志等级" @change="handleFilter" @clear="handleFilter" clearable>
     				<el-option v-for="(l, lKey) of logLevel" :key="lKey" :label="l" :value="l"/>
   				</el-select>
 			</div>
@@ -30,7 +30,7 @@ const template = `<div class="logger">
   				</el-select>
 			</div>
 			<div v-show="queryParams.msgType === 2" class="log-nav-item">
-				<el-input v-model="queryParams.groupId" placeholder="输入频道名称" @keydown.enter="pageChange" @clear="pageChange" clearable></el-input>
+				<el-input v-model="queryParams.groupId" placeholder="输入频道名称" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
 			</div>
 			<div class="copy-button" @click="copyAsReportFormat">去隐私复制</div>
 		</div>
@@ -180,6 +180,12 @@ export default defineComponent( {
 		/* 日期切换 */
 		function dateChange( date ) {
 			resetData();
+			queryParams.value = {
+				logLevel: "",
+				msgType: null,
+				groupId: ""
+			}
+			
 			getLogsData( date ).then( () => {
 				state.today = isToday( date );
 				if ( state.today && !state.error ) {
@@ -198,12 +204,6 @@ export default defineComponent( {
 				scrollbarRef.value.wrap$.scrollTop = 0;
 			}
 			await getLogsData();
-		}
-		
-		/* 切换消息类型 */
-		async function msgTypeChange() {
-			queryParams.value.groupId = "";
-			await pageChange();
 		}
 		
 		/* 滚动至底部 */
@@ -284,6 +284,7 @@ export default defineComponent( {
 			dateChange,
 			pageChange,
 			msgTypeChange,
+			handleFilter,
 			disabledDate,
 			copyAsReportFormat
 		};

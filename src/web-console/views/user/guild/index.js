@@ -1,7 +1,7 @@
 const template = `<div class="table-container user guild-page">
 	<div class="nav-btn-box">
     	<el-scrollbar class="horizontal-wrap">
-			<nav-search :searchList="searchList" :searchData="listQuery" :showNum="1" :disabled="tableLoading" @change="getGuildData"></nav-search>
+			<nav-search :searchList="searchList" :searchData="listQuery" :showNum="1" :disabled="tableLoading" @change="handleFilter"></nav-search>
     	</el-scrollbar>
 	</div>
     <div class="table-view">
@@ -137,6 +137,12 @@ export default defineComponent( {
 			} );
 		}
 		
+		/* 筛选条件变化查询 */
+		async function handleFilter() {
+			state.currentPage = 1;
+			await getGroupData();
+		}
+		
 		
 		function selectionChange( val ) {
 			state.selectionList = val
@@ -165,6 +171,7 @@ export default defineComponent( {
 			getGuildData,
 			selectionChange,
 			openGuildModal,
+			handleFilter,
 			resetCurrentData
 		};
 	}

@@ -151,6 +151,12 @@ export default defineComponent( {
 			} );
 		}
 		
+		/* 筛选条件变化查询 */
+		async function handleFilter() {
+			state.currentPage = 1;
+			await getUserData();
+		}
+		
 		async function removeSub( userId ) {
 			try {
 				await ElMessageBox.confirm( "确定移除该用户所有订阅服务？", '提示', {
@@ -207,6 +213,7 @@ export default defineComponent( {
 			authLevel,
 			searchList,
 			getUserData,
+			handleFilter,
 			removeSub,
 			removeUser,
 			openUserModal,

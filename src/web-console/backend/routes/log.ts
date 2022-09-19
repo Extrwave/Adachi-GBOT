@@ -23,7 +23,6 @@ export default express.Router().get( "/", ( req, res ) => {
 			const file = bot.file.readFile( fileName, "root" );
 			const fullData = file.split( /[\n\r]/g ).filter( el => el.length !== 0 );
 			const respData = fullData
-				.slice( ( page - 1 ) * length, page * length )
 				.map( el => JSON.parse( el ) )
 				.filter( el => {
 					/* 过滤日志等级 */
@@ -49,7 +48,9 @@ export default express.Router().get( "/", ( req, res ) => {
 					return true;
 				} );
 			
-			res.status( 200 ).send( { code: 200, data: respData, total: fullData.length } );
+			const pageRespData = respData.slice( ( page - 1 ) * length, page * length );
+			res.status( 200 ).send( { code: 200, data: pageRespData, total: respData.length } );
+			
 			return;
 		}
 		res.status( 404 ).send( { code: 404, data: {}, msg: "NotFound" } );
