@@ -45,101 +45,96 @@ export async function main(
 	
 	const { cookie, mysID, uid, server } = info.setting;
 	const result: NameResult = getRealName( name );
-	//优化我的角色查询
-	const dbKey: string = `extr-wave-myrole-${ uid }`;
-	const role_name: string = <string>result.info;
-	const image: string = await redis.getHashField( dbKey, role_name );
 	
-	if ( image !== "" ) {
-		await sendMessage( "七七找到了刚刚画好的图..." );
-		await sendMessage( image );
-		logger.info( `用户 ${ uid } 在六小时内查询过拥有角色 ${ role_name } ` );
-	} else {
-		
-		if ( !result.definite ) {
-			const message: string = result.info.length === 0
-				? "查询失败，请检查角色名称是否正确"
-				: `未找到相关信息，是否要找：${ [ "", ...<string[]>result.info ].join( "\n  - " ) }`;
-			await sendMessage( message );
-			return;
-		}
-		const realName: string = <string>result.info;
-		const charID: number = characterID.map[realName];
-		
-		try {
-			await mysInfoPromise( userID, mysID, cookie );
-		} catch ( error ) {
-			if ( error !== "gotten" ) {
-				await sendMessage( <string>error );
-				return;
-			}
-		}
-		
-		const { avatars } = await redis.getHash( `silvery-star.card-data-${ uid }` );
-		const data: CharacterInformation[] = JSON.parse( avatars );
-		const charInfo = data.find( ( { id } ) => {
-			return charID === -1 ? id === 10000005 || id === 10000007 : id === charID;
-		} );
-		
-		if ( !charInfo ) {
-			await sendMessage( `[UID-${ uid }] 未拥有角色 ${ realName }` );
-			return;
-		}
-		try {
-			const dbKey: string = `silvery-star.character-temp-${ userID }`;
-			const skills: Skills = await mysAvatarDetailInfoPromise(
-				uid, charID, server, cookie, charInfo.constellations
-			);
-			
-			const coefficients: number[] = [ 20, 15, 30, 35 ];
-			const list: ScoreItem[] = [ {
-				label: "圣遗物",
-				percentage: charInfo.artifacts.reduce( ( pre, cur ) => pre + evaluate( cur ), 0 ) / 100
-			}, {
-				label: "武器等级",
-				percentage: evaluate( charInfo.weapon ) / 90
-			}, {
-				label: "角色等级",
-				percentage: charInfo.level / 90
-			}, {
-				label: "天赋升级",
-				percentage: Math.min(
-					skills.reduce(
-						( pre, cur ) => pre + cur.levelCurrent, 0 ), 24
-				) / 24
-			} ];
-			
-			const score: EvaluateScore = {
-				list,
-				total: list.reduce( ( pre, cur, i ) => {
-					return pre + cur.percentage * coefficients[i]
-				}, 0 )
-			};
-			
-			await redis.setString( dbKey, JSON.stringify( {
-				...charInfo,
-				skills,
-				score,
-				uid
-			} ) );
-		} catch ( error ) {
+	
+	if ( !result.definite ) {
+		const message: string = result.info.length === 0
+			? "查询失败，请检查角色名称是否正确"
+			: `未找到相关信息，是否要找：${ [ "", ...<string[]>result.info ].join( "\n  - " ) }`;
+		await sendMessage( message );
+		return;
+	}
+	const realName: string = <string>result.info;
+	const charID: number = characterID.map[realName];
+	
+	try {
+		await mysInfoPromise( userID, mysID, cookie );
+	} catch ( error ) {
+		if ( error !== "gotten" ) {
 			await sendMessage( <string>error );
 			return;
 		}
+	}
+	
+	const { avatars } = await redis.getHash( `silvery-star.card-data-${ uid }` );
+	const data: CharacterInformation[] = JSON.parse( avatars );
+	const charInfo = data.find( ( { id } ) => {
+		return charID === -1 ? id === 10000005 || id === 10000007 : id === charID;
+	} );
+	
+	if ( !charInfo ) {
+		await sendMessage( `[ UID-${ uid } ] 未拥有角色 ${ realName }` );
+		return;
+	}
+	try {
+		const dbKey: string = `silvery-star.character-temp-${ userID }`;
+		const skills: Skills = await mysAvatarDetailInfoPromise(
+			uid, charID, server, cookie, charInfo.constellations
+		);
 		
-		await sendMessage( "获取成功，七七努力画图中..." );
-		const res: RenderResult = await renderer.asCqCode(
-			"/character.html", {
-				qq: userID,
-				showScore: config.showCharScore
-			} );
-		if ( res.code === "ok" ) {
-			await sendMessage( res.data );
-			await redis.setHashField( dbKey, role_name, res.data );
-			await redis.setTimeout( dbKey, 6 * 3600 );
-		} else {
-			logger.error( res.error );
-			await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
-		}
+		const coefficients: number[] = [ 20, 15, 30, 35 ];
+		const list: ScoreItem[] = [ {
+			label: "圣遗物",
+			percentage: charInfo.artifacts.reduce( ( pre, cur ) => pre + evaluate( cur ), 0 ) / 100
+		}, {
+			label: "武器等级",
+			percentage: evaluate( charInfo.weapon ) / 90
+		}, {
+			label: "角色等级",
+			percentage: charInfo.level / 90
+		}, {
+			label: "天赋升级",
+			percentage: Math.min(
+				skills.reduce(
+					( pre, cur ) => pre + cur.levelCurrent, 0 ), 24
+			) / 24
+		} ];
+		
+		const score: EvaluateScore = {
+			list,
+			total: list.reduce( ( pre, cur, i ) => {
+				return pre + cur.percentage * coefficients[i]
+			}, 0 )
+		};
+		
+		await redis.setString( dbKey, JSON.stringify( {
+			...charInfo,
+			skills,
+			score,
+			uid
+		} ) );
+	} catch ( error ) {
+		await sendMessage( <string>error );
+		return;
+	}
+	
+	const dbTempKey = `adachi-temp-char-${ uid }-${ charID }`
+	const charTemp = await redis.getString( dbTempKey );
+	if ( charTemp !== "" ) {
+		await sendMessage( { content: "数据存在半小时延迟", image: charTemp } );
+		return;
+	}
+	
+	await sendMessage( "获取成功，正在生成图片..." );
+	const res: RenderResult = await renderer.asUrlImage(
+		"/character.html", {
+			qq: userID,
+			showScore: config.showCharScore
+		} );
+	if ( res.code === "ok" ) {
+		await sendMessage( { image: res.data } );
+		await redis.setString( dbTempKey, res.data, 3600 * 0.5 );
+	} else {
+		await sendMessage( res.error );
 	}
 }

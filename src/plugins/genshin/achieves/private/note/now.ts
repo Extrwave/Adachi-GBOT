@@ -5,29 +5,44 @@ import { NoteService } from "#genshin/module/private/note";
 import { InputParameter, Order } from "@modules/command";
 import { RenderResult } from "@modules/renderer";
 import { privateClass, renderer } from "#genshin/init";
+import { SendMsgType } from "@modules/utils/message";
 
-async function getNowNote( userID: string ): Promise<string[]> {
+
+async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	const auth: AuthLevel = await bot.auth.get( userID );
 	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	if ( accounts.length === 0 ) {
-		return [ `配置尚未完成\n请私聊本七发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` ];
+		return [ {
+			code: "msg", data: "此功能需要您的账户授权信息\n" +
+				"授权后你将拥有以下进阶功能\n\n" +
+				"树脂查询         达量推送\n" +
+				"深渊查询         自动签到\n" +
+				"旅行札记         角色详情\n\n" +
+				"如需添加授权，请私聊本BOT发送\n" +
+				`[  ${ PRIVATE_ADD.getHeaders()[0] }  ] 并按照提示完成操作`
+		} ];
 	}
 	
-	const imageList: string[] = [];
+	const imageList: SendMsgType[] = [];
 	for ( let a of accounts ) {
-		const data: string = await a.services[NoteService.FixedField].toJSON();
+		let data: string;
+		try {
+			data = await a.services[NoteService.FixedField].toJSON();
+		} catch ( error ) {
+			imageList.push( { code: "msg", data: ( <Error>error ).message } );
+			continue;
+		}
 		const uid: string = a.setting.uid;
 		const dbKey: string = `silvery-star.note-temp-${ uid }`;
 		await bot.redis.setString( dbKey, data );
-		const res: RenderResult = await renderer.asCqCode(
+		const res: RenderResult = await renderer.asUrlImage(
 			"/note.html", { uid }
 		);
 		if ( res.code === "ok" ) {
-			imageList.push( res.data );
+			imageList.push( { code: "image", data: res.data } );
 		} else {
-			bot.logger.error( res.error );
-			imageList.push( "图片渲染异常，请联系持有者进行反馈" );
+			imageList.push( { code: "msg", data: res.error } );
 		}
 	}
 	return imageList;
@@ -35,9 +50,12 @@ async function getNowNote( userID: string ): Promise<string[]> {
 
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
 	const userID: string = messageData.msg.author.id;
-	const res: string[] = await getNowNote( userID );
+	const res: SendMsgType[] = await getNowNote( userID );
 	
 	for ( let msg of res ) {
-		await sendMessage( msg );
+		if ( msg.code === "image" )
+			await sendMessage( { image: msg.data } );
+		else
+			await sendMessage( msg.data );
 	}
 }

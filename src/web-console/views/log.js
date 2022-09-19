@@ -1,25 +1,40 @@
 const template = `<div class="logger">
-	<div class="picker">
-		<el-date-picker
-			v-model="currentDate"
-			type="date"
-			placeholder="选择日期"
-			format="MM-DD"
-			:clearable="false"
-			:editable="false"
-			:disabled-date="disabledDate"
-			@change="dateChange"
-		/>
-		<div v-if="today" class="auto-bottom-switch">
-			<span class="content">自动置底</span>
-			<el-switch
-				v-model="autoBottom"
-				active-color="#20a53a"
-				inactive-color="#f1f1f1"
+	<el-scrollbar class="horizontal-wrap">
+		<div class="picker">
+			<el-date-picker
+				v-model="currentDate"
+				type="date"
+				placeholder="选择日期"
+				format="MM-DD"
+				:clearable="false"
+				:editable="false"
+				:disabled-date="disabledDate"
+				@change="dateChange"
 			/>
+			<div v-if="today" class="log-nav-item">
+				<span class="content">自动置底</span>
+				<el-switch
+					v-model="autoBottom"
+					active-color="#20a53a"
+					inactive-color="#f1f1f1"
+				/>
+			</div>
+			<div class="log-nav-item">
+				<el-select v-model="queryParams.logLevel" placeholder="日志等级" @change="handleFilter" @clear="handleFilter" clearable>
+    				<el-option v-for="(l, lKey) of logLevel" :key="lKey" :label="l" :value="l"/>
+  				</el-select>
+			</div>
+			<div class="log-nav-item">
+				<el-select v-model="queryParams.msgType" placeholder="类型" @change="msgTypeChange" @clear="msgTypeChange" clearable>
+    				<el-option v-for="(t, tKey) of msgType" :key="tKey" :label="t.label" :value="t.value"/>
+  				</el-select>
+			</div>
+			<div v-show="queryParams.msgType === 2" class="log-nav-item">
+				<el-input v-model="queryParams.groupId" placeholder="输入频道名称" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
+			</div>
+			<div class="copy-button" @click="copyAsReportFormat">去隐私复制</div>
 		</div>
-		<div class="copy-button" @click="copyAsReportFormat">去隐私复制</div>
-	</div>
+	</el-scrollbar>
 	<div class="log-container">
 		<p v-if="currentDate === ''" class="empty-promote">
 			请选择日期以查看日志...
@@ -69,6 +84,26 @@ export default defineComponent( {
 			pageSize: 750,
 			totalLog: 0
 		} );
+		
+		const logLevel = [ "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "MARK" ];
+		
+		const msgType = [ {
+			label: "系统",
+			value: 0
+		}, {
+			label: "私聊",
+			value: 1
+		}, {
+			label: "群聊",
+			value: 2
+		} ]
+		
+		const queryParams = ref( {
+			logLevel: "",
+			msgType: null,
+			groupId: ""
+		} )
+		
 		const scrollbarRef = ref( null );
 		
 		/* 获取当前最大分页 */
@@ -108,7 +143,7 @@ export default defineComponent( {
 		/* 向列表添加 ws 通讯所得数据，若出现新一页，跳转最新页 */
 		async function addMsgToList( msg ) {
 			const newPage = state.list.length + msg.length > state.pageSize;
-			if ( newPage ) {
+			if ( newPage && state.autoBottom ) {
 				await scrollToBottom();
 			} else {
 				state.list.push( ...msg );
@@ -117,24 +152,23 @@ export default defineComponent( {
 		
 		/* 获取日志列表 */
 		async function getLogsData( date = state.currentDate ) {
-			return new Promise( ( resolve ) => {
-				$http.LOG_INFO( {
+			try {
+				const resp = await $http.LOG_INFO( {
 					date: date.getTime(),
 					page: state.currentPage,
-					length: state.pageSize
-				}, "GET" ).then( resp => {
-					if ( resp.data.length ) {
-						state.list = resp.data;
-						state.totalLog = resp.total;
-					} else {
-						state.error = true;
-					}
-					resolve();
-				} ).catch( () => {
+					length: state.pageSize,
+					...queryParams.value
+				}, "GET" )
+				if ( resp.data.length ) {
+					state.list = resp.data;
+					state.totalLog = resp.total;
+					state.error = false;
+				} else {
 					state.error = true;
-					resolve();
-				} );
-			} )
+				}
+			} catch ( error ) {
+				state.error = true;
+			}
 		}
 		
 		/* 获取当前 年月日 整日期 */
@@ -146,9 +180,15 @@ export default defineComponent( {
 		/* 日期切换 */
 		function dateChange( date ) {
 			resetData();
+			queryParams.value = {
+				logLevel: "",
+				msgType: null,
+				groupId: ""
+			}
+			
 			getLogsData( date ).then( () => {
 				state.today = isToday( date );
-				if ( state.today ) {
+				if ( state.today && !state.error ) {
 					runWS();
 					setTimeout( () => scrollToBottom(), 50 );
 				} else if ( ws ) {
@@ -159,7 +199,8 @@ export default defineComponent( {
 		
 		/* 切换分页 */
 		async function pageChange( page, isBottom ) {
-			if ( !isBottom ) {
+			console.log( '????' )
+			if ( !isBottom && scrollbarRef.value ) {
 				scrollbarRef.value.wrap$.scrollTop = 0;
 			}
 			await getLogsData();
@@ -202,10 +243,8 @@ export default defineComponent( {
 				.toString()
 				.split( "\n\n" )
 				.map( el => {
-					el = el.replace( /\[(Android|aPad|Watch|iMac|iPad):\d+]/, "[$1:*****]" )
-						.replace( / - recv from: \[Private: \d+\((friend|group)\)] (.*)/, " [Recv] [Pri-$1] $2" )
-						.replace( / - recv from: \[Group: .*] (.*)/, " [Recv] [Group] $1" )
-						.replace( / - send to: \[(Group|Private): .*]/, " [Send] [$1] ---" )
+					el = el.replace( /\[A: (.+)\]\[ID: (\d+)\]/, " [Recv] [Pri-$1]" )
+						.replace( /\[A: (.+)\]\[G: (.+)\]/, " [Recv] [Group] $1" )
 						.replace( /(\[[A-Z]+]) - (.*)/, "$1 [Event] $2" )
 						.replace( /&#93;/g, "]" )
 						.replace( /&#91;/g, "[" );
@@ -238,9 +277,14 @@ export default defineComponent( {
 		
 		return {
 			...toRefs( state ),
+			logLevel,
+			msgType,
+			queryParams,
 			scrollbarRef,
 			dateChange,
 			pageChange,
+			msgTypeChange,
+			handleFilter,
 			disabledDate,
 			copyAsReportFormat
 		};

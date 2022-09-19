@@ -12,6 +12,7 @@ import CheckRouter from "./routes/check";
 import LoginRouter from "./routes/login";
 import LogRouter from "./routes/log";
 import UserRouter from "./routes/user";
+import GuildRouter from "./routes/guild";
 import StatRouter from "./routes/stat";
 
 export default class WebConsole {
@@ -37,6 +38,7 @@ export default class WebConsole {
 		this.useApi( "/api/login", LoginRouter, false );
 		this.useApi( "/api/log", LogRouter );
 		this.useApi( "/api/user", UserRouter );
+		this.useApi( "/api/guild", GuildRouter );
 		this.useApi( "/api/stat", StatRouter );
 		
 		/* 捕获错误 */
@@ -68,7 +70,8 @@ export default class WebConsole {
 			if ( this.isFirstListen ) {
 				this.isFirstListen = false;
 				this.app.listen( port, () => {
-					console.log( `网页控制台已启动，请浏览器打开 http://127.0.0.1:${ port } 查看，若为云服务器，请将 127.0.0.1 替换为服务器的公网ip。` )
+					console.log( `网页控制台已启动，请浏览器打开 http://localhost:${ port } 查看\n` +
+						`若为云服务器，请将 localhost 替换为服务器的公网 IP 。` )
 				} );
 			}
 		} ).listen( tcp );

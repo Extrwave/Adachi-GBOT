@@ -1,10 +1,10 @@
-import request from "./requests";
+import request, { formatGetURL } from "./requests";
 import { parse } from "yaml";
 import { toCamelCase } from "./camel-case";
 import { set } from "lodash";
 import { guid } from "../utils/guid";
 import { getDS, getDS2 } from "./ds";
-import { ResponseBody, InfoResponse } from "#genshin/types";
+import { InfoResponse, ResponseBody } from "#genshin/types";
 import { SlipDetail } from "../module/slip";
 import { DailyMaterial } from "../module/daily";
 import { FortuneData } from "../module/almanac";
@@ -31,13 +31,15 @@ const __API = {
 	FETCH_UID_HOME: "https://adachi-bot.oss-cn-beijing.aliyuncs.com/Version2/home/home.yml",
 	FETCH_SIGN_IN: "https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign",
 	FETCH_SIGN_INFO: "https://api-takumi.mihoyo.com/event/bbs_sign_reward/info",
-	FETCH_LEDGER: "https://hk4e-api.mihoyo.com/event/ys_ledger/monthInfo"
+	FETCH_LEDGER: "https://hk4e-api.mihoyo.com/event/ys_ledger/monthInfo",
+	FETCH_CALENDAR_LIST: "https://hk4e-api.mihoyo.com/common/hk4e_cn/announcement/api/getAnnList",
+	FETCH_CALENDAR_DETAIL: "https://hk4e-api.mihoyo.com/common/hk4e_cn/announcement/api/getAnnContent"
 };
 
 const HEADERS = {
-	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.11.1",
+	"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.29.1",
 	"Referer": "https://webstatic.mihoyo.com/",
-	"x-rpc-app_version": "2.11.1",
+	"x-rpc-app_version": "2.29.1",
 	"x-rpc-client_type": 5,
 	"DS": "",
 	"Cookie": ""
@@ -271,20 +273,47 @@ export async function getWishDetail( wishID: string ): Promise<any> {
 	} );
 }
 
+/* calender API */
+const calc_query = {
+	game: "hk4e",
+	game_biz: "hk4e_cn",
+	lang: "zh-cn",
+	bundle_id: "hk4e_cn",
+	platform: "pc",
+	region: "cn_gf01",
+	level: "55",
+	uid: "100000000"
+};
+
+export async function getCalendarList(): Promise<ResponseBody> {
+	const url = formatGetURL( __API.FETCH_CALENDAR_LIST, calc_query );
+	const result: Response = await fetch( url );
+	
+	const resp = toCamelCase( await result.json() );
+	const data: ResponseBody = set( resp, "data.type", "calendar-list" )
+	return data;
+}
+
+export async function getCalendarDetail(): Promise<ResponseBody> {
+	const url = formatGetURL( __API.FETCH_CALENDAR_DETAIL, calc_query );
+	const result: Response = await fetch( url );
+	
+	const resp = toCamelCase( await result.json() );
+	const data: ResponseBody = set( resp, "data.type", "calendar-detail" )
+	return data;
+}
+
 /* OSS API */
 export async function getInfo( name: string ): Promise<InfoResponse | string> {
 	const charLinkWithName: string = __API.FETCH_INFO.replace( "$", encodeURI( name ) );
 	
-	return new Promise( ( resolve, reject ) => {
-		fetch( charLinkWithName )
-			.then( ( result: Response ) => {
-				if ( result.status === 404 ) {
-					reject( "" );
-				} else {
-					resolve( <InfoResponse><unknown>result.json() );
-				}
-			} );
-	} );
+	const result: Response = await fetch( charLinkWithName )
+	
+	if ( result.status === 404 ) {
+		throw "";
+	} else {
+		return <InfoResponse><unknown>await result.json();
+	}
 }
 
 export async function checkGuideExist( name: string ): Promise<boolean | string> {
@@ -381,15 +410,24 @@ export async function getUidHome(): Promise<any> {
 /* 参考 https://github.com/DGP-Studio/DGP.Genshin.MiHoYoAPI/blob/main/Sign/SignInProvider.cs */
 const activityID: string = "e202009291139501";
 const SIGN_HEADERS = {
-	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.10.1",
+	"User-Agent": "Mozilla/5.0 (Linux; Android 9; Unspecified Device) AppleWebKit/537.36 (KHTML, like Gecko) " +
+		"Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36 miHoYoBBS/2.3.0",
 	"Referer": "https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html" +
 		`?bbs_auth_required=true&act_id=${ activityID }&utm_source=bbs&utm_medium=mys&utm_campaign=icon`,
-	"Accept": "application/json",
+	"Accept": "application/json, text/plain, */*",
 	"Accept-Encoding": "gzip, deflate",
+	"Accept-Language": "zh-CN,en-US;q=0.8",
+	"Origin": "https://webstatic.mihoyo.com",
 	"X-Requested-With": "com.mihoyo.hyperion",
-	"x-rpc-app_version": "2.10.1",
+	"x-rpc-app_version": "2.34.1",
 	"x-rpc-client_type": 5,
-	"x-rpc-device_id": guid()
+	"x-rpc-platform": "ios",
+	"x-rpc-device_model": "iPhone7,1",
+	"x-rpc-device_name": "aaaaa",
+	"x-rpc-channel": "appstore",
+	"x-rpc-sys_version": "12.4.1",
+	"x-rpc-device_id": guid(),
+	"DS": ""
 };
 
 /* Sign In API */
@@ -408,8 +446,8 @@ export async function mihoyoBBSSignIn( uid: string, region: string, cookie: stri
 			headers: {
 				...SIGN_HEADERS,
 				"content-type": "application/json",
-				"DS": getDS2(),
-				"Cookie": cookie
+				"Cookie": cookie,
+				"DS": getDS2()
 			}
 		} )
 			.then( ( result ) => {

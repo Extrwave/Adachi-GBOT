@@ -1,7 +1,8 @@
 import express from "express";
 import bot from "ROOT";
+import { getMemberAvatar } from "@modules/utils/account";
 
-async function loadMysData( userID: number ): Promise<any> {
+async function loadMysData( userID: string ): Promise<any> {
 	const uid: string = await bot.redis.getString( `silvery-star.user-querying-id-${ userID }` );
 	const data: any = await bot.redis.getHash( `silvery-star.card-data-${ uid }` );
 	data.homes = JSON.parse( data.homes );
@@ -9,12 +10,12 @@ async function loadMysData( userID: number ): Promise<any> {
 	data.explorations = JSON.parse( data.explorations );
 	data.avatars = JSON.parse( data.avatars );
 	data.allHomes = data.allHomes ? JSON.parse( data.allHomes ) : [];
-	
+	data.userAvatar = await getMemberAvatar( userID );
 	return data;
 }
 
 export default express.Router().get( "/", async ( req, res ) => {
-	const userID: number = parseInt( <string>req.query.qq );
+	const userID: string = <string>req.query.qq;
 	const data: any = await loadMysData( userID );
 	res.send( data );
 } );

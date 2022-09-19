@@ -5,7 +5,7 @@ const template =
 		<p>面朝{{ d }}玩原神<br/>稀有掉落概率UP</p>
 	</div>
 	<p class="design">Designed - genshin.pub</p>
-	<p class="author">Modify - 七七</p>
+	<p class="author">Modify - Adachi-GBOT</p>
 </div>`;
 
 const { defineComponent } = Vue;

@@ -3,6 +3,7 @@ import express from "express";
 import { AuthLevel } from "@modules/management/auth";
 import { PluginReSubs, SubInfo } from "@modules/plugin";
 import { BOT } from "@modules/bot";
+import { getGuildBaseInfo, getMemberInfoInGuild } from "@modules/utils/account";
 
 type UserInfo = {
 	userID: string;
@@ -11,23 +12,24 @@ type UserInfo = {
 	botAuth: AuthLevel;
 	interval: number;
 	limits: string[];
-	groupInfoList: ( string | MemberBaseInfo )[];
+	groupInfoList: ( string | MemberInGuildInfo )[];
 	subInfo?: string[]
 }
 
-export type GroupRole = "owner" | "admin" | "member";
-export type Gender = "male" | "female" | "unknown";
-
-export interface MemberBaseInfo {
+/**
+ * Role 字段
+ * 4 频道主
+ * 2 管理员
+ * 5 子管理员
+ * 1 成员
+ */
+export interface MemberInGuildInfo {
 	readonly user_id: string,
-	readonly nickname: string,
-	readonly card: string, //群名片
-	readonly sex: Gender,
-	readonly age: number,
-	readonly area: string,
-	readonly level: number, //等级
-	readonly role: GroupRole, //权限
-	readonly title: string, //头衔
+	readonly guild_id: string,
+	readonly guild_name: string,
+	readonly username: string, //用户昵称
+	readonly nickname: string, //频道中的昵称
+	readonly role: string, //身份权限
 }
 
 export default express.Router()
@@ -64,6 +66,7 @@ export default express.Router()
 				userData = userData.filter( ( userKey: string ) => !Object.keys( userSubData ).includes( userKey ) );
 			}
 			
+			/* 一次获取10个用户的个人信息 */
 			const filterUserKeys = userData.slice( ( page - 1 ) * length, page * length );
 			
 			let userInfos: UserInfo[] = []
@@ -83,6 +86,11 @@ export default express.Router()
 	} )
 	.get( "/info", async ( req, res ) => {
 		const userID: string = <string>req.query.id;
+		if ( userID ) {
+			res.status( 400 ).send( { code: 400, data: {}, msg: "Error Params" } );
+			return;
+		}
+		
 		const userInfo = await getUserInfo( userID );
 		
 		res.status( 200 ).send( JSON.stringify( userInfo ) );
@@ -106,7 +114,7 @@ export default express.Router()
 	} )
 	.delete( "/sub/remove", async ( req, res ) => {
 		const userId = <string>req.query.userId;
-		
+		const dbKey = `adachi.user-used-groups-${ userId }`;
 		try {
 			if ( !userId ) {
 				res.status( 400 ).send( { code: 400, data: [], msg: "Error Params" } );
@@ -124,50 +132,63 @@ export default express.Router()
 			res.status( 500 ).send( { code: 500, data: [], msg: "Server Error" } );
 		}
 	} )
+	.delete( "/remove", async ( req, res ) => {
+		const userId = <string>req.query.userId;
+		const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
+		try {
+			if ( !userId ) {
+				res.status( 400 ).send( { code: 400, data: [], msg: "Error Params" } );
+				return;
+			}
+			//清除使用记录
+			await bot.redis.deleteKey( ...dbKeys );
+			res.status( 200 ).send( { code: 200, data: {}, msg: "Success" } );
+		} catch ( error ) {
+			res.status( 500 ).send( { code: 500, data: [], msg: "Server Error" } );
+		}
+	} );
 
 /* 获取用户信息，暂时只显示Master所在频道的用户 */
 async function getUserInfo( userID: string ): Promise<UserInfo> {
 	
-	const guildID = await bot.redis.getString( `adachi.guild-id` );
-	const publicInfo = await bot.client.guildApi.guildMember( guildID, userID );
-	const groupInfoList: Array<MemberBaseInfo | string> = [];
-	
-	// const response = await bot.client.guildApi.guildMembers(guildID);
-	
+	/* 此处获取用户信息逻辑已更改 */
+	const groupInfoList: Array<MemberInGuildInfo | string> = [];
 	const botAuth: AuthLevel = await bot.auth.get( userID );
 	const interval: number = bot.interval.get( userID, "-1" );
 	const limits: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
 	
-	let nickname: string = ""
-	let avatar: string = "";
+	//获取用户使用过的频道ID
+	const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
+	let avatar;
+	let nickname;
 	
-	if ( publicInfo.status === 200 ) {
-		//获取用户使用过的子频道ID
-		const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
-		
-		nickname = publicInfo.data.nick;
-		avatar = publicInfo.data.user.avatar;
-		
-		for ( let el of usedGroups ) {
-			const groupID: string = el;
-			if ( groupID === "-1" ) {
-				groupInfoList.push( "私聊方式使用" );
-				continue;
-			}
+	for ( let el of usedGroups ) {
+		const groupID: string = el;
+		if ( groupID === "-1" ) {
+			groupInfoList.push( "私聊方式使用" );
+			continue;
+		}
+		const guildBaseInfo = await getGuildBaseInfo( el );
+		const guildMemberInfo = await getMemberInfoInGuild( userID, el );
+		const gName = guildBaseInfo ? guildBaseInfo.name : "Unknown";
+		if ( guildMemberInfo?.account ) {
+			nickname = guildMemberInfo.account.user.username;
+			avatar = guildMemberInfo.account.user.avatar;
 			groupInfoList.push( {
-				user_id: publicInfo.data.user.id,
-				nickname: publicInfo.data.nick,
-				card: "",
-				sex: "female",
-				age: 18,
-				area: "",
-				level: 10,
-				role: "member",
-				title: "用户"
+				user_id: guildMemberInfo.account.user.id,
+				guild_id: el,
+				guild_name: gName,
+				username: guildMemberInfo.account.user.username,
+				nickname: guildMemberInfo.account.nick,
+				role: guildMemberInfo.account.roles[0],
 			} );
-			
 		}
 	}
+	if ( !avatar )
+		avatar = "https://docs.adachi.top/images/adachi.png";
+	if ( !nickname )
+		nickname = "已退出/单私聊";
+	
 	return {
 		userID,
 		avatar,

@@ -7,6 +7,7 @@ import { Renderer } from "@modules/renderer";
 import { BOT } from "@modules/bot";
 import { PluginSetting, PluginSubSetting, SubInfo } from "@modules/plugin";
 import { createServer } from "./server";
+import { getMemberInfo } from "@modules/utils/account";
 
 export let config: GenshinConfig;
 export let renderer: Renderer;
@@ -51,6 +52,11 @@ function loadConfig( file: FileManagement ): GenshinConfig {
 async function decreaseFriend( userId: string, { redis }: BOT ) {
 	await privateClass.delBatchPrivate( userId );
 	await redis.deleteKey( `silvery-star-daily-sub-${ userId }` );
+	const info = await getMemberInfo( userId );
+	if ( info ) {
+		const sendMessage = await bot.message.getSendPrivateFunc( info.guildID, userId );
+		await sendMessage( `你的授权服务已被管理员取消` );
+	}
 }
 
 export async function subs( { redis }: BOT ): Promise<SubInfo[]> {
@@ -60,7 +66,7 @@ export async function subs( { redis }: BOT ): Promise<SubInfo[]> {
 	} );
 	
 	return [ {
-		name: "私人服务",
+		name: "授权服务",
 		users: privateClass.getUserIDList()
 	}, {
 		name: "素材订阅",

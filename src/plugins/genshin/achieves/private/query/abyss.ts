@@ -14,6 +14,8 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: string, {
 	sendMessage,
 	messageData
 }: InputParameter ) {
+	
+	
 	await redis.setHash( `silvery-star.abyss-temp-${ userID }-single`, {
 		uid,
 		userName: messageData.msg.author.username,
@@ -29,14 +31,14 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: string, {
 		floors: JSON.stringify( abyss.floors )
 	} );
 	
-	const res: RenderResult = await renderer.asCqCode(
+	
+	const res: RenderResult = await renderer.asUrlImage(
 		"/abyss-single.html", { qq: userID }
 	);
 	if ( res.code === "ok" ) {
-		await sendMessage( res.data );
+		await sendMessage( { image: res.data } );
 	} else {
-		logger.error( res.error );
-		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
+		await sendMessage( res.error );
 	}
 }
 
@@ -45,9 +47,6 @@ export async function main( i: InputParameter ): Promise<void> {
 	
 	const match = <SwitchMatchResult>matchResult;
 	const userID: string = messageData.msg.author.id;
-	
-	// 是否一图流显示
-	const isForwardMsg = match.match.includes( "-l" );
 	
 	const data: string = match.match.filter( m => m !== "-l" )[0] ?? "";
 	
@@ -78,7 +77,7 @@ export async function main( i: InputParameter ): Promise<void> {
 	}
 	const abyss: Abyss = JSON.parse( abyssData );
 	
-	if ( abyss.totalBattleTimes === 0 ) {
+	if ( !abyss.floors || abyss.floors.length === 0 ) {
 		await sendMessage( "暂未查询到深渊数据" );
 		return;
 	}

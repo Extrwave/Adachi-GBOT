@@ -1,8 +1,11 @@
-import { MessageType } from "@modules/message";
-
-export default function idParser( id: string ): [ MessageType, string ] {
-    const char: string = id[ 0 ].toLowerCase();
-    const num: string = id.slice(1);
-    const type = char === "u" ? MessageType.Private : MessageType.Group;
-    return [ type, num ];
+/* 从@消息中获取@的用户 */
+export default function idParser( id: string ): { code: string, targetID: string } {
+	const result = id.match( /<@!(.*)>/ );
+	let targetID;
+	if ( result === null ) {
+		return { code: "error", targetID: "用户匹配出错." };
+	} else {
+		targetID = result[1];
+		return { code: "ok", targetID: targetID };
+	}
 }

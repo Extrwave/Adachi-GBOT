@@ -62,7 +62,7 @@ const template = `
 		</InfoCard>
 	</main>
 	<footer>
-		<p class="sign">Modify - 七七</p>
+		<p class="sign">Modify - Adachi-GBOT</p>
 	</footer>
 </div>
 `

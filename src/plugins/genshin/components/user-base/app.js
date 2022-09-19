@@ -30,7 +30,7 @@ const template = `
 				</div>
 			</article>
 		</section>
-		<section class="card-character">
+		<section v-if="showAvatars" class="card-character">
 			<SectionTitle showSubTitle>
 				<template #default>角色展示</template>
 				<template #sub>角色数量: {{ data.stats.avatarNumber }}</template>
@@ -60,9 +60,10 @@ const template = `
 				/>
 			</div>
 		</section>
+		<p v-if="!showAvatars" class="empty-avatar-tip">tips：请前往米游社公开展示「角色详情数据」来展示所持有角色</p>
 	</main>
 	<footer>
-		<p class="sign">Modify - 七七</p>
+		<p class="sign">Modify - Adachi-GBOT</p>
 	</footer>
 </div>`;
 
@@ -75,7 +76,7 @@ import StatusBox from "../card/status-box.js";
 import { parseURL, request } from "../../public/js/src.js";
 import { sizeClass, cardDataParser } from "../../public/js/card-data-parser.js";
 
-const { defineComponent } = Vue;
+const { defineComponent, computed } = Vue;
 
 export default defineComponent( {
 	name: "CardApp",
@@ -94,11 +95,18 @@ export default defineComponent( {
 		
 		const parsed = cardDataParser( data );
 		
+		/* 是否显示角色列表 */
+		const showAvatars = computed( () => {
+			return !!data.avatars?.length;
+		} );
+		
+		
 		parsed.data.avatars.splice( 8 );
 		parsed.statsList.base = parsed.statsList.base.filter( ( { label } ) => label !== "获得角色" );
 		
 		return {
 			...parsed,
+			showAvatars,
 			urlParams,
 			sizeClass: sizeClass( 3 ),
 		};

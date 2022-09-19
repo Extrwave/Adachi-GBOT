@@ -12,14 +12,13 @@ export async function main(
 		await sendMessage( "请先抽取一个圣遗物" );
 		return;
 	}
-	const res: RenderResult = await renderer.asCqCode(
+	const res: RenderResult = await renderer.asUrlImage(
 		"/artifact.html",
 		{ qq: userID, type: "rein" }
 	);
 	if ( res.code === "ok" ) {
-		await sendMessage( res.data );
+		await sendMessage( { image: res.data } );
 	} else {
-		logger.error( res.error );
-		await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
+		await sendMessage( res.error );
 	}
 }

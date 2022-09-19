@@ -69,7 +69,7 @@ export default defineComponent( {
 		const parsed = abyssDataParser( data );
 		
 		/* 获取头像 */
-		const avatar = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ urlParams.qq }`;
+		const avatar = data.avatar ? data.avatar : `https://docs.adachi.top/images/adachi.png`;
 		
 		return {
 			...parsed,

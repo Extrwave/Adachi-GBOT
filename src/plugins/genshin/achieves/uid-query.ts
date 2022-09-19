@@ -4,6 +4,7 @@ import { RenderResult } from "@modules/renderer";
 import { characterInfoPromise, detailInfoPromise } from "../utils/promise";
 import { getRegion } from "../utils/region";
 import { config, renderer } from "#genshin/init";
+import { getMemberInfo } from "@modules/utils/account";
 
 interface UIDResult {
 	info: number | string;
@@ -11,7 +12,7 @@ interface UIDResult {
 }
 
 function isAt( message: string ): string | undefined {
-	const res: RegExpExecArray | null = /\<@!(?<id>\d+)/.exec( message );
+	const res: RegExpExecArray | null = /<@!(?<id>\d+)/.exec( message );
 	return res?.groups?.id;
 }
 
@@ -32,7 +33,7 @@ async function getUID(
 }
 
 export async function main(
-	{ sendMessage, messageData, redis, logger, client }: InputParameter
+	{ sendMessage, messageData, redis, logger }: InputParameter
 ): Promise<void> {
 	
 	
@@ -49,47 +50,47 @@ export async function main(
 	const uid: number = info;
 	const server: string = getRegion( uid.toString()[0] );
 	const target: string = atID ? atID : userID;
+	const dbKey: string = `adachi-temp-uid-query-${ uid }`;
 	
-	//对他人主页缓存优化
-	const dbKey: string = `extr-wave-uid-query-`;
-	const image: string = await redis.getHashField( dbKey, `${ uid }` );
-	if ( image !== "" ) {
-		await sendMessage( "七七找到了刚刚画好的图..." );
-		await sendMessage( image );
-	} else {
-		try {
-			const targetInfo = await client.guildApi.guildMember( await redis.getString( `adachi.guild-id` ), target );
-			const nickname: string = targetInfo.status === 200
-				? targetInfo.data.user.username : "";
-			await redis.setHash( `silvery-star.card-data-${ uid }`, {
-				nickname, uid, level: 0
-			} );
-			await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
-			
-			const charIDs = <number[]>await detailInfoPromise( target, server );
-			await characterInfoPromise( target, server, charIDs );
-		} catch ( error ) {
-			if ( error !== "gotten" ) {
-				await sendMessage( <string>error );
-				return;
-			}
-		}
+	/* 一小时内重复获取 */
+	const queryTemp = await redis.getString( dbKey );
+	if ( queryTemp !== "" ) {
+		await sendMessage( { image: queryTemp } );
+		return;
+	}
+	
+	
+	try {
+		//此处个人信息获取逻辑已更改
+		// const targetInfo = await getMemberInfo( userID );
+		// const nickname: string = targetInfo ? targetInfo.account.user.username : "";
+		// await redis.setHash( `silvery-star.card-data-${ uid }`, {
+		// 	nickname, uid, level: 0
+		// } );
+		await redis.setHash( `silvery-star.card-data-${ uid }`, { uid } );
+		await redis.setString( `silvery-star.user-querying-id-${ target }`, uid );
 		
-		await sendMessage( "获取成功，七七努力画图中..." );
-		const res: RenderResult = await renderer.asCqCode(
-			"/user-base.html", {
-				qq: target, stranger,
-				style: config.cardWeaponStyle,
-				profile: config.cardProfile
-			}
-		);
-		if ( res.code === "ok" ) {
-			await sendMessage( res.data );
-			await redis.setHashField( dbKey, `${ uid }`, res.data );
-			await redis.setTimeout( dbKey, 6 * 3600 );
-		} else {
-			logger.error( res.error );
-			await sendMessage( "图片渲染异常，请联系持有者进行反馈" );
+		const charIDs = <number[]>await detailInfoPromise( target, server );
+		await characterInfoPromise( target, server, charIDs );
+	} catch ( error ) {
+		if ( error !== "gotten" ) {
+			await sendMessage( <string>error );
+			return;
 		}
+	}
+	
+	await sendMessage( "获取成功，正在生成图片..." );
+	const res: RenderResult = await renderer.asUrlImage(
+		"/user-base.html", {
+			qq: target, stranger,
+			style: config.cardWeaponStyle,
+			profile: config.cardProfile
+		}
+	);
+	if ( res.code === "ok" ) {
+		await sendMessage( { image: res.data } );
+		await redis.setString( dbKey, res.data, 3600 * 1 ); //缓存半小时，避免恶意重复获取
+	} else {
+		await sendMessage( res.error );
 	}
 }

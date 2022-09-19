@@ -1,119 +1,173 @@
-import bot from "ROOT";
-import Sendable from "@modules/message";
-import { InputParameter, Order } from "@modules/command";
+import { BasicConfig, InputParameter, Order } from "@modules/command";
 import Command from "@modules/command/main";
 import FileManagement from "@modules/file";
 import { filterUserUsableCommand } from "../utils/filter";
-import * as http from "http";
+import { Ark, Embed } from "qq-guild-bot";
+import { getArkListMessage } from "@modules/utils/arks";
+import { RenderResult } from "@modules/renderer";
+import { renderer } from "../init";
+import bot from "ROOT";
+import { MessageScope } from "@modules/utils/message";
+import { AuthLevel } from "@modules/management/auth";
+
+
+interface HelpCommand {
+	id: number;
+	header: string;
+	body: string
+	cmdKey: string;
+	detail: string;
+	pluginName: string;
+}
 
 
 function getVersion( file: FileManagement ): string {
-    const path: string = file.getFilePath("package.json", "root");
-    const { version } = require(path);
-    return version.split("-")[ 0 ];
+	const path: string = file.getFilePath( "package.json", "root" );
+	const { version } = require( path );
+	return version.split( "-" )[0];
 }
 
-function messageStyle( title: string, list: string[], command: Command ): Sendable | string {
-    const DETAIL = <Order>command.getSingle( "adachi-detail" );
-    list.push("", `使用 ${ DETAIL.getHeaders()[ 0 ] }+序号 获取提示`,);
-    list.push("[ ] 必填, ( ) 选填, | 选择");
-    return [ title, ...list ].join("\n");
+function messageStyle( title: string, list: string[], command: Command ): string {
+	const DETAIL = <Order>command.getSingle( "adachi-detail" );
+	list.push( "", `使用 ${ DETAIL.getHeaders()[0] }+序号 获取提示`, );
+	list.push( "[ ] 必填, ( ) 选填, | 选择" );
+	list.push( "授权相关指令仅在私聊中生效" );
+	return [ title, ...list ].join( "\n" );
 }
 
-//
-// async function forwardStyle(
-//     title: string, list: string[],
-//     { config, client, command }: InputParameter
-// ): Promise<Sendable> {
-//     const content: FakeMessage[] = [];
-//
-//     const DETAIL = <Order>command.getSingle("adachi.detail");
-//     list.push(`使用 ${ DETAIL.getHeaders()[ 0 ] }+序号 获取提示`);
-//     list.push("[ ] 必填, ( ) 选填, | 选择");
-//     list.forEach(el => content.push({
-//         user_id: config.appID,
-//         nickname: "BOT",
-//         message: {
-//             type: "text",
-//             data: { text: el }
-//         }
-//     }));
 
-// const reply = await client.makeForwardMsg(content);
-// if ( reply.status === "ok" ) {
-//     const content: string = reply.data.data.data;
-//     reply.data.data.data = content.replace("[聊天记录]", "[Adachi-BOT 帮助信息]")
-//         .replace("转发的聊天记录", title)
-//         .replace(/查看\d+条转发消息/, "点击查看提示");
-//     return reply.data;
-// }
-// return "";
-// }
-//
-// function xmlStyle( title: string, list: string[], command: Command ): Sendable {
-//     const xmlHead: string = "[CQ:xml,data=" +
-//         '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>' +
-//         '<msg serviceID="1" templateID="0" action="web" brief="&#91;Adachi-BOT 帮助信息&#93;" sourceMsgId="0" url="" flag="2" adverSign="0" multiMsgFlag="0">' +
-//         '<item layout="0" advertiser_id="0" aid="0" />' +
-//         '<item layout="6" advertiser_id="0" aid="0">' +
-//         `<title size="30" maxLines="2" lineSpace="36">${ title }</title>` +
-//         '<summary size="24">';
-//
-//     const xmlBody: string = list.map(el => {
-//         return el.replace(/\[/g, "&#91;")
-//             .replace(/]/g, "&#93;");
-//     }).join("\n");
-//
-//     const DETAIL = <Order>command.getSingle("adachi.detail");
-//     const xmlFoot: string = "</summary>" +
-//         '<hr hidden="false" style="0" />' +
-//         '<summary size="26">' +
-//         `使用 ${ DETAIL.getHeaders()[ 0 ] }+序号 获取更多信息\n` +
-//         "&#91; &#93; 必填&#44; ( ) 选填&#44; | 选择" +
-//         "</summary>" +
-//         "</item>" +
-//         '<source name="" icon="" action="" appid="-1" />' +
-//         "</msg>" +
-//         ",type=1]";
-//
-//     return xmlHead + xmlBody + xmlFoot;
-// }
+function embedStyle( title: string, list: string[], command: Command ): Embed {
+	const DETAIL = <Order>command.getSingle( "adachi-detail" );
+	list.push( "", `使用 ${ DETAIL.getHeaders()[0] }+序号 获取提示`, );
+	list.push( "[ ] 必填, ( ) 选填, | 选择" );
+	list.push( "授权相关指令仅在私聊中生效" );
+	let embedMsg: Embed = {
+		title: title,
+		description: "这是一份BOT帮助",
+		fields: []
+	};
+	for ( let item of list ) {
+		embedMsg.fields?.push( { name: item } );
+	}
+	return embedMsg;
+}
+
+
+function arkStyle( title: string, list: string[], command: Command ): Ark {
+	const DETAIL = <Order>command.getSingle( "adachi-detail" );
+	list.push( "===============================" );
+	list.push( `\n使用 ${ DETAIL.getHeaders()[0] }+序号 获取提示` );
+	list.push( "[ ] 必填, ( ) 选填, | 选择" );
+	list.push( "授权相关指令仅在私聊中生效" );
+	let arkHelpMsg: Ark = getArkListMessage( title, "BOT 使用帮助", list );
+	return <Ark>arkHelpMsg;
+}
+
+/* 使用图片帮助 */
+async function cardStyle( i: InputParameter, commands: BasicConfig[], version: string ): Promise<string> {
+	const dbKey = "adachi.help-data";
+	const cmdList: HelpCommand[] = commands.map( ( cmd, cKey ) => {
+		return {
+			id: cKey + 1,
+			header: cmd.desc[0],
+			body: cmd.getFollow(),
+			cmdKey: cmd.cmdKey,
+			detail: cmd.detail,
+			pluginName: cmd.pluginName
+		};
+	} );
+	
+	const cmdData: Record<string, HelpCommand[]> = {};
+	for ( const cmd of cmdList ) {
+		cmdData[cmd.pluginName] = cmdData[cmd.pluginName] ? [ ...cmdData[cmd.pluginName], cmd ] : [ cmd ];
+	}
+	
+	const DETAIL = <Order>i.command.getSingle( "adachi.detail" );
+	
+	await i.redis.setString( dbKey, JSON.stringify( {
+		detailCmd: DETAIL ? DETAIL.getHeaders()[0] : "",
+		version: version,
+		commands: cmdData
+	} ) );
+	
+	const res: RenderResult = await renderer.asUrlImage(
+		"/index.html" );
+	if ( res.code === "ok" ) {
+		return res.data;
+	} else {
+		i.logger.error( res.error );
+		const CALL = <Order>bot.command.getSingle( "adachi.call", AuthLevel.User );
+		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
+		return `图片渲染异常，请${ appendMsg }联系开发者进行反馈`;
+	}
+}
+
 
 async function getHelpMessage(
-    title: string, list: string[],
-    i: InputParameter
-): Promise<Sendable | string> {
-    switch ( i.config.helpMessageStyle ) {
-        case "message":
-            return messageStyle(title, list, i.command);
-        // case "forward":
-        //     return await forwardStyle(title, list, i);
-        // case "xml":
-        //     return xmlStyle(title, list, i.command);
-        default:
-            return "";
-    }
+	title: string, version: string,
+	commands: BasicConfig[], list: string[],
+	i: InputParameter
+): Promise<void> {
+	let style;
+	switch ( i.config.helpMessageStyle ) {
+		case "message":
+			style = messageStyle( title, list, i.command );
+			await i.sendMessage( style );
+			break;
+		case "embed":
+			style = embedStyle( title, list, i.command );
+			await i.sendMessage( { embed: style } );
+			break;
+		case "ark":
+			style = arkStyle( title, list, i.command );
+			await i.sendMessage( { ark: style } );
+			break;
+		default:
+			i.logger.error( "helpMessageStyle设置错误" )
+	}
 }
 
 export async function main( i: InputParameter ): Promise<void> {
-
-    const title: string = `打工七 v${ getVersion(i.file) }`;
-    const commands = await filterUserUsableCommand(i);
-    if ( commands.length === 0 ) {
-        await i.sendMessage("没有可用的指令");
-        return;
-    }
-
-    let ID: number = 0;
-    if ( i.messageData.msg.content === "-k" ) {
-        const keys: string = commands.reduce(( pre, cur ) => {
-            return pre + ` \n${ ++ID }. ${ cur.getCmdKey() }`;
-        }, "");
-	    await i.sendMessage( title + keys, false );
-    } else {
-	    const msgList: string[] = commands.map( el => `${ ++ID }. ${ el.getDesc() }` );
-	    const helpMsg = await getHelpMessage( title, msgList, i );
-	    await i.sendMessage( helpMsg + "", false );
-	    // await i.sendMessage( { image: "http://cdn.ethreal.cn/img/help-1654016357.jpg" } )
-    }
+	
+	const version = getVersion( i.file );
+	const showKeys = i.messageData.msg.content === "-k";
+	const commands = await filterUserUsableCommand( i );
+	if ( commands.length === 0 ) {
+		await i.sendMessage( "没有可用的指令" );
+		return;
+	}
+	
+	/* 使用图片帮助,默认获取全部指令 */
+	const dbKey = `adachi-help-image`;
+	if ( i.config.helpMessageStyle === "card" ) {
+		const helpCard = await i.redis.getString( dbKey );
+		if ( helpCard !== "" ) {
+			await i.sendMessage( { image: helpCard } );
+			return;
+		}
+		const allCommands: BasicConfig[] = i.command
+			.get( AuthLevel.Master, MessageScope.Private )
+			.filter( el => el.display );
+		const image = await cardStyle( i, allCommands, version );
+		if ( /图片渲染异常/.test( image ) ) {
+			i.logger.error( image );
+			await i.sendMessage( image );
+			return;
+		}
+		await i.sendMessage( { image: image } );
+		await i.redis.setString( dbKey, image );
+		return;
+	}
+	
+	const title: string = `Adachi-GBOT v${ version }~`;
+	let ID: number = 0;
+	if ( showKeys ) {
+		const keys: string = commands.reduce( ( pre, cur ) => {
+			return pre + `\n${ ++ID }. ${ cur.getCmdKey() }`;
+		}, "" );
+		await i.sendMessage( title + keys );
+	} else {
+		const msgList: string[] = commands.map( el => `${ ++ID }. ${ el.getDesc() }` );
+		await getHelpMessage( title, version, commands, msgList, i );
+	}
 }

@@ -18,7 +18,14 @@ export async function main(
 	
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	if ( accounts.length === 0 ) {
-		await sendMessage( `配置尚未完成\n请私聊本七发送 『${ PRIVATE_ADD.getHeaders()[0] }』启用` );
+		await sendMessage(
+			"此功能需要您的账户授权信息\n" +
+			"授权后你将拥有以下进阶功能\n\n" +
+			"树脂查询         达量推送\n" +
+			"深渊查询         自动签到\n" +
+			"旅行札记         角色详情\n\n" +
+			"如需添加授权，请私聊本BOT发送\n" +
+			`[  ${ PRIVATE_ADD.getHeaders()[0] }  ] 并按照提示完成操作` );
 		return;
 	} else if ( id > accounts.length || id === 0 ) {
 		const PRIVATE_LIST = <Order>bot.command.getSingle(
@@ -36,6 +43,6 @@ export async function main(
 		return;
 	}
 	
-	account.replaceCookie( newCookie );
+	await account.replaceCookie( newCookie );
 	await sendMessage( `cookie 更新成功` );
 }

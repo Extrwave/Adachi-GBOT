@@ -15,7 +15,7 @@ export default class WebConfiguration {
 		this.tcpLoggerPort = config.webConsole.tcpLoggerPort;
 		const cfg = this.getConfiguration( config.webConsole.enable, config.logLevel );
 		configure( cfg );
-		this.logger = getLogger( "[Adachi-GBot]" );
+		this.logger = getLogger( "[Adachi-GBOT]" );
 	}
 	
 	private setNetworkLayout(): void {
@@ -57,8 +57,10 @@ export default class WebConfiguration {
 			appenders: { console, network, logFile },
 			categories: {
 				default: Default,
-				"[Adachi-GBot]": Device
-			}
+				"[Adachi-GBOT]": Device
+			},
+			pm2: true,
+			disableClustering: true
 		};
 	}
 	

@@ -39,7 +39,7 @@ const template = `<div class="ledger-base">
 		<p class="time">记录日期 {{ data.date }}</p>
 	</main>
 	<footer>
-		<p>Modify - 七七</p>
+		<p>Modify - Adachi-GBOT</p>
 	</footer>
 </div>`;
 

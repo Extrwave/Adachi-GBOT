@@ -1,5 +1,4 @@
 import bot from "ROOT";
-import { MessageType, SendFunc } from "@modules/message";
 import { AuthLevel } from "@modules/management/auth";
 import { Order } from "@modules/command";
 import { NoteService } from "./note";
@@ -66,7 +65,6 @@ const dbPrefix: string = "silvery-star.private-";
 export class Private {
 	public readonly setting: UserInfo;
 	public readonly services: Services;
-	public readonly sendMessage: SendFunc;
 	public readonly dbKey: string;
 	
 	public id: number;
@@ -92,11 +90,6 @@ export class Private {
 	) {
 		this.options = options || {};
 		this.setting = new UserInfo( uid, cookie, userID, mysID );
-		let guildID = "";
-		bot.redis.getString( `adachi.guild-id` ).then( ( value ) => {
-			guildID = value;
-		} );
-		this.sendMessage = bot.message.getPrivateSendFunc( guildID, userID );
 		
 		const md5: string = Md5.init( `${ userID }-${ uid }` );
 		this.id = id;
@@ -209,7 +202,7 @@ export class PrivateClass {
 		const auth: AuthLevel = await bot.auth.get( userID );
 		const PRIVATE_UPGRADE = <Order>bot.command.getSingle( "silvery-star-private-replace", auth );
 		if ( list.some( el => el.setting.uid === uid ) ) {
-			return `UID${ uid } 的私人服务已经申请` + `如需更新请使用『${ PRIVATE_UPGRADE.getHeaders()[0] }』指令`;
+			return `UID${ uid } 的授权服务已经申请\n` + `如需更新请使用『 ${ PRIVATE_UPGRADE.getHeaders()[0] } 』指令`;
 		}
 		const reg = new RegExp( /.*?ltuid=([0-9]+).*?/g );
 		const execRes = <RegExpExecArray>reg.exec( cookie );
@@ -222,7 +215,9 @@ export class PrivateClass {
 		
 		const values: Service[] = Object.values( newPrivate.services );
 		const contents: string[] = await Promise.all( values.map( async el => await el.initTest() ) );
-		return `授权服务开启成功，UID: ${ uid }` + [ "", ...contents ].join( "\n" );
+		const msg = `授权服务开启成功，UID: ${ uid }` + [ "", ...contents ].join( "\n" ) +
+			`记得点击BOT头像开放推送限制，不然每天能发送三条消息...`;
+		return msg;
 	}
 	
 	public async delPrivate( p: Private ): Promise<void> {
@@ -235,18 +230,18 @@ export class PrivateClass {
 		await bot.redis.deleteKey( p.dbKey );
 	}
 	
-	/* 移除指定用户的某个私人服务 */
+	/* 移除指定用户的某个授权服务 */
 	public async delSinglePrivate( userID: string, privateID: number ): Promise<string> {
 		const single: Private | string = await this.getSinglePrivate( userID, privateID );
 		if ( typeof single === "string" ) {
 			return single;
 		} else {
 			await this.delPrivate( single );
-			return "私人服务取消成功";
+			return "授权服务取消成功";
 		}
 	}
 	
-	/* 批量移除指定用户的私人服务 */
+	/* 批量移除指定用户的授权服务 */
 	public async delBatchPrivate( userID: string ): Promise<string> {
 		const privateList: Private[] = this.getUserPrivateList( userID );
 		
@@ -254,6 +249,6 @@ export class PrivateClass {
 			await this.delPrivate( batch );
 		}
 		
-		return `用户${ userID }的私人服务已全部移除`;
+		return `用户${ userID }的授权服务已全部移除`;
 	}
 }

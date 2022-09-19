@@ -1,17 +1,8 @@
 import { AuthLevel } from "@modules/management/auth";
 import { BasicConfig, InputParameter } from "@modules/command/main";
 import Database from "@modules/database";
-import * as m from "@modules/message";
-
-function getMessageType( msg: m.Message ): m.MessageType {
-    if ( m.isGroupMessage(msg) ) {
-        return m.MessageType.Group;
-    } else if ( m.isPrivateMessage(msg) ) {
-        return m.MessageType.Private;
-    } else {
-        return m.MessageType.Unknown;
-    }
-}
+import { getMessageType } from "@modules/message";
+import { Message, MessageScope, MessageType } from "@modules/utils/message";
 
 async function getLimited( id: string, type: string, redis: Database ): Promise<string[]> {
     const dbKey: string = `adachi.${ type }-command-limit-${ id }`;
@@ -19,26 +10,26 @@ async function getLimited( id: string, type: string, redis: Database ): Promise<
 }
 
 export async function filterUserUsableCommand( i: InputParameter ): Promise<BasicConfig[]> {
-    const userID: string = i.messageData.msg.author.id;
-    const type: m.MessageType = getMessageType(i.messageData);
-    if ( type === m.MessageType.Unknown ) {
-        return [];
-    }
-
-    const auth: AuthLevel = await i.auth.get(userID);
-    let commands: BasicConfig[] = i.command
-        .get(auth, type === m.MessageType.Group
-            ? m.MessageScope.Group : m.MessageScope.Private)
-        .filter(el => el.display);
-
-    const userLimit: string[] = await getLimited(userID, "user", i.redis);
+	const userID: string = i.messageData.msg.author.id;
+	const type: MessageType = getMessageType( i.messageData );
+	if ( type === MessageType.Unknown ) {
+		return [];
+	}
+	
+	const auth: AuthLevel = await i.auth.get( userID );
+	let commands: BasicConfig[] = i.command
+		.get( auth, type === MessageType.Group
+			? MessageScope.Group : MessageScope.Private )
+		.filter( el => el.display );
+	
+	const userLimit: string[] = await getLimited( userID, "user", i.redis );
     commands = commands.filter(el => !userLimit.includes(el.cmdKey));
-    if ( type === m.MessageType.Private ) {
-        return commands;
-    }
-
-    const groupID: string = ( <m.Message>i.messageData ).msg.channel_id;
-    const groupLimit: string[] = await getLimited(groupID, "group", i.redis);
+	if ( type === MessageType.Private ) {
+		return commands;
+	}
+	
+	const groupID: string = ( <Message>i.messageData ).msg.channel_id;
+	const groupLimit: string[] = await getLimited( groupID, "group", i.redis );
     commands = commands.filter(el => !groupLimit.includes(el.cmdKey));
     return commands;
 }
