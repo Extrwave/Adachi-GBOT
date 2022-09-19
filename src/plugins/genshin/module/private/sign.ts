@@ -1,4 +1,4 @@
-import { randomInt } from "#genshin/utils/random";
+import { randomInt, randomSleep } from "#genshin/utils/random";
 import { ErrorMsg, signInInfoPromise, signInResultPromise } from "#genshin/utils/promise";
 import { scheduleJob, Job } from "node-schedule";
 import { Private, Service } from "./main";

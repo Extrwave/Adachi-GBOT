@@ -1,4 +1,5 @@
 import FileManagement from "@modules/file";
+import { randomSecret } from "./utils/utils";
 
 export default class BotConfig {
 	public readonly appID: string;
@@ -26,7 +27,8 @@ export default class BotConfig {
 		readonly adminPwd: string;
 		readonly consolePort: number;
 		readonly tcpLoggerPort: number;
-		readonly jwtSecret: string;
+		readonly logHighWaterMark: number,
+		readonly jwtSecret: string
 	};
 	public readonly qiniu: {
 		readonly QAccessKey: string;
@@ -62,7 +64,8 @@ export default class BotConfig {
 			adminPwd: "admin",
 			consolePort: 80,
 			tcpLoggerPort: 54921,
-			jwtSecret: "Secret"
+			logHighWaterMark: 64,
+			jwtSecret: randomSecret( 16 )
 		},
 		qiniu: {
 			tip: [ "根据对象存储空间修改UploadUrl",
@@ -110,6 +113,7 @@ export default class BotConfig {
 			adminPwd: config.webConsole.adminPwd,
 			consolePort: config.webConsole.consolePort,
 			tcpLoggerPort: config.webConsole.tcpLoggerPort,
+			logHighWaterMark: config.webConsole.logHighWaterMark,
 			jwtSecret: config.webConsole.jwtSecret
 		};
 		this.qiniu = {
