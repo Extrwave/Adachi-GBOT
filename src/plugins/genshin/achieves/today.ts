@@ -8,7 +8,10 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 	
 	const { code, data } = await dailyClass.getUserSubscription( userID, week ? parseInt( week ) : undefined );
 	if ( code === "ok" )
+		await sendMessage( { file_image: data } );
+	else if ( code === "other" ) {
 		await sendMessage( { image: data } );
-	else
+	} else {
 		await sendMessage( data );
+	}
 }

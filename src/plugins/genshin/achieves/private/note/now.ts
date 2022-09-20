@@ -5,16 +5,15 @@ import { NoteService } from "#genshin/module/private/note";
 import { InputParameter, Order } from "@modules/command";
 import { RenderResult } from "@modules/renderer";
 import { privateClass, renderer } from "#genshin/init";
-import { SendMsgType } from "@modules/utils/message";
 
 
-async function getNowNote( userID: string ): Promise<SendMsgType[]> {
+async function getNowNote( userID: string ): Promise<RenderResult[]> {
 	const accounts: Private[] = privateClass.getUserPrivateList( userID );
 	const auth: AuthLevel = await bot.auth.get( userID );
 	const PRIVATE_ADD = <Order>bot.command.getSingle( "silvery-star-private-subscribe", auth );
 	if ( accounts.length === 0 ) {
 		return [ {
-			code: "msg", data: "此功能需要您的账户授权信息\n" +
+			code: "other", data: "此功能需要您的账户授权信息\n" +
 				"授权后你将拥有以下进阶功能\n\n" +
 				"树脂查询         达量推送\n" +
 				"深渊查询         自动签到\n" +
@@ -24,25 +23,27 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 		} ];
 	}
 	
-	const imageList: SendMsgType[] = [];
+	const imageList: RenderResult[] = [];
 	for ( let a of accounts ) {
 		let data: string;
 		try {
 			data = await a.services[NoteService.FixedField].toJSON();
 		} catch ( error ) {
-			imageList.push( { code: "msg", data: ( <Error>error ).message } );
+			imageList.push( { code: "other", data: ( <Error>error ).message } );
 			continue;
 		}
 		const uid: string = a.setting.uid;
 		const dbKey: string = `silvery-star.note-temp-${ uid }`;
 		await bot.redis.setString( dbKey, data );
-		const res: RenderResult = await renderer.asUrlImage(
+		const res: RenderResult = await renderer.asLocalImage(
 			"/note.html", { uid }
 		);
 		if ( res.code === "ok" ) {
-			imageList.push( { code: "image", data: res.data } );
+			imageList.push( { code: "ok", data: res.data } );
+		} else if ( res.code === "other" ) {
+			imageList.push( { code: "other", data: res.data } );
 		} else {
-			imageList.push( { code: "msg", data: res.error } );
+			imageList.push( { code: "error", data: res.data } );
 		}
 	}
 	return imageList;
@@ -50,12 +51,16 @@ async function getNowNote( userID: string ): Promise<SendMsgType[]> {
 
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
 	const userID: string = messageData.msg.author.id;
-	const res: SendMsgType[] = await getNowNote( userID );
+	const res: RenderResult[] = await getNowNote( userID );
 	
 	for ( let msg of res ) {
-		if ( msg.code === "image" )
+		if ( msg.code === "ok" )
+			// await sendMessage( { image: msg.data } );
+			await sendMessage( { file_image: msg.data } )
+		else if ( msg.code === "other" ) {
 			await sendMessage( { image: msg.data } );
-		else
+		} else {
 			await sendMessage( msg.data );
+		}
 	}
 }

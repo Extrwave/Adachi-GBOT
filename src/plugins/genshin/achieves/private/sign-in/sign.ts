@@ -1,5 +1,4 @@
 import { InputParameter } from "@modules/command";
-import { SendMsgType } from "@modules/utils/message";
 import { Private } from "#genshin/module/private/main";
 import { privateClass } from "#genshin/init";
 import { SignInService } from "#genshin/module/private/sign";

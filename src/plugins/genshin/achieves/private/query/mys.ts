@@ -43,15 +43,15 @@ export async function main(
 	}
 	
 	/* 半小时内重复获取 */
-	const dbKey = `adachi-temp-mys-${ mysID }`;
-	const mysTemp = await redis.getString( dbKey );
-	if ( mysTemp !== "" ) {
-		await sendMessage( { image: mysTemp } );
-		return;
-	}
+	// const dbKey = `adachi-temp-mys-${ mysID }`;
+	// const mysTemp = await redis.getString( dbKey );
+	// if ( mysTemp !== "" ) {
+	// 	await sendMessage( { image: mysTemp } );
+	// 	return;
+	// }
 	
 	await sendMessage( "获取成功，正在生成图片..." );
-	const res: RenderResult = await renderer.asUrlImage(
+	const res: RenderResult = await renderer.asLocalImage(
 		"/card.html", {
 			qq: userID,
 			style: config.cardWeaponStyle,
@@ -59,9 +59,11 @@ export async function main(
 			appoint: appointName
 		} );
 	if ( res.code === "ok" ) {
+		await sendMessage( { file_image: res.data } );
+		// await redis.setString( dbKey, res.data, 3600 * 0.5 );
+	}else if ( res.code === "other" ) {
 		await sendMessage( { image: res.data } );
-		await redis.setString( dbKey, res.data, 3600 * 0.5 );
 	} else {
-		await sendMessage( res.error );
+		await sendMessage( res.data );
 	}
 }

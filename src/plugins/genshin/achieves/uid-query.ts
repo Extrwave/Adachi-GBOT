@@ -53,11 +53,11 @@ export async function main(
 	const dbKey: string = `adachi-temp-uid-query-${ uid }`;
 	
 	/* 一小时内重复获取 */
-	const queryTemp = await redis.getString( dbKey );
-	if ( queryTemp !== "" ) {
-		await sendMessage( { image: queryTemp } );
-		return;
-	}
+	// const queryTemp = await redis.getString( dbKey );
+	// if ( queryTemp !== "" ) {
+	// 	await sendMessage( { image: queryTemp } );
+	// 	return;
+	// }
 	
 	
 	try {
@@ -80,7 +80,7 @@ export async function main(
 	}
 	
 	await sendMessage( "获取成功，正在生成图片..." );
-	const res: RenderResult = await renderer.asUrlImage(
+	const res: RenderResult = await renderer.asLocalImage(
 		"/user-base.html", {
 			qq: target, stranger,
 			style: config.cardWeaponStyle,
@@ -88,9 +88,11 @@ export async function main(
 		}
 	);
 	if ( res.code === "ok" ) {
+		await sendMessage( { file_image: res.data } );
+		// await redis.setString( dbKey, res.data, 3600 * 1 ); //缓存半小时，避免恶意重复获取
+	} else if ( res.code === "other" ) {
 		await sendMessage( { image: res.data } );
-		await redis.setString( dbKey, res.data, 3600 * 1 ); //缓存半小时，避免恶意重复获取
 	} else {
-		await sendMessage( res.error );
+		await sendMessage( res.data );
 	}
 }

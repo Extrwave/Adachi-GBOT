@@ -11,6 +11,7 @@ import { calendarPromise } from "#genshin/utils/promise";
 import { getGidMemberIn } from "@modules/utils/account";
 import { Order } from "@modules/command";
 import { AuthLevel } from "@modules/management/auth";
+import { ReadStream } from "fs";
 
 export interface DailyMaterial {
 	"Mon&Thu": string[];
@@ -71,7 +72,7 @@ export class DailySet {
 }
 
 async function getRenderResult( id: string, subState: boolean, week?: number ): Promise<RenderResult> {
-	return await renderer.asUrlImage( "/daily.html", {
+	return await renderer.asLocalImage( "/daily.html", {
 		id,
 		type: subState ? "sub" : "all",
 		week: week ?? "today"
@@ -126,7 +127,7 @@ export class DailyClass {
 					//暂时不推送，涉及到子频道
 				}
 			} else {
-				bot.logger.error( res.error );
+				bot.logger.error( res.data );
 				bot.logger.error( "每日素材订阅图片渲染异常，请查看日志进行检查" );
 			}
 			
@@ -141,9 +142,9 @@ export class DailyClass {
 				}
 				await data.save( userID );
 				const res: RenderResult = await getRenderResult( userID, true );
-				if ( res.code !== "ok" ) {
+				if ( res.code === "error" ) {
 					const sendToMaster = await bot.message.getSendMasterFunc();
-					await sendToMaster( "每日素材订阅图片渲染异常\n" + res.error );
+					await sendToMaster( "每日素材订阅图片渲染异常\n" + res.data );
 					continue;
 				}
 				const randomMinute: number = randomInt( 3, 59 );
@@ -155,7 +156,10 @@ export class DailyClass {
 						bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
 					} else {
 						const sendMessage = await bot.message.getSendPrivateFunc( guildID, userID );
-						await sendMessage( { content: "今日材料如下", image: res.data } );
+						if ( res.code === "ok" )
+							await sendMessage( { content: "今日材料如下", file_image: res.data } );
+						if ( res.code === "other" )
+							await sendMessage( { content: "今日材料如下", image: res.data } );
 					}
 				} );
 			}
@@ -250,20 +254,19 @@ export class DailyClass {
 		return new DailySet( privateSub, hasEventSub ? this.eventData : [] );
 	}
 	
-	public async getUserSubscription( userID: string, initWeek?: number ): Promise<{ code: string, data: string }> {
+	public async getUserSubscription( userID: string, initWeek?: number ): Promise<RenderResult> {
 		
 		const week: number = DailyClass.getWeek( initWeek );
 		if ( initWeek === 7 ) {
 			return { code: "error", data: "周日所有材料都可以刷取哦~" };
 		}
 		
-		const dbKey: string = `adachi-temp-daily-material-${ week }`;
-		
 		/* 当日已经缓存过每日材料数据 */
-		const daily = await bot.redis.getString( dbKey );
-		if ( daily !== "" ) {
-			return { code: "ok", data: daily };
-		}
+		// const dbKey: string = `adachi-temp-daily-material-${ week }`;
+		// const daily = await bot.redis.getString( dbKey );
+		// if ( daily !== "" ) {
+		// 	return { code: "ok", data: daily };
+		// }
 		
 		const data: DailySet | undefined = await this.getUserSubList( userID, initWeek === undefined ? undefined : week );
 		/* 是否是订阅数据 */
@@ -272,12 +275,7 @@ export class DailyClass {
 		
 		await set.save( userID );
 		const res: RenderResult = await getRenderResult( userID, subState, initWeek === undefined ? undefined : week );
-		if ( res.code === "ok" ) {
-			await bot.redis.setString( dbKey, res.data, 3600 * 8 ); //应对频道高频使用场景优化
-			return res;
-		} else {
-			return { code: "error", data: res.error };
-		}
+		return res;
 	}
 	
 	public async modifySubscription( userID: string, operation: boolean, name: string, isGroup: boolean ): Promise<string> {

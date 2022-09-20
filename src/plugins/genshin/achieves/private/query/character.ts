@@ -118,23 +118,25 @@ export async function main(
 		return;
 	}
 	
-	const dbTempKey = `adachi-temp-char-${ uid }-${ charID }`
-	const charTemp = await redis.getString( dbTempKey );
-	if ( charTemp !== "" ) {
-		await sendMessage( { content: "数据存在半小时延迟", image: charTemp } );
-		return;
-	}
+	// const dbTempKey = `adachi-temp-char-${ uid }-${ charID }`
+	// const charTemp = await redis.getString( dbTempKey );
+	// if ( charTemp !== "" ) {
+	// 	await sendMessage( { content: "数据存在半小时延迟", image: charTemp } );
+	// 	return;
+	// }
 	
 	await sendMessage( "获取成功，正在生成图片..." );
-	const res: RenderResult = await renderer.asUrlImage(
+	const res: RenderResult = await renderer.asLocalImage(
 		"/character.html", {
 			qq: userID,
 			showScore: config.showCharScore
 		} );
 	if ( res.code === "ok" ) {
+		await sendMessage( { file_image: res.data } );
+		// await redis.setString( dbTempKey, res.data, 3600 * 0.5 );
+	} else if ( res.code === "other" ) {
 		await sendMessage( { image: res.data } );
-		await redis.setString( dbTempKey, res.data, 3600 * 0.5 );
 	} else {
-		await sendMessage( res.error );
+		await sendMessage( res.data );
 	}
 }

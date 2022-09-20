@@ -24,7 +24,6 @@ import MsgManagement, * as Msg from "@modules/message";
 import { MemberMessage, Message, MessageScope } from "@modules/utils/message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
-import Qiniuyun from "@modules/qiniuyun";
 import { getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
 import { checkChannelLimit } from "#@management/channel";
@@ -36,7 +35,6 @@ export interface BOT {
 	readonly client: IOpenAPI;
 	readonly ws;
 	readonly logger: log.Logger;
-	readonly qiniuyun: Qiniuyun;
 	readonly interval: Interval;
 	readonly file: FileManagement;
 	readonly auth: Authorization;
@@ -61,8 +59,6 @@ export class Adachi {
 		if ( config.webConsole.enable ) {
 			new WebConsole( config );
 		}
-		/* 创建七牛云实例*/
-		const qiniuyun = new Qiniuyun( config );
 		/* 创建client实例*/
 		const client = createOpenAPI( {
 			appID: config.appID,
@@ -97,7 +93,7 @@ export class Adachi {
 		this.bot = {
 			client, ws, file, redis,
 			logger, message, auth, command,
-			config, refresh, renderer, interval, qiniuyun
+			config, refresh, renderer, interval
 		};
 		
 		refresh.registerRefreshableFunc( renderer );
@@ -166,6 +162,7 @@ export class Adachi {
 		
 		file.createDir( "database", "root" );
 		file.createDir( "logs", "root" );
+		file.createDir( "data", "root" );
 		
 		file.createYAML(
 			"cookies",

@@ -38,13 +38,15 @@ export async function main(
 		await sendMessage( reason );
 		return;
 	}
-	const res: RenderResult = await renderer.asUrlImage(
+	const res: RenderResult = await renderer.asLocalImage(
 		"/artifact.html",
 		{ qq: userID, type: "init" }
 	);
 	if ( res.code === "ok" ) {
+		await sendMessage( { file_image: res.data } );
+	} else if ( res.code === "other" ) {
 		await sendMessage( { image: res.data } );
 	} else {
-		await sendMessage( res.error );
+		await sendMessage( res.data );
 	}
 }
