@@ -1,7 +1,6 @@
 * {
 	margin: 0;
 	padding: 0;
-	user-select: none;
 }
 
 img {
@@ -12,6 +11,7 @@ html {
 	height: 100%;
 	font-size: 16px;
 	font-family: sans-serif;
+	overflow-x: hidden;
 }
 
 body {
@@ -51,6 +51,10 @@ ul {
 
 .el-scrollbar__bar.is-horizontal {
 	display: none;
+}
+
+.el-table .el-scrollbar__bar.is-horizontal {
+	display: block;
 }
 
 /* el-table */

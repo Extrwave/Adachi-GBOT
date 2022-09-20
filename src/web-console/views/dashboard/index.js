@@ -1,4 +1,4 @@
-const template = `<div class="dashboard">
+const template = `<div class="table-container no-background dashboard">
 	<ul class="app-info-container">
 		<li class="app-info-item" v-for="(i, iKey) of appInfo" :key="iKey">
 			<div class="info-item-content">
@@ -24,12 +24,12 @@ const template = `<div class="dashboard">
 	</div>
 </div>`;
 
-import $http from "../api/index.js"
+import $http from "../../api/index.js"
 
 const { defineComponent, onMounted, onUnmounted, reactive, toRefs, nextTick, ref } = Vue;
 
 export default defineComponent( {
-	name: "Stat",
+	name: "DashboardMain",
 	template,
 	setup() {
 		const weekOption = {
@@ -121,7 +121,7 @@ export default defineComponent( {
 		}
 		
 		/* 设置基本信息 */
-		function setAppData( { cpuUsed, memories, userCount, groupCount } ) {
+		function setAppData( { cpuUsed, memories, userCount, guildCount } ) {
 			state.appInfo = [ {
 				label: "CPU利用率",
 				icon: "icon-cpu",
@@ -138,7 +138,7 @@ export default defineComponent( {
 			}, {
 				label: "群组数量",
 				icon: "icon-group",
-				value: groupCount
+				value: guildCount
 			} ]
 		}
 		

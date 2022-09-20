@@ -42,8 +42,10 @@ export default express.Router()
 				} )
 				.slice( ( page - 1 ) * length, page * length )
 			
+			const pageGuildData = glMap.slice( ( page - 1 ) * length, page * length );
+			
 			const guildInfos: GuildData[] = [];
-			for ( const id of dateGlMap ) {
+			for ( const id of pageGuildData ) {
 				guildInfos.push( await getGroupInfo( id ) );
 			}
 			

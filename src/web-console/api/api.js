@@ -1,7 +1,8 @@
 export default {
 	/* 基本信息 */
 	BOT_STAT: "/stat",
-	TOKEN_CHECK: "/check",
+	BOT_RESTART: "/bot/restart",
+	BOT_REFRESH: "/bot/refresh",
 	/* 用户 */
 	USER_LIST: "/user/list",
 	USER_INFO: "/user/info",
@@ -16,5 +17,9 @@ export default {
 	/* 日志 */
 	LOG_INFO: "/log",
 	/* 检测 */
+	TOKEN_CHECK: "/check",
 	CHECK_PASSWORD: "/check/password"
+	/* 配置 */
+	CONFIG_GET: "/config",
+	CONFIG_SET: "/config/set"
 }

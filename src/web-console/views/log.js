@@ -1,4 +1,4 @@
-const template = `<div class="logger">
+const template = `<div class="table-container fix-height logger">
 	<el-scrollbar class="horizontal-wrap">
 		<div class="picker">
 			<el-date-picker
@@ -30,7 +30,7 @@ const template = `<div class="logger">
   				</el-select>
 			</div>
 			<div v-show="queryParams.msgType === 2" class="log-nav-item">
-				<el-input v-model="queryParams.groupId" placeholder="输入频道名称" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
+				<el-input v-model="queryParams.guildName" placeholder="输入频道名称" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
 			</div>
 			<div class="copy-button" @click="copyAsReportFormat">去隐私复制</div>
 		</div>
@@ -41,6 +41,9 @@ const template = `<div class="logger">
 		</p>
 		<p v-else-if="error" class="empty-promote">
 			未找到{{ currentDate.getMonth() + 1 }}月{{ currentDate.getDate() }}日的日志...
+		</p>
+		<p v-else-if="loading" class="empty-promote">
+			正在获取日志记录，请稍后...
 		</p>
 		<div v-else class="log-window">
 			<el-scrollbar ref="scrollbarRef" class="log-scroll-container">
@@ -79,6 +82,7 @@ export default defineComponent( {
 			currentDate: new Date(),
 			today: true,
 			autoBottom: true,
+			loading: false,
 			error: false,
 			currentPage: 1,
 			pageSize: 750,
@@ -101,7 +105,7 @@ export default defineComponent( {
 		const queryParams = ref( {
 			logLevel: "",
 			msgType: null,
-			groupId: ""
+			guildName: ""
 		} )
 		
 		const scrollbarRef = ref( null );
@@ -125,7 +129,7 @@ export default defineComponent( {
 			let protocol = document.location.protocol === "https:" ? "wss:" : "ws:";
 			ws = new WebSocket( `${ protocol }//${ document.location.host }/ws/log` );
 			ws.addEventListener( "message", async ( event ) => {
-				const msg = JSON.parse( event.data );
+				const msg = filterWsLogs( JSON.parse( event.data ) );
 				if ( msg.length === 0 ) {
 					return;
 				}
@@ -137,6 +141,36 @@ export default defineComponent( {
 						} );
 					}
 				} );
+			} );
+		}
+		
+		/* 过滤 ws 传递的 logs 数据 */
+		function filterWsLogs( logs ) {
+			const logLevel = queryParams.value.logLevel;
+			const msgType = parseInt( queryParams.value.msgType );
+			const guildName = queryParams.value.guildName;
+			return logs.filter( el => {
+				/* 过滤日志等级 */
+				if ( logLevel && el.level !== logLevel.toUpperCase() ) {
+					return false;
+				}
+				/* 过滤消息类型 */
+				if ( !Number.isNaN( msgType ) ) {
+					const reg = /\[(G|ID): ((\d|.)+)\]/;
+					const result = reg.exec( el.message );
+					if ( result ) {
+						const type = result[1];
+						if ( msgType !== ( type === 'G' ? 2 : 1 ) ) {
+							return false;
+						}
+						if ( msgType === 2 && guildName && guildName !== result[2] ) {
+							return false;
+						}
+					} else if ( msgType !== 0 ) {
+						return false;
+					}
+				}
+				return true;
 			} );
 		}
 		
@@ -152,6 +186,7 @@ export default defineComponent( {
 		
 		/* 获取日志列表 */
 		async function getLogsData( date = state.currentDate ) {
+			state.loading = true;
 			try {
 				const resp = await $http.LOG_INFO( {
 					date: date.getTime(),
@@ -166,8 +201,10 @@ export default defineComponent( {
 				} else {
 					state.error = true;
 				}
+				state.loading = false;
 			} catch ( error ) {
 				state.error = true;
+				state.loading = false;
 			}
 		}
 		
@@ -183,7 +220,7 @@ export default defineComponent( {
 			queryParams.value = {
 				logLevel: "",
 				msgType: null,
-				groupId: ""
+				guildName: ""
 			}
 			
 			getLogsData( date ).then( () => {
@@ -197,9 +234,21 @@ export default defineComponent( {
 			} );
 		}
 		
+		/* 消息类型切换 */
+		async function msgTypeChange() {
+			queryParams.value.guildName = "";
+			await handleFilter();
+		}
+		
+		/* 筛选条件变化查询 */
+		async function handleFilter( clearGuildName = false ) {
+			resetData();
+			await getLogsData();
+		}
+		
+		
 		/* 切换分页 */
 		async function pageChange( page, isBottom ) {
-			console.log( '????' )
 			if ( !isBottom && scrollbarRef.value ) {
 				scrollbarRef.value.wrap$.scrollTop = 0;
 			}

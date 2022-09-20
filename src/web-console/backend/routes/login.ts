@@ -1,7 +1,7 @@
 import express from "express";
 import bot from "ROOT";
-import getToken from "@web-console/backend/jwt";
 import { Md5 } from 'md5-typescript'
+import { getToken } from "@web-console/backend/jwt";
 
 export default express.Router().post( "/", ( req, res ) => {
 	const num = <string>req.body.num;

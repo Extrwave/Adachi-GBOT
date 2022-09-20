@@ -1,11 +1,11 @@
-const template = `<div class="table-container user guild-page">
+const template = `<div class="table-container user">
 	<div class="nav-btn-box">
     	<el-scrollbar class="horizontal-wrap">
 			<nav-search :searchList="searchList" :searchData="listQuery" :showNum="1" :disabled="tableLoading" @change="handleFilter"></nav-search>
     	</el-scrollbar>
 	</div>
     <div class="table-view">
-		<el-table v-loading="tableLoading" :data="guildList" header-row-class-name="table-header" :height="tableHeight" stripe border @selection-change="selectionChange">
+		<el-table v-loading="tableLoading" :data="guildList" header-row-class-name="table-header" :height="tableHeight" stripe @selection-change="selectionChange">
         	<el-table-column fixed="left" type="selection" width="50" align="center" prop="selection" label="筛选"></el-table-column>
 			<el-table-column prop="guildId" label="ID" align="center" min-width="110px"></el-table-column>
 			<el-table-column prop="avatar" label="频道" align="center" min-width="230px">
