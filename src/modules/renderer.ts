@@ -2,27 +2,32 @@ import { URL, URLSearchParams } from "url";
 import { RefreshCatch } from "@modules/management/refresh";
 import puppeteer from "puppeteer";
 import bot from "ROOT";
+import * as fs from "fs"
+import { Buffer } from "buffer";
+import { v4 } from 'uuid'
+import { resolve } from "path";
 
 interface RenderSuccess {
 	code: "ok";
+	data: fs.ReadStream
+}
+
+interface RenderOther {
+	code: "other";
 	data: string;
 }
 
 interface RenderError {
-	code: "err";
-	error: string;
+	code: "error";
+	data: string;
 }
 
-interface UpLoadError {
-	code: "error";
-	error: string;
-}
 
 export interface PageFunction {
 	( page: puppeteer.Page ): Promise<Buffer | string | void>
 }
 
-export type RenderResult = RenderSuccess | RenderError | UpLoadError;
+export type RenderResult = RenderSuccess | RenderOther | RenderError;
 
 export class Renderer {
 	private readonly httpBase: string;
@@ -55,35 +60,34 @@ export class Renderer {
 	): Promise<RenderResult> {
 		try {
 			const url: string = this.getURL( route, params );
-			const base64: string = await bot.renderer.screenshot( url, viewPort, selector );
-			return { code: "ok", data: base64 };
+			const base64 = await bot.renderer.screenshot( url, viewPort, selector, { encoding: 'base64' } );
+			return { code: "other", data: base64 };
 		} catch ( error ) {
 			const err = <string>( <Error>error ).stack;
-			return { code: "error", error: err };
+			return { code: "other", data: err };
 		}
 	}
 	
-	public async asUrlImage(
+	public async asLocalImage(
 		route: string,
 		params: Record<string, any> = {},
 		viewPort: puppeteer.Viewport | null = null,
 		selector: string = this.defaultSelector
 	): Promise<RenderResult> {
 		try {
+			const ss = bot.file.getFilePath( `${ v4() }.jpeg`, "data" );
 			const url: string = this.getURL( route, params );
-			// console.log( url );
-			const base64: string = await bot.renderer.screenshot( url, viewPort, selector );
-			const { code, data } = await bot.qiniuyun.upBase64Oss( base64 );
-			if ( code === "ok" ) {
-				return { code: "ok", data: data };
-			} else {
-				bot.logger.error( data );
-				return { code: "error", error: data };
-			}
+			await bot.renderer.screenshot( url, viewPort, selector, {
+				path: ss,
+				type: 'jpeg'
+			} );
+			const imageStream = fs.createReadStream( ss );
+			fs.rmSync( ss );
+			return { code: "ok", data: imageStream };
 		} catch ( error ) {
 			const err = <Error>error;
 			bot.logger.error( `图片渲染异常\n` + err.stack );
-			return { code: "err", error: `图片渲染异常，请联系开发者进行反馈\n` + err.message };
+			return { code: "error", data: `图片渲染异常，请联系开发者进行反馈\n` + err.message };
 		}
 	}
 	
@@ -96,10 +100,10 @@ export class Renderer {
 		try {
 			const url: string = this.getURL( route, params );
 			const data: string = await bot.renderer.screenshotForFunction( url, viewPort, pageFunction );
-			return { code: "ok", data };
+			return { code: "other", data };
 		} catch ( error ) {
 			const err = <string>( <Error>error ).stack;
-			return { code: "error", error: err };
+			return { code: "error", data: err };
 		}
 	}
 }
@@ -179,7 +183,7 @@ export class BasicRenderer {
 		}, { timeout: 10000 } )
 	}
 	
-	public async screenshot( url: string, viewPort: puppeteer.Viewport | null, selector: string ): Promise<string> {
+	public async screenshot( url: string, viewPort: puppeteer.Viewport | null, selector: string, option?: puppeteer.ScreenshotOptions ): Promise<string> {
 		if ( !this.browser ) {
 			throw new Error( "浏览器未启动" );
 		}
@@ -192,10 +196,10 @@ export class BasicRenderer {
 			await page.goto( url );
 			await this.pageLoaded( page );
 			
-			const option: puppeteer.ScreenshotOptions = { encoding: "base64" };
 			const element = await page.$( selector );
-			const result = <string>await element?.screenshot( option );
-			// const base64: string = `base64://${ result }`;
+			const result = <string>await element?.screenshot( option ? option : {
+				encoding: 'base64'
+			} );
 			await page.close();
 			
 			this.screenshotCount++;

@@ -70,7 +70,7 @@ export default class MsgManager implements MsgManagementMethod {
 				formdata.append( "file_image", content.file_image );
 				if ( msgId )
 					formdata.append( "msg_id", msgId );
-				if ( content )
+				if ( content.content )
 					formdata.append( "content", content.content );
 				await fetch( `https://api.sgroup.qq.com/dms/${ guildId }/messages`, {
 					method: "POST",
@@ -118,7 +118,7 @@ export default class MsgManager implements MsgManagementMethod {
 				formdata.append( "file_image", content.file_image );
 				if ( msgId )
 					formdata.append( "msg_id", msgId );
-				if ( content )
+				if ( content.content )
 					formdata.append( "content", content.content );
 				await fetch( `https://api.sgroup.qq.com/dms/${ guildId }/messages`, {
 					method: "POST",
@@ -162,7 +162,7 @@ export default class MsgManager implements MsgManagementMethod {
 				formdata.append( "file_image", content.file_image );
 				if ( msgId )
 					formdata.append( "msg_id", msgId );
-				if ( content )
+				if ( content.content )
 					formdata.append( "content", content.content );
 				await fetch( `https://api.sgroup.qq.com/channels/${ channelId }/messages`, {
 					method: "POST",

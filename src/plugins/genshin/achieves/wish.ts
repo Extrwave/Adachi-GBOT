@@ -22,7 +22,7 @@ export async function main(
 	const nickname: string = messageData.msg.author.username;
 	const param: string = messageData.msg.content;
 	
-	const wishHourLimit = 10;
+	const wishHourLimit = 60;
 	const dbKey = `adachi.user-wish-limit-${ userID }`;
 	let currentCount = await redis.getString( dbKey );
 	/* 用户在特定时间内超过阈值 */
@@ -82,14 +82,16 @@ export async function main(
 			data: data.result,
 			name: nickname
 		} ) );
-		const res: RenderResult = await renderer.asUrlImage(
+		const res: RenderResult = await renderer.asLocalImage(
 			"/wish.html",
 			{ qq: userID }
 		);
 		if ( res.code === "ok" ) {
+			await sendMessage( { file_image: res.data } );
+		}else if ( res.code === "other" ) {
 			await sendMessage( { image: res.data } );
 		} else {
-			await sendMessage( res.error );
+			await sendMessage( res.data );
 		}
 		return;
 	}
@@ -123,13 +125,15 @@ export async function main(
 		total: data.total,
 		nickname
 	} );
-	const res: RenderResult = await renderer.asUrlImage(
+	const res: RenderResult = await renderer.asLocalImage(
 		"/wish-statistic.html",
 		{ qq: userID }
 	);
 	if ( res.code === "ok" ) {
+		await sendMessage( { file_image: res.data } );
+	} else if ( res.code === "other" ) {
 		await sendMessage( { image: res.data } );
 	} else {
-		await sendMessage( res.error );
+		await sendMessage( res.data );
 	}
 }

@@ -7,6 +7,7 @@ import { getArkListMessage } from "@modules/utils/arks";
 import { RenderResult } from "@modules/renderer";
 import { renderer } from "../init";
 import bot from "ROOT";
+import * as fs from "fs";
 import { MessageScope } from "@modules/utils/message";
 import { AuthLevel } from "@modules/management/auth";
 
@@ -64,7 +65,7 @@ function arkStyle( title: string, list: string[], command: Command ): Ark {
 }
 
 /* 使用图片帮助 */
-async function cardStyle( i: InputParameter, commands: BasicConfig[], version: string ): Promise<string> {
+async function cardStyle( i: InputParameter, commands: BasicConfig[], version: string ): Promise<RenderResult> {
 	const dbKey = "adachi.help-data";
 	const cmdList: HelpCommand[] = commands.map( ( cmd, cKey ) => {
 		return {
@@ -90,16 +91,9 @@ async function cardStyle( i: InputParameter, commands: BasicConfig[], version: s
 		commands: cmdData
 	} ) );
 	
-	const res: RenderResult = await renderer.asUrlImage(
+	const res: RenderResult = await renderer.asLocalImage(
 		"/index.html" );
-	if ( res.code === "ok" ) {
-		return res.data;
-	} else {
-		i.logger.error( res.error );
-		const CALL = <Order>bot.command.getSingle( "adachi.call", AuthLevel.User );
-		const appendMsg = CALL ? `私聊使用 ${ CALL.getHeaders()[0] } ` : "";
-		return `图片渲染异常，请${ appendMsg }联系开发者进行反馈`;
-	}
+	return res;
 }
 
 
@@ -140,23 +134,26 @@ export async function main( i: InputParameter ): Promise<void> {
 	/* 使用图片帮助,默认获取全部指令 */
 	const dbKey = `adachi-help-image`;
 	if ( i.config.helpMessageStyle === "card" ) {
-		const helpCard = await i.redis.getString( dbKey );
-		if ( helpCard !== "" ) {
-			await i.sendMessage( { image: helpCard } );
-			return;
-		}
+		// const helpCard = await i.redis.getString( dbKey );
+		// if ( helpCard !== "" ) {
+		// 	await i.sendMessage( { file_image: helpCard } );
+		// 	return;
+		// }
 		const allCommands: BasicConfig[] = i.command
 			.get( AuthLevel.Master, MessageScope.Private )
 			.filter( el => el.display );
-		const image = await cardStyle( i, allCommands, version );
-		if ( /图片渲染异常/.test( image ) ) {
-			i.logger.error( image );
-			await i.sendMessage( image );
+		const res = await cardStyle( i, allCommands, version );
+		if ( res.code === "ok" ) {
+			await i.sendMessage( { file_image: res.data } );
+			// await i.redis.setString( dbKey, res.data );
+			return;
+		} else if ( res.code === "other" ) {
+			await i.sendMessage( { image: res.data } );
+			return;
+		} else {
+			await i.sendMessage( res.data );
 			return;
 		}
-		await i.sendMessage( { image: image } );
-		await i.redis.setString( dbKey, image );
-		return;
 	}
 	
 	const title: string = `Adachi-GBOT v${ version }~`;

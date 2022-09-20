@@ -51,12 +51,12 @@ export async function main(
 	
 	const { cookie, uid, server } = info.setting;
 	
-	const dbKey = `adachi-temp-ledger-${ uid }-${ month }`;
-	const ledgerTemp = await redis.getString( dbKey );
-	if ( ledgerTemp !== "" ) {
-		await sendMessage( { content: "数据存在半小时延迟", image: ledgerTemp } );
-		return;
-	}
+	// const dbKey = `adachi-temp-ledger-${ uid }-${ month }`;
+	// const ledgerTemp = await redis.getString( dbKey );
+	// if ( ledgerTemp !== "" ) {
+	// 	await sendMessage( { content: "数据存在半小时延迟", image: ledgerTemp } );
+	// 	return;
+	// }
 	
 	try {
 		await ledgerPromise( uid, server, month, cookie );
@@ -67,11 +67,13 @@ export async function main(
 		}
 	}
 	await sendMessage( "获取成功，正在生成图片..." );
-	const res: RenderResult = await renderer.asUrlImage( "/ledger.html", { uid } );
+	const res: RenderResult = await renderer.asLocalImage( "/ledger.html", { uid } );
 	if ( res.code === "ok" ) {
+		await sendMessage( { file_image: res.data } );
+		// await redis.setString( dbKey, res.data, 3600 * 0.5 );
+	} else if ( res.code === "other" ) {
 		await sendMessage( { image: res.data } );
-		await redis.setString( dbKey, res.data, 3600 * 0.5 );
 	} else {
-		await sendMessage( res.error );
+		await sendMessage( res.data );
 	}
 }

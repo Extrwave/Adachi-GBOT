@@ -3,8 +3,9 @@ Author: Ethereal
 CreateTime: 2022/7/1
  */
 
+import { ReadStream } from "fs";
 import { IMessage, IMessageRes, IUser, MessageReference } from "qq-guild-bot";
-
+import exp from "constants";
 /* 由于官方SDK更新滞后，与最新API部分数据不匹配，此文件用于修正 */
 
 /* ws监听到消息的类型 */
@@ -68,11 +69,6 @@ export enum MessageType {
 	Group,
 	Private,
 	Unknown
-}
-
-export interface SendMsgType {
-	code: "msg" | "image",
-	data: string
 }
 
 /* SDK 消息其他返回类型 */

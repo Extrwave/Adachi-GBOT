@@ -23,24 +23,26 @@ export async function main(
 			await sendMessage( "仅角色支持查看技能详情" );
 		} else {
 			/* 八小时内重复获取 */
-			const dbKey: string = `adachi-temp-info-${ result.info }-${ isSkillPage }`;
-			const infoTemp = await redis.getString( dbKey );
-			if ( infoTemp !== "" ) {
-				await sendMessage( { image: infoTemp } );
-				return;
-			}
+			// const dbKey: string = `adachi-temp-info-${ result.info }-${ isSkillPage }`;
+			// const infoTemp = await redis.getString( dbKey );
+			// if ( infoTemp !== "" ) {
+			// 	await sendMessage( { image: infoTemp } );
+			// 	return;
+			// }
 			
 			const route: string = checked( typeData.artifact.suitNames ) ? "/info-artifact.html" : "/info.html";
 			await sendMessage( "获取成功，正在生成图片..." );
-			const res: RenderResult = await renderer.asUrlImage(
+			const res: RenderResult = await renderer.asLocalImage(
 				route,
 				{ name: result.info, skill: isSkillPage }
 			);
 			if ( res.code === "ok" ) {
+				await sendMessage( { file_image: res.data } );
+				// await redis.setString( dbKey, res.data, 3600 * 8 );
+			} else if ( res.code === "other" ) {
 				await sendMessage( { image: res.data } );
-				await redis.setString( dbKey, res.data, 3600 * 8 );
 			} else {
-				await sendMessage( res.error );
+				await sendMessage( res.data );
 			}
 		}
 	} else if ( result.info === "" ) {
