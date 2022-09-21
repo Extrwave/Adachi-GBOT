@@ -54,7 +54,7 @@ export default class BotConfig {
 			enable: false,
 			adminName: "admin",
 			adminPwd: "admin",
-			consolePort: 80,
+			consolePort: 9999,
 			tcpLoggerPort: 54921,
 			logHighWaterMark: 64,
 			jwtSecret: randomSecret( 16 )
