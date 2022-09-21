@@ -3,14 +3,19 @@
  CreateTime: 2022/6/12
  */
 import bot from "ROOT";
+import * as fs from 'fs';
 import { resolve } from 'path';
 import FormData from 'form-data';////需要自己安装
 import fetch from 'node-fetch';//需要自己安装
-import * as fs from 'fs';
 import BotConfig from "@modules/config";
 import { IDirectMessage, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
 import Database from "@modules/database";
 import { Message, MessageType } from "@modules/utils/message";
+
+const environment = {
+	sandbox: "https://sandbox.api.sgroup.qq.com",
+	online: "https://api.sgroup.qq.com"
+}
 
 interface MessageToSend extends MessageToCreate {
 	file_image?: fs.ReadStream;
@@ -31,12 +36,14 @@ export default class MsgManager implements MsgManagementMethod {
 	private readonly client: IOpenAPI;
 	private readonly redis: Database;
 	private readonly config: BotConfig;
+	private readonly apiUrl: string;
 	
 	constructor( config: BotConfig, client: IOpenAPI, redis: Database ) {
 		this.atUser = config.atUser;
 		this.client = client;
 		this.redis = redis;
 		this.config = config;
+		this.apiUrl = this.config.sandbox ? environment.sandbox : environment.online;
 	}
 	
 	/*构建私聊会话*/
@@ -56,6 +63,7 @@ export default class MsgManager implements MsgManagementMethod {
 	/*获取私信发送方法 构建*/
 	public async getSendPrivateFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
 		const client = this.client;
+		const apiUrl = this.apiUrl;
 		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
 		return async function ( content: MessageToSend | string ): Promise<IMessage | any> {
@@ -72,7 +80,7 @@ export default class MsgManager implements MsgManagementMethod {
 					formdata.append( "msg_id", msgId );
 				if ( content.content )
 					formdata.append( "content", content.content );
-				await fetch( `https://api.sgroup.qq.com/dms/${ guildId }/messages`, {
+				await fetch( `${ apiUrl }/dms/${ guildId }/messages`, {
 					method: "POST",
 					headers: {
 						"Content-Type": formdata.getHeaders()["content-type"],
@@ -105,6 +113,7 @@ export default class MsgManager implements MsgManagementMethod {
 	/*私信回复方法 被动回复*/
 	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
 		const client = this.client;
+		const apiUrl = this.apiUrl;
 		msgId = "1000"; //随时都可能失效，失效后删掉此行
 		return async function ( content: MessageToSend | string ) {
 			if ( typeof content === 'string' ) {
@@ -120,7 +129,7 @@ export default class MsgManager implements MsgManagementMethod {
 					formdata.append( "msg_id", msgId );
 				if ( content.content )
 					formdata.append( "content", content.content );
-				await fetch( `https://api.sgroup.qq.com/dms/${ guildId }/messages`, {
+				await fetch( `${ apiUrl }/dms/${ guildId }/messages`, {
 					method: "POST",
 					headers: {
 						"Content-Type": formdata.getHeaders()["content-type"],
@@ -146,6 +155,7 @@ export default class MsgManager implements MsgManagementMethod {
 	/* 回复频道消息方法，主动、被动*/
 	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
 		const client = this.client;
+		const apiUrl = this.apiUrl;
 		return async function ( content: MessageToSend | string ) {
 			if ( typeof content === 'string' ) {
 				const response = await client.messageApi.postMessage( channelId, {
@@ -164,7 +174,7 @@ export default class MsgManager implements MsgManagementMethod {
 					formdata.append( "msg_id", msgId );
 				if ( content.content )
 					formdata.append( "content", content.content );
-				await fetch( `https://api.sgroup.qq.com/channels/${ channelId }/messages`, {
+				await fetch( `${ apiUrl }/channels/${ channelId }/messages`, {
 					method: "POST",
 					headers: {
 						"Content-Type": formdata.getHeaders()["content-type"],
