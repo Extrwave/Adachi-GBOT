@@ -73,6 +73,6 @@ export default express.Router()
 		}
 	})
 	.post("/restart", async (req, res) => {
-		restart( "adachi-bot", () => {} );
+		restart( "adachi-gbot", () => {} );
 		res.status( 200 ).send( { code: 200, data: {} } );
 	});

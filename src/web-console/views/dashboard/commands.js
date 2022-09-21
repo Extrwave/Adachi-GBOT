@@ -1,8 +1,8 @@
 const template = `<div class="table-container config">
-	<el-alert title="该页内容修改完毕后续重启BOT或刷新配置才能生效" type="warning" show-icon />
+	<el-alert title="该页内容修改完毕后仅需刷新配置即可生效" type="warning" show-icon />
 	<el-form :model="commands" class="config-form" @submit.prevent>
 		<div v-for="cKey of Object.keys(commands)" :key="cKey" class="config-section">
-			<section-title :title="cKey" />
+			<section-title :title="cKey"/>
 			<form-item label="启用">
 				<el-switch v-model="commands[cKey].enable" :disabled="pageLoading" @change="updateConfig(cKey, 'enable')" />
 			</form-item>
@@ -117,9 +117,9 @@ export default defineComponent( {
 		async function updateConfig( id, field ) {
 			state.pageLoading = true;
 			const path = `${ id }.${ field }`;
-			const value = objectGet( state.commands, path, 1 );
+			const value = objectGet( state.commands, path );
 			const data = {};
-			objectSet( data, path, value, 1 );
+			objectSet( data, path, value );
 			try {
 				await $http.CONFIG_SET( { fileName: "commands", data } );
 				ElNotification( {
