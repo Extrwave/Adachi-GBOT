@@ -2,8 +2,8 @@
     <img src="https://docs.adachi.top/images/adachi.png" width="200"/>
     <h3>- Adachi-GBOT -</h3>
     <div>
-        <a href="https://docs.adachi.top" target="_blank">官方文档</a> &nbsp;|&nbsp;
-        <a href="https://github.com/SilveryStar/Adachi-Plugin" target="_blank">插件库</a>
+        <a href="https://docs.ethreal.cn" target="_blank">官方文档</a> &nbsp;|&nbsp;
+        <a href="https://github.com/Extrwave/Adachi-Plugin" target="_blank">插件库</a>
     </div>
     <small>&gt; 原神Q频道助手 &lt;</small>
     <br>

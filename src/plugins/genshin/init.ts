@@ -86,13 +86,13 @@ export async function init( { file, logger }: BOT ): Promise<PluginSetting> {
 	/* 加载 genshin.yml 配置 */
 	config = loadConfig( file );
 	/* 实例化渲染器 */
-	const port: number = await findFreePort( config.serverPort, logger );
+	const serverPort: number = await findFreePort( config.serverPort, logger );
 	renderer = bot.renderer.register(
 		"genshin", "/views",
-		port, "#app"
+		serverPort, "#app"
 	);
 	/* 启动 express 服务 */
-	createServer( config, logger );
+	createServer( serverPort, logger );
 	
 	bot.refresh.registerRefreshableFile( "genshin", config );
 	bot.refresh.registerRefreshableFile( "cookies", cookies );
