@@ -8,6 +8,7 @@ import { BOT } from "@modules/bot";
 import { PluginSetting, PluginSubSetting, SubInfo } from "@modules/plugin";
 import { createServer } from "./server";
 import { getMemberInfo } from "@modules/utils/account";
+import { findFreePort } from "@modules/utils/utils";
 
 export let config: GenshinConfig;
 export let renderer: Renderer;
@@ -85,9 +86,10 @@ export async function init( { file, logger }: BOT ): Promise<PluginSetting> {
 	/* 加载 genshin.yml 配置 */
 	config = loadConfig( file );
 	/* 实例化渲染器 */
+	const port: number = await findFreePort( config.serverPort, logger );
 	renderer = bot.renderer.register(
 		"genshin", "/views",
-		config.serverPort, "#app"
+		port, "#app"
 	);
 	/* 启动 express 服务 */
 	createServer( config, logger );

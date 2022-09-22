@@ -9,7 +9,6 @@ export default class BotConfig {
 	public readonly master: string;
 	public readonly header: string;
 	public readonly atBot: boolean;
-	public readonly atUser: boolean;
 	public readonly autoChat: boolean;
 	public readonly dbPort: number;
 	public readonly dbPassword: string;
@@ -40,7 +39,6 @@ export default class BotConfig {
 		area: "private",
 		header: "/",
 		atBot: false,
-		atUser: false,
 		autoChat: false,
 		dbPort: 6379,
 		dbPassword: "",
@@ -80,7 +78,6 @@ export default class BotConfig {
 		this.dbPort = config.dbPort;
 		this.dbPassword = config.dbPassword;
 		this.atBot = config.atBot;
-		this.atUser = config.atUser;
 		this.autoChat = config.autoChat;
 		this.helpPort = config.helpPort;
 		this.groupIntervalTime = config.groupIntervalTime;

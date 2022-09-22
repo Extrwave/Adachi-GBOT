@@ -17,11 +17,11 @@ const environment = {
 	online: "https://api.sgroup.qq.com"
 }
 
-interface MessageToSend extends MessageToCreate {
+export interface MessageToSend extends MessageToCreate {
 	file_image?: fs.ReadStream;
 }
 
-export type SendFunc = ( content: MessageToSend | string, allowAt?: boolean ) => Promise<IMessage | void>;
+export type SendFunc = ( content: MessageToSend | string, atUser?: string ) => Promise<IMessage | void>;
 
 interface MsgManagementMethod {
 	getSendPrivateFunc( guildId: string, userId: string ): Promise<SendFunc>;
@@ -32,14 +32,12 @@ interface MsgManagementMethod {
 
 export default class MsgManager implements MsgManagementMethod {
 	
-	private readonly atUser: boolean;
 	private readonly client: IOpenAPI;
 	private readonly redis: Database;
 	private readonly config: BotConfig;
 	private readonly apiUrl: string;
 	
 	constructor( config: BotConfig, client: IOpenAPI, redis: Database ) {
-		this.atUser = config.atUser;
 		this.client = client;
 		this.redis = redis;
 		this.config = config;
@@ -66,7 +64,7 @@ export default class MsgManager implements MsgManagementMethod {
 		const apiUrl = this.apiUrl;
 		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
-		return async function ( content: MessageToSend | string ): Promise<IMessage | any> {
+		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage | any> {
 			if ( typeof content === 'string' ) {
 				const response = await client.directMessageApi.postDirectMessage( guild_id, {
 					content: content,
@@ -115,10 +113,10 @@ export default class MsgManager implements MsgManagementMethod {
 		const client = this.client;
 		const apiUrl = this.apiUrl;
 		msgId = "1000"; //随时都可能失效，失效后删掉此行
-		return async function ( content: MessageToSend | string ) {
+		return async function ( content: MessageToSend | string, atUser?: string ) {
 			if ( typeof content === 'string' ) {
 				const response = await client.directMessageApi.postDirectMessage( guildId, {
-					content: content,
+					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
 				return response.data;
@@ -128,7 +126,7 @@ export default class MsgManager implements MsgManagementMethod {
 				if ( msgId )
 					formdata.append( "msg_id", msgId );
 				if ( content.content )
-					formdata.append( "content", content.content );
+					formdata.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
 				await fetch( `${ apiUrl }/dms/${ guildId }/messages`, {
 					method: "POST",
 					headers: {
@@ -146,6 +144,9 @@ export default class MsgManager implements MsgManagementMethod {
 				} )
 			} else {
 				content.msg_id = msgId;
+				if ( content.content && atUser ) {
+					content.content = `<@!${ atUser } ${ content.content }>`;
+				}
 				const response = await client.directMessageApi.postDirectMessage( guildId, content );
 				return response.data;
 			}
@@ -156,10 +157,10 @@ export default class MsgManager implements MsgManagementMethod {
 	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
 		const client = this.client;
 		const apiUrl = this.apiUrl;
-		return async function ( content: MessageToSend | string ) {
+		return async function ( content: MessageToSend | string, atUser?: string ) {
 			if ( typeof content === 'string' ) {
 				const response = await client.messageApi.postMessage( channelId, {
-					content: content,
+					content: atUser ? `<@!${ atUser } ${ content }>` : content,
 					msg_id: msgId,
 					message_reference: {
 						message_id: msgId ? msgId : "undefine",
@@ -173,7 +174,7 @@ export default class MsgManager implements MsgManagementMethod {
 				if ( msgId )
 					formdata.append( "msg_id", msgId );
 				if ( content.content )
-					formdata.append( "content", content.content );
+					formdata.append( "content", atUser ? `<@!${ atUser } ${ content.content }>` : content.content );
 				await fetch( `${ apiUrl }/channels/${ channelId }/messages`, {
 					method: "POST",
 					headers: {
@@ -191,6 +192,9 @@ export default class MsgManager implements MsgManagementMethod {
 				} )
 			} else {
 				content.msg_id = msgId;
+				if ( content.content && atUser ) {
+					content.content = `<@!${ atUser } ${ content.content }>`;
+				}
 				const response = await client.messageApi.postMessage( channelId, content );
 				return response.data;
 			}

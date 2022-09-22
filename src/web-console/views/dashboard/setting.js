@@ -57,10 +57,10 @@ const template = `<div class="table-container config">
 <!--					<el-radio v-for="(a, aKey) of authList" :key="aKey" :label="a">{{ a }}</el-radio>-->
 <!--				</el-radio-group>-->
 <!--			</form-item>-->
-			<form-item label="at用户" desc="BOT 在响应指令时，是否需要 at 用户，(仅对私域机器人生效)">
-				<el-switch v-model="setting.atUser" :disabled="pageLoading" @change="updateConfig('atUser')" />
-			</form-item>
-			<form-item label="atBOT" desc="是否需要在使用指令时 @BOT 账号，只在群聊中生效，@BOT 必须在最前面。">
+<!--			<form-item label="at用户" desc="BOT 在响应指令时，是否需要 at 用户，(仅对私域机器人生效)">-->
+<!--				<el-switch v-model="setting.atUser" :disabled="pageLoading" @change="updateConfig('atUser')" />-->
+<!--			</form-item>-->
+			<form-item label="atBOT" desc="是否需要在使用指令时 @BOT 账号。(仅对私域机器人生效)">
 				<el-switch v-model="setting.atBOT" :disabled="pageLoading" @change="updateConfig('atBOT')" />
 			</form-item>
 			<form-item label="日志输出等级" desc="等级从上往下依次递减，日志输出会过滤掉比所设置等级更高的等级日志">

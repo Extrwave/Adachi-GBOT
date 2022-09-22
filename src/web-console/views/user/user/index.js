@@ -95,7 +95,7 @@ export default defineComponent( {
 		];
 		
 		const searchList = ref( [
-			{ id: 'userId', name: 'QQ', type: 'input', placeholder: 'qq号' },
+			{ id: 'userId', name: 'ID', type: 'input', placeholder: 'ID号' },
 			{
 				id: 'sub',
 				name: '订阅',
