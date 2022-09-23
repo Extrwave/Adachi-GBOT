@@ -142,7 +142,7 @@ export async function main( i: InputParameter ): Promise<void> {
 		}
 		try {
 			await updateBotPlugin( i, pluginName, isForce );
-			await i.sendMessage( `[${ pluginName }]插件更新完成，${ isRestart ? "正在重启服务..." : "请稍后手动重启 BOT" }` );
+			await i.sendMessage( `[ ${ pluginName } ]插件更新完成，${ isRestart ? "正在重启服务..." : "请稍后手动重启 BOT" }` );
 			await i.redis.setString( dbKey, checkResult.newDate );
 			if ( isRestart ) { // 重启服务
 				restart( "adachi-gbot", async ( error ) => {

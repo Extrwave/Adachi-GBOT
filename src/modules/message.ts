@@ -219,7 +219,3 @@ export function getMessageType( data: Message ): MessageType {
 		return MessageType.Unknown;
 	}
 }
-
-
-
-
