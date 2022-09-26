@@ -1,4 +1,4 @@
-import request, { formatGetURL } from "./requests";
+import request, { formatGetURL } from "@modules/requests";
 import { parse } from "yaml";
 import { toCamelCase } from "./camel-case";
 import { set } from "lodash";
