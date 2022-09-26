@@ -1,5 +1,5 @@
 const template =
-    `<div class="layout-header" @click="$emit( 't' )">
+	`<div class="layout-header" @click="$emit( 't' )">
 	<el-icon :size="28" color="#000">
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -14,9 +14,9 @@ const template =
 	</el-icon>
 </div>`;
 
-const {defineComponent} = Vue;
+const { defineComponent } = Vue;
 
-export default defineComponent({
-    name: "Header",
-    template
-});
+export default defineComponent( {
+	name: "Header",
+	template
+} );

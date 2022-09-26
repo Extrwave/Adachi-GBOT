@@ -88,9 +88,9 @@ export default defineComponent( {
 		}
 		
 		/* 对输入内容进行过滤 */
-		function inputFilter(e) {
+		function inputFilter( e ) {
 			if ( props.type === "number" ) {
-				state.newTag = e.replace(/\D/g, "");
+				state.newTag = e.replace( /\D/g, "" );
 			}
 		}
 		

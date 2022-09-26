@@ -1,4 +1,4 @@
-import DefaultLayout from  "../layout/default/index.js";
+import DefaultLayout from "../layout/default/index.js";
 
 const systemRoutes = [
 	{

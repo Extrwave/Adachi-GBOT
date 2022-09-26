@@ -145,7 +145,7 @@ export default defineComponent( {
 		
 		/* 保存数据 */
 		function saveValue() {
-			const reg = props.verifyReg ? new RegExp( `^${props.verifyReg}$` ) : null;
+			const reg = props.verifyReg ? new RegExp( `^${ props.verifyReg }$` ) : null;
 			if ( reg && !reg.test( state.formValue ) ) {
 				state.showErrMsg = true;
 				return;

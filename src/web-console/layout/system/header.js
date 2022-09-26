@@ -108,7 +108,7 @@ export default defineComponent( {
 					duration: 2000
 				} );
 				state.refreshLoading = false;
-			} ).catch(error => {
+			} ).catch( error => {
 				ElNotification( {
 					title: "失败",
 					message: error.message,
@@ -116,22 +116,22 @@ export default defineComponent( {
 					duration: 2000
 				} );
 				state.refreshLoading = false;
-			})
+			} )
 		}
 		
 		/* 重启bot */
 		function botRestart() {
 			state.restartLoading = true;
 			BOT_RESTART().then( () => {
-				ElMessageBox.alert("重启成功，页面将在10秒后自动刷新。", "提示", {
+				ElMessageBox.alert( "重启成功，页面将在10秒后自动刷新。", "提示", {
 					confirmButtonText: "确定",
 					type: "warning",
 					center: true
-				});
-				setTimeout(() => {
+				} );
+				setTimeout( () => {
 					location.reload();
-				}, 10000);
-			} ).catch(error => {
+				}, 10000 );
+			} ).catch( error => {
 				ElNotification( {
 					title: "失败",
 					message: error.message,
@@ -139,7 +139,7 @@ export default defineComponent( {
 					duration: 2000
 				} );
 				state.restartLoading = false;
-			})
+			} )
 		}
 		
 		return {

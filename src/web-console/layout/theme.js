@@ -1,5 +1,5 @@
 const template =
-    `<el-container
+	`<el-container
 	class="layout-container"
 	:class="{ mobile: isMobile }"
 >
@@ -21,28 +21,28 @@ import Main from "./main.js";
 import Footer from "./footer.js";
 import Header from "./header.js";
 
-const {defineComponent, ref, watch} = Vue;
-const {useRoute} = VueRouter;
+const { defineComponent, ref, watch } = Vue;
+const { useRoute } = VueRouter;
 
-export default defineComponent({
-    name: "Theme",
-    components: {Header, Aside, Main, Footer},
-    props: {isMobile: Boolean},
-    template,
-    setup(props) {
-        const route = useRoute();
-        const isOpen = ref(false);
-
-        function toggle() {
-            isOpen.value = !isOpen.value;
-        }
-
-        watch(() => route.path, () => {
-            if (props.isMobile) {
-                setTimeout(() => toggle(), 275);
-            }
-        });
-
-        return {toggle, isOpen};
-    }
-});
+export default defineComponent( {
+	name: "Theme",
+	components: { Header, Aside, Main, Footer },
+	props: { isMobile: Boolean },
+	template,
+	setup( props ) {
+		const route = useRoute();
+		const isOpen = ref( false );
+		
+		function toggle() {
+			isOpen.value = !isOpen.value;
+		}
+		
+		watch( () => route.path, () => {
+			if ( props.isMobile ) {
+				setTimeout( () => toggle(), 275 );
+			}
+		} );
+		
+		return { toggle, isOpen };
+	}
+} );

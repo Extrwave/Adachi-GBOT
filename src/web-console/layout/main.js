@@ -1,5 +1,5 @@
 const template =
-    `<div class="layout-main">
+	`<div class="layout-main">
 	<router-view v-slot="{ Component }">
 		<transition name="fade-transform" mode="out-in" appear>
 			<component :is="Component" />
@@ -7,9 +7,9 @@ const template =
 	</router-view>
 </div>`;
 
-const {defineComponent} = Vue;
+const { defineComponent } = Vue;
 
-export default defineComponent({
-    name: "Main",
-    template
-});
+export default defineComponent( {
+	name: "Main",
+	template
+} );

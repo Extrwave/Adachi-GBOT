@@ -98,6 +98,7 @@
 	align-items: center;
 	column-gap: 10px;
 }
+
 .header-view > .header-menu > .nav-right > .nav-btn {
 	padding: 7px;
 	border-radius: 4px;
@@ -225,7 +226,7 @@
 }
 
 .aside-view .el-menu .el-menu-item.is-active {
-	background-color: #fff9e7!important;
+	background-color: #fff9e7 !important;
 	border-left-color: var(--base-color);
 }
 

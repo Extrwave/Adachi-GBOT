@@ -14,4 +14,3 @@
 src/plugins/*
 !/src/plugins/@help/
 !/src/plugins/@management/
-!/src/plugins/genshin/
