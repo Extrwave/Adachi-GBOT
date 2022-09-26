@@ -6,12 +6,13 @@
     "start": "pm2 start adachi-gbot.config.js",
     "win-start": "ts-node -r tsconfig-paths/register app.ts --files",
     "docker-start": "pm2-runtime start adachi-gbot.config.js",
-    "restart": "pm2 restart adachi-bot.config.js",
-    "stop": "pm2 delete adachi-bot.config.js"
+    "restart": "pm2 restart adachi-gbot.config.js",
+    "stop": "pm2 delete adachi-gbot.config.js"
   },
   "license": "ISC",
   "dependencies": {
     "@types/redis": "^2.8.32",
+    "date-fns": "^2.29.3",
     "diff": "^5.0.0",
     "express-jwt": "^6.1.0",
     "express-serve-static-core": "^0.1.1",
