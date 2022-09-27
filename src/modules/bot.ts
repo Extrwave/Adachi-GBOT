@@ -199,8 +199,9 @@ export class Adachi {
 			return;
 		}
 		
-		/* 对设置可用子频道做出适配 */
-		if ( !isPrivate ) {
+		/* 对设置可用子频道做出适配 更新管理员不受限制 */
+		const auth = await this.bot.auth.get( messageData.msg.author.id );
+		if ( !isPrivate && auth < AuthLevel.Manager ) {
 			const guildId = messageData.msg.guild_id;
 			const channelId = messageData.msg.channel_id;
 			const { status, msg } = await checkChannelLimit( guildId, channelId );
