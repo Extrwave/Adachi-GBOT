@@ -1,6 +1,6 @@
 {
   "name": "Adachi-GBot",
-  "version": "2.6.4",
+  "version": "2.6.5",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "pm2 start adachi-gbot.config.js",
@@ -14,6 +14,7 @@
     "@types/redis": "^2.8.32",
     "date-fns": "^2.29.3",
     "diff": "^5.0.0",
+    "exceljs": "^4.3.0",
     "express-jwt": "^6.1.0",
     "express-serve-static-core": "^0.1.1",
     "express-ws": "^5.0.2",
@@ -30,6 +31,7 @@
     "puppeteer": "^14.3.0",
     "qiniu": "^7.7.0",
     "qq-guild-bot": "^2.9.5",
+    "qrcode": "^1.5.1",
     "redis": "^3.1.2",
     "resty-client": "0.0.5",
     "ts-node": "^10.8.1",

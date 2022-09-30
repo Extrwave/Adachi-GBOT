@@ -4,7 +4,6 @@
  */
 import bot from "ROOT";
 import * as fs from 'fs';
-import { resolve } from 'path';
 import FormData from 'form-data';////需要自己安装
 import fetch from 'node-fetch';//需要自己安装
 import BotConfig from "@modules/config";
@@ -35,13 +34,12 @@ export default class MsgManager implements MsgManagementMethod {
 	private readonly client: IOpenAPI;
 	private readonly redis: Database;
 	private readonly config: BotConfig;
-	private readonly apiUrl: string;
 	
 	constructor( config: BotConfig, client: IOpenAPI, redis: Database ) {
 		this.client = client;
 		this.redis = redis;
 		this.config = config;
-		this.apiUrl = this.config.sandbox ? environment.sandbox : environment.online;
+		
 	}
 	
 	/*构建私聊会话*/
@@ -61,7 +59,6 @@ export default class MsgManager implements MsgManagementMethod {
 	/*获取私信发送方法 构建*/
 	public async getSendPrivateFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
 		const client = this.client;
-		const apiUrl = this.apiUrl;
 		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage | any> {
@@ -72,27 +69,13 @@ export default class MsgManager implements MsgManagementMethod {
 				} );
 				return <IMessage>response.data;
 			} else if ( content.file_image ) {
-				let formdata = new FormData();
-				formdata.append( "file_image", content.file_image );
+				let formData = new FormData();
+				formData.append( "file_image", content.file_image );
 				if ( msgId )
-					formdata.append( "msg_id", msgId );
+					formData.append( "msg_id", msgId );
 				if ( content.content )
-					formdata.append( "content", content.content );
-				await fetch( `${ apiUrl }/dms/${ guildId }/messages`, {
-					method: "POST",
-					headers: {
-						"Content-Type": formdata.getHeaders()["content-type"],
-						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
-					},
-					body: formdata
-				} ).then( async res => {
-					if ( res.status !== 200 ) {
-						throw new Error( res.statusText );
-					}
-					return res.statusText;
-				} ).catch( error => {
-					console.log( error );
-				} )
+					formData.append( "content", content.content );
+				return await sendFileImage( false, guildId, formData );
 			} else {
 				content.msg_id = msgId;
 				const response = await client.directMessageApi.postDirectMessage( guild_id, content );
@@ -111,7 +94,6 @@ export default class MsgManager implements MsgManagementMethod {
 	/*私信回复方法 被动回复*/
 	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
 		const client = this.client;
-		const apiUrl = this.apiUrl;
 		msgId = "1000"; //随时都可能失效，失效后删掉此行
 		return async function ( content: MessageToSend | string, atUser?: string ) {
 			if ( typeof content === 'string' ) {
@@ -121,27 +103,13 @@ export default class MsgManager implements MsgManagementMethod {
 				} );
 				return response.data;
 			} else if ( content.file_image ) {
-				let formdata = new FormData();
-				formdata.append( "file_image", content.file_image );
+				let formData = new FormData();
+				formData.append( "file_image", content.file_image );
 				if ( msgId )
-					formdata.append( "msg_id", msgId );
+					formData.append( "msg_id", msgId );
 				if ( content.content )
-					formdata.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
-				await fetch( `${ apiUrl }/dms/${ guildId }/messages`, {
-					method: "POST",
-					headers: {
-						"Content-Type": formdata.getHeaders()["content-type"],
-						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
-					},
-					body: formdata
-				} ).then( async res => {
-					if ( res.status !== 200 ) {
-						throw new Error( res.statusText );
-					}
-					return res.statusText;
-				} ).catch( error => {
-					console.log( error );
-				} )
+					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
+				return await sendFileImage( true, guildId, formData );
 			} else {
 				content.msg_id = msgId;
 				if ( content.content && atUser ) {
@@ -156,7 +124,6 @@ export default class MsgManager implements MsgManagementMethod {
 	/* 回复频道消息方法，主动、被动*/
 	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
 		const client = this.client;
-		const apiUrl = this.apiUrl;
 		return async function ( content: MessageToSend | string, atUser?: string ) {
 			if ( typeof content === 'string' ) {
 				const response = await client.messageApi.postMessage( channelId, {
@@ -169,27 +136,13 @@ export default class MsgManager implements MsgManagementMethod {
 				} );
 				return response.data;
 			} else if ( content.file_image ) {
-				let formdata = new FormData();
-				formdata.append( "file_image", content.file_image );
+				let formData = new FormData();
+				formData.append( "file_image", content.file_image );
 				if ( msgId )
-					formdata.append( "msg_id", msgId );
+					formData.append( "msg_id", msgId );
 				if ( content.content )
-					formdata.append( "content", atUser ? `<@!${ atUser } ${ content.content }>` : content.content );
-				await fetch( `${ apiUrl }/channels/${ channelId }/messages`, {
-					method: "POST",
-					headers: {
-						"Content-Type": formdata.getHeaders()["content-type"],
-						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
-					},
-					body: formdata
-				} ).then( async res => {
-					if ( res.status !== 200 ) {
-						throw new Error( res.statusText );
-					}
-					return res.statusText;
-				} ).catch( error => {
-					console.log( error );
-				} )
+					formData.append( "content", atUser ? `<@!${ atUser } ${ content.content }>` : content.content );
+				return await sendFileImage( false, channelId, formData );
 			} else {
 				content.msg_id = msgId;
 				if ( content.content && atUser ) {
@@ -208,6 +161,7 @@ export default class MsgManager implements MsgManagementMethod {
 		return response.data;
 	}
 	
+	
 }
 
 export function getMessageType( data: Message ): MessageType {
@@ -219,3 +173,30 @@ export function getMessageType( data: Message ): MessageType {
 		return MessageType.Unknown;
 	}
 }
+
+async function sendFileImage( isDirect: boolean, targetId: string, formData: FormData ): Promise<any> {
+	const apiUrl = bot.config.sandbox ? environment.sandbox : environment.online;
+	let url = '';
+	if ( isDirect ) {
+		url = `${ apiUrl }/dms/${ targetId }/messages`;
+	} else {
+		url = `${ apiUrl }/channels/${ targetId }/messages`;
+	}
+	
+	await fetch( url, {
+		method: "POST",
+		headers: {
+			"Content-Type": formData.getHeaders()["content-type"],
+			"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
+		},
+		body: formData
+	} ).then( async res => {
+		if ( res.status !== 200 ) {
+			throw new Error( res.statusText );
+		}
+		return res.statusText;
+	} ).catch( error => {
+		throw new Error( error );
+	} )
+}
+

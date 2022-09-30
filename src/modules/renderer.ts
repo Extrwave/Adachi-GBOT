@@ -5,7 +5,6 @@ import bot from "ROOT";
 import * as fs from "fs"
 import { Buffer } from "buffer";
 import { v4 } from 'uuid'
-import { resolve } from "path";
 
 interface RenderSuccess {
 	code: "ok";
