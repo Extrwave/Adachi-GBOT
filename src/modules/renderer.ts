@@ -81,8 +81,7 @@ export class Renderer {
 				type: 'jpeg'
 			} );
 			const imageStream = fs.createReadStream( ss );
-			fs.rm( ss, () => {
-			} );
+			fs.unlinkSync( ss );
 			return { code: "ok", data: imageStream };
 		} catch ( error ) {
 			const err = <Error>error;
