@@ -5,11 +5,11 @@
 import bot from "ROOT";
 import * as fs from 'fs';
 import FormData from 'form-data';////需要自己安装
-import fetch from 'node-fetch';//需要自己安装
 import BotConfig from "@modules/config";
 import { IDirectMessage, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
 import Database from "@modules/database";
 import { Message, MessageType } from "@modules/utils/message";
+import requests from "@modules/requests";
 
 const environment = {
 	sandbox: "https://sandbox.api.sgroup.qq.com",
@@ -27,6 +27,7 @@ interface MsgManagementMethod {
 	getSendMasterFunc( msgId: string ): Promise<SendFunc>;
 	sendPrivateMessage( guildId: string, msgId: string ): SendFunc;
 	sendGuildMessage( channelId: string, msgId: string ): SendFunc;
+	sendFileImageFunc( isDirect: boolean, targetId: string, formData: FormData ): Promise<any>;
 }
 
 export default class MsgManager implements MsgManagementMethod {
@@ -39,7 +40,6 @@ export default class MsgManager implements MsgManagementMethod {
 		this.client = client;
 		this.redis = redis;
 		this.config = config;
-		
 	}
 	
 	/*构建私聊会话*/
@@ -58,7 +58,7 @@ export default class MsgManager implements MsgManagementMethod {
 	
 	/*获取私信发送方法 构建*/
 	public async getSendPrivateFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
-		const client = this.client;
+		const client = this.client, sendFileImage = this.sendFileImageFunc;
 		msgId = "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage | any> {
@@ -75,7 +75,7 @@ export default class MsgManager implements MsgManagementMethod {
 					formData.append( "msg_id", msgId );
 				if ( content.content )
 					formData.append( "content", content.content );
-				return await sendFileImage( false, guildId, formData );
+				return await sendFileImage( true, guildId, formData );
 			} else {
 				content.msg_id = msgId;
 				const response = await client.directMessageApi.postDirectMessage( guild_id, content );
@@ -93,7 +93,7 @@ export default class MsgManager implements MsgManagementMethod {
 	
 	/*私信回复方法 被动回复*/
 	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
-		const client = this.client;
+		const client = this.client, sendFileImage = this.sendFileImageFunc;
 		msgId = "1000"; //随时都可能失效，失效后删掉此行
 		return async function ( content: MessageToSend | string, atUser?: string ) {
 			if ( typeof content === 'string' ) {
@@ -123,7 +123,7 @@ export default class MsgManager implements MsgManagementMethod {
 	
 	/* 回复频道消息方法，主动、被动*/
 	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
-		const client = this.client;
+		const client = this.client, sendFileImage = this.sendFileImageFunc;
 		return async function ( content: MessageToSend | string, atUser?: string ) {
 			if ( typeof content === 'string' ) {
 				const response = await client.messageApi.postMessage( channelId, {
@@ -154,13 +154,32 @@ export default class MsgManager implements MsgManagementMethod {
 		}
 	}
 	
+	async sendFileImageFunc( isDirect: boolean, targetId: string, formData: FormData ): Promise<any> {
+		const apiUrl = bot.config.sandbox ? environment.sandbox : environment.online;
+		let url = '';
+		if ( isDirect ) {
+			url = `${ apiUrl }/dms/${ targetId }/messages`;
+		} else {
+			url = `${ apiUrl }/channels/${ targetId }/messages`;
+		}
+		
+		return await requests( {
+			url: url,
+			method: "POST",
+			headers: {
+				"Content-Type": formData.getHeaders()["content-type"],
+				"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
+			},
+			body: formData
+		} );
+	}
+	
 	async getMessageInfo( channelId: string, msgId: string ):
 		Promise<IMessageRes> {
 		const bot = this.client;
 		const response = await bot.messageApi.message( channelId, msgId );
 		return response.data;
 	}
-	
 	
 }
 
@@ -174,29 +193,5 @@ export function getMessageType( data: Message ): MessageType {
 	}
 }
 
-async function sendFileImage( isDirect: boolean, targetId: string, formData: FormData ): Promise<any> {
-	const apiUrl = bot.config.sandbox ? environment.sandbox : environment.online;
-	let url = '';
-	if ( isDirect ) {
-		url = `${ apiUrl }/dms/${ targetId }/messages`;
-	} else {
-		url = `${ apiUrl }/channels/${ targetId }/messages`;
-	}
-	
-	await fetch( url, {
-		method: "POST",
-		headers: {
-			"Content-Type": formData.getHeaders()["content-type"],
-			"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
-		},
-		body: formData
-	} ).then( async res => {
-		if ( res.status !== 200 ) {
-			throw new Error( res.statusText );
-		}
-		return res.statusText;
-	} ).catch( error => {
-		throw new Error( error );
-	} )
-}
+
 

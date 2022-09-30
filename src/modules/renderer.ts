@@ -81,7 +81,7 @@ export class Renderer {
 				type: 'jpeg'
 			} );
 			const imageStream = fs.createReadStream( ss );
-			fs.rm( ss, () => {
+			fs.rm( ss, () => { //此处不能sync同步，删除之后imageStream无效
 			} );
 			return { code: "ok", data: imageStream };
 		} catch ( error ) {
