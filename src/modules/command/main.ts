@@ -249,6 +249,6 @@ export default class Command {
 
 export function removeHeaderInContent( string: string, prefix: string ): string {
 	if ( bot.config.header !== "" )
-		return string.replace( new RegExp( `${ prefix.charAt(0) }|${ prefix.slice(1) }`, "g" ), '' );
+		return string.replace( new RegExp( `${ prefix.charAt( 0 ) }|${ prefix.slice( 1 ) }`, "g" ), '' );
 	return string.replace( new RegExp( prefix, "g" ), '' );
 }

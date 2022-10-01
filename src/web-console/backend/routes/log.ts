@@ -31,7 +31,7 @@ export default express.Router().get( "/", async ( req, res ) => {
 					}
 					/* 过滤消息类型 */
 					if ( !Number.isNaN( msgType ) ) {
-						const reg = /\[(G|ID): ((\d|.)+)\]/;
+						const reg = /\[(G|ID): ((\d|.)+)]/;
 						const result = reg.exec( el.message );
 						if ( result ) {
 							const type = <'G' | 'ID'>result[1];

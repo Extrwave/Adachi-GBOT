@@ -71,7 +71,7 @@ export default defineComponent( {
 		/* 处理 input 输入内容 */
 		function inputValue( type, id ) {
 			if ( type === "number" ) {
-				props.searchData[id] = props.searchData[id].replace( /[^\d]/g, "" );
+				props.searchData[id] = props.searchData[id].replace( /\D/g, "" );
 			}
 		}
 		

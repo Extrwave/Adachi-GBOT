@@ -214,7 +214,7 @@ export class Adachi {
 		
 		let content: string = messageData.msg.content.trim() || '';
 		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
-		messageData.msg.content = content = content.replace( /\[|\]|\(|\)|\|/g, "" );
+		messageData.msg.content = content = content.replace( /[\[\]()|]/g, "" );
 		
 		/* 人工智障聊天, 匹配不到任何指令触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		if ( !unionRegExp.test( content ) ) {

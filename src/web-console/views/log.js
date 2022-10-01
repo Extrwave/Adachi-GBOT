@@ -98,7 +98,7 @@ export default defineComponent( {
 			label: "私聊",
 			value: 1
 		}, {
-			label: "群聊",
+			label: "频道",
 			value: 2
 		} ]
 		
@@ -156,7 +156,7 @@ export default defineComponent( {
 				}
 				/* 过滤消息类型 */
 				if ( !Number.isNaN( msgType ) ) {
-					const reg = /\[(G|ID): ((\d|.)+)\]/;
+					const reg = /\[(G|ID): ((\d|.)+)]/;
 					const result = reg.exec( el.message );
 					if ( result ) {
 						const type = result[1];
@@ -292,8 +292,8 @@ export default defineComponent( {
 				.toString()
 				.split( "\n\n" )
 				.map( el => {
-					el = el.replace( /\[A: (.+)\]\[ID: (\d+)\]/, " [Recv] [Pri-$1]" )
-						.replace( /\[A: (.+)\]\[G: (.+)\]/, " [Recv] [Group] $1" )
+					el = el.replace( /\[A: (.+)]\[ID: (\d+)]/, " [Recv] [Pri-$1]" )
+						.replace( /\[A: (.+)]\[G: (.+)]/, " [Recv] [Group] $1" )
 						.replace( /(\[[A-Z]+]) - (.*)/, "$1 [Event] $2" )
 						.replace( /&#93;/g, "]" )
 						.replace( /&#91;/g, "[" );
