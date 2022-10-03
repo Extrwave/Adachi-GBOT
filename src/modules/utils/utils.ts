@@ -1,5 +1,6 @@
 import { createServer } from "net";
 import { Logger } from "log4js";
+import { exec } from "child_process";
 
 /**
  * 查找一个可用端口
@@ -55,4 +56,17 @@ export function randomSecret( length: number ): string {
 	}
 	
 	return result;
+}
+
+/* 命令执行 */
+export async function execHandle( command: string ): Promise<string> {
+	return new Promise( ( resolve, reject ) => {
+		exec( command, ( error, stdout, stderr ) => {
+			if ( error ) {
+				reject( error );
+			} else {
+				resolve( stdout );
+			}
+		} )
+	} )
 }

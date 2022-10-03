@@ -1,10 +1,13 @@
 import { InputParameter } from "@modules/command";
-import { restart } from "pm2";
+import { execHandle } from "@modules/utils/utils";
+
 
 export async function main( { sendMessage, logger }: InputParameter ): Promise<void> {
 	await sendMessage( "开始重启 BOT，请稍后" );
-	restart( "adachi-gbot", async ( error ) => {
+	try {
+		await execHandle( "pm2 restart adachi-gbot" );
+	} catch ( error ) {
 		logger.error( error );
 		await sendMessage( `重启 BOT 出错: ${ error }` );
-	} );
+	}
 }

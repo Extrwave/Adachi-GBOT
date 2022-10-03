@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import { exec } from "child_process";
 import { InputParameter } from "@modules/command";
-import { restart } from "pm2";
 import { PluginUpgradeServices } from "@modules/plugin";
+import { execHandle } from "@modules/utils/utils";
 
 /* 超时检查 */
 function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any> {
@@ -25,7 +25,7 @@ async function getCommitsInfo( repo: string ): Promise<any[]> {
 }
 
 /* 命令执行 */
-async function execHandle( command: string, cwd: string ): Promise<string> {
+async function execHandleCwd( command: string, cwd: string ): Promise<string> {
 	return new Promise( ( resolve, reject ) => {
 		exec( command, { cwd }, ( error, stdout, stderr ) => {
 			if ( error ) {
@@ -46,7 +46,7 @@ async function updateBotPlugin( {
                                 }: InputParameter, pluginName: string, isForce: boolean = false ): Promise<void> {
 	const command = !isForce ? "git pull --no-rebase" : "git reset --hard && git pull --no-rebase";
 	const cwd = file.getFilePath( pluginName, "plugin" );
-	const execPromise = execHandle( command, cwd ).then( ( stdout: string ) => {
+	const execPromise = execHandleCwd( command, cwd ).then( ( stdout: string ) => {
 		logger.info( stdout );
 		if ( /(Already up[ -]to[ -]date|已经是最新的)/.test( stdout ) ) {
 			throw `[${ pluginName }]当前已经是最新版本了`;
@@ -145,10 +145,7 @@ export async function main( i: InputParameter ): Promise<void> {
 			await i.sendMessage( `[ ${ pluginName } ]插件更新完成，${ isRestart ? "正在重启服务..." : "请稍后手动重启 BOT" }` );
 			await i.redis.setString( dbKey, checkResult.newDate );
 			if ( isRestart ) { // 重启服务
-				restart( "adachi-gbot", async ( error ) => {
-					await i.sendMessage( `重启 BOT 出错: ${ error }` );
-					throw error;
-				} );
+				await execHandle( "pm2 restart adachi-gbot" );
 			}
 		} catch ( e: any ) {
 			if ( typeof e === "string" ) {
@@ -217,9 +214,11 @@ export async function main( i: InputParameter ): Promise<void> {
 	
 	// 重启服务
 	if ( isRestart ) {
-		restart( "adachi-gbot", async ( error ) => {
+		try {
+			await execHandle( "pm2 restart adachi-gbot" );
+		} catch ( error ) {
 			i.logger.error( error );
 			await i.sendMessage( `重启 BOT 出错: ${ error }` );
-		} );
+		}
 	}
 }

@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
-import { exec } from "child_process";
 import { InputParameter } from "@modules/command";
-import { restart } from "pm2";
+import { execHandle } from "@modules/utils/utils";
 
 /* 超时检查 */
 function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any> {
@@ -17,19 +16,6 @@ function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any>
 async function getCommitsInfo(): Promise<any[]> {
 	const result: Response = await fetch( "https://api.github.com/repos/Extrwave/Adachi-GBOT/commits" );
 	return await result.json();
-}
-
-/* 命令执行 */
-async function execHandle( command: string ): Promise<string> {
-	return new Promise( ( resolve, reject ) => {
-		exec( command, ( error, stdout, stderr ) => {
-			if ( error ) {
-				reject( error );
-			} else {
-				resolve( stdout );
-			}
-		} )
-	} )
 }
 
 /* 更新 bot */
@@ -59,11 +45,11 @@ async function updateBot( { messageData, sendMessage, logger }: InputParameter )
 	
 	await sendMessage( "更新成功，BOT 正在自行重启，请稍后" );
 	
-	restart( "adachi-gbot", async ( error ) => {
-		logger.error( error );
-		await sendMessage( `重启 BOT 出错: ${ error }` );
+	try {
+		await execHandle( "pm2 restart adachi-gbot" );
+	} catch ( error ) {
 		throw error;
-	} );
+	}
 }
 
 export async function main( i: InputParameter ): Promise<void> {
