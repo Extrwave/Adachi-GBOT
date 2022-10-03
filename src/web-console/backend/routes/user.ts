@@ -3,7 +3,7 @@ import express from "express";
 import { AuthLevel } from "@modules/management/auth";
 import { PluginReSubs, SubInfo } from "@modules/plugin";
 import { BOT } from "@modules/bot";
-import { getGuildBaseInfo, getMemberInfoInGuild } from "@modules/utils/account";
+import { getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
 
 type UserInfo = {
 	userID: string;
@@ -169,7 +169,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 			continue;
 		}
 		const guildBaseInfo = await getGuildBaseInfo( el );
-		const guildMemberInfo = await getMemberInfoInGuild( userID, el );
+		const guildMemberInfo = await getMemberInfo( userID, el );
 		const gName = guildBaseInfo ? guildBaseInfo.name : "Unknown";
 		if ( guildMemberInfo?.account ) {
 			nickname = guildMemberInfo.account.user.username;

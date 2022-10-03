@@ -163,11 +163,6 @@ export class Adachi {
 		file.createDir( "database", "root" );
 		file.createDir( "logs", "root" );
 		file.createDir( "data", "root" );
-		
-		file.createYAML(
-			"cookies",
-			{ cookies: [ "米游社Cookies(允许设置多个)" ] }
-		);
 		file.createYAML(
 			"commands",
 			{ tips: "此文件修改后需重启应用" }
@@ -214,7 +209,7 @@ export class Adachi {
 		
 		let content: string = messageData.msg.content.trim() || '';
 		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
-		messageData.msg.content = content = content.replace( /\[|\]|\(|\)|\|/g, "" );
+		messageData.msg.content = content = content.replace( /[\[\]()|]/g, "" );
 		
 		/* 人工智障聊天, 匹配不到任何指令触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
 		if ( !unionRegExp.test( content ) ) {

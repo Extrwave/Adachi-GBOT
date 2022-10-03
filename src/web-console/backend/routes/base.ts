@@ -58,7 +58,7 @@ export default express.Router()
 			} );
 			const cpuUsed = `${ ( ( 1 - cpuFree ) * 100 ).toFixed( 2 ) }%`;
 			
-			const resp = { weakData, userCount, groupCount: guildCount, memories, cpuUsed };
+			const resp = { weakData, userCount, guildCount, memories, cpuUsed };
 			res.status( 200 ).send( { code: 200, data: resp } );
 		} catch ( error ) {
 			res.status( 500 ).send( { code: 500, data: {}, msg: (<Error>error).stack } );
