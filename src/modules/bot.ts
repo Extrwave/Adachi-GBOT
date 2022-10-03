@@ -163,11 +163,6 @@ export class Adachi {
 		file.createDir( "database", "root" );
 		file.createDir( "logs", "root" );
 		file.createDir( "data", "root" );
-		
-		file.createYAML(
-			"cookies",
-			{ cookies: [ "米游社Cookies(允许设置多个)" ] }
-		);
 		file.createYAML(
 			"commands",
 			{ tips: "此文件修改后需重启应用" }
