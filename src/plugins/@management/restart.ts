@@ -8,6 +8,6 @@ export async function main( { sendMessage, logger }: InputParameter ): Promise<v
 		await execHandle( "pm2 restart adachi-gbot" );
 	} catch ( error ) {
 		logger.error( error );
-		await sendMessage( `重启 BOT 出错: ${ error }` );
+		await sendMessage( `重启 BOT 出错: ${ ( <Error>error ).message }` );
 	}
 }

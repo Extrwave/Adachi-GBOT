@@ -70,3 +70,9 @@ export async function execHandle( command: string ): Promise<string> {
 		} )
 	} )
 }
+
+export function Sleep( time: number ) {
+	return new Promise( resolve => {
+		setTimeout( resolve, time )
+	} )
+}

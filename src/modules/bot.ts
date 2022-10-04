@@ -27,6 +27,7 @@ import { trim } from "lodash";
 import { getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
 import { checkChannelLimit } from "#@management/channel";
+import { Sleep } from "./utils/utils";
 
 
 export interface BOT {
@@ -102,7 +103,6 @@ export class Adachi {
 	public run(): BOT {
 		Plugin.load( this.bot ).then( commands => {
 			this.bot.command.add( commands );
-			
 			/* 事件监听 ,根据机器人类型选择能够监听的事件 */
 			if ( this.bot.config.area === "private" ) {
 				/* 私域机器人 */
@@ -128,7 +128,7 @@ export class Adachi {
 					this.userDecrease( this )( data.msg.guild_id, data.msg.user.id );
 			} )
 			this.getBotBaseInfo( this )();
-			this.bot.logger.info( "BOT启动成功" );
+			this.botIsAlive( this.bot ).then();
 		} );
 		
 		
@@ -580,5 +580,15 @@ export class Adachi {
 			}
 		}
 		return allGuilds;
+	}
+	
+	public async botIsAlive( bot: BOT ) {
+		while ( true ) {
+			if ( bot.ws.session.ws.alive ) {
+				bot.logger.info( "BOT已成功上线 ~" );
+				return;
+			}
+			await Sleep( 3000 );
+		}
 	}
 }
