@@ -31,7 +31,7 @@ export const PluginRawConfigs: Record<string, cmd.ConfigType[]> = {};
 export const PluginUpgradeServices: Record<string, string> = {};
 
 // 不支持热更新的插件集合，这些插件不会被提示不支持热更新。
-const not_support_upgrade_plugins: string[] = [ "@help", "@management", "genshin" ];
+const not_support_upgrade_plugins: string[] = [ "@help", "@management" ];
 
 
 export default class Plugin {
