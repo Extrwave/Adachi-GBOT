@@ -73,22 +73,23 @@ export class Renderer {
 		viewPort: puppeteer.Viewport | null = null,
 		selector: string = this.defaultSelector
 	): Promise<RenderResult> {
-		try {
-			const ss = bot.file.getFilePath( `${ v4() }.jpeg`, "data" );
-			const url: string = this.getURL( route, params );
-			await bot.renderer.screenshot( url, viewPort, selector, {
-				path: ss,
-				type: 'jpeg'
-			} );
-			const imageStream = fs.createReadStream( ss );
-			fs.rm( ss, () => { //此处不能sync同步，删除之后imageStream无效
-			} );
-			return { code: "ok", data: imageStream };
-		} catch ( error ) {
-			const err = <Error>error;
-			bot.logger.error( `图片渲染异常\n` + err.stack );
-			return { code: "error", data: `图片渲染异常，请联系开发者进行反馈\n` + err.message };
-		}
+		return new Promise( async ( resolve, reject ) => {
+			try {
+				const fileName = bot.file.getFilePath( `${ v4() }.jpeg`, "data" );
+				const url: string = this.getURL( route, params );
+				await bot.renderer.screenshot( url, viewPort, selector, {
+					path: fileName,
+					type: 'jpeg'
+				} );
+				const imageStream = fs.createReadStream( fileName );
+				resolve( { code: "ok", data: imageStream } );
+				fs.unlinkSync( fileName );
+			} catch ( error ) {
+				const err = <Error>error;
+				bot.logger.error( `图片渲染异常：` + err.stack );
+				resolve( { code: "error", data: `图片渲染异常，请联系开发者进行反馈\n` + err.message } );
+			}
+		} )
 	}
 	
 	public async asForFunction(
