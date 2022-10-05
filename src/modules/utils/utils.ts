@@ -76,3 +76,17 @@ export function Sleep( time: number ) {
 		setTimeout( resolve, time )
 	} )
 }
+
+export function obj2ParamsStr( obj: object ): string {
+	const params: string[] = [];
+	for ( let key in obj ) {
+		params.push( `${ key }=${ obj[key] }` );
+	}
+	return params.join( '&' );
+}
+
+export function cookie2Obj( cookie: string ): any {
+	return decodeURIComponent( cookie ).split( ";" )
+		.map( item => item.split( '=' ) )
+		.reduce( ( acc, [ k, v ] ) => ( acc[k.trim().replace( '"', '' )] = v ) && acc, {} );
+}
