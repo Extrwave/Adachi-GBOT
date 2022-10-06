@@ -18,6 +18,7 @@ const template = `<form-item ref="spreadRef" class="spread-form-item" :class="{ 
 			<Tags
 				v-else-if="type === 'list'"
 				v-model="formValue"
+				:type="type"
 				:disabled="disabled"
 				:limit="1"
 			/>
@@ -146,6 +147,11 @@ export default defineComponent( {
 		
 		/* 保存数据 */
 		function saveValue() {
+			/* type为number时禁止为空 */
+			if ( props.type === "number" && state.formValue === null ) {
+				state.showErrMsg = true;
+				return;
+			}
 			const verify = props.verifyReg;
 			if ( verify ) {
 				if ( typeof verify === "function" ) {

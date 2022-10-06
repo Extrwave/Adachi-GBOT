@@ -63,7 +63,7 @@ export default express.Router()
 		const data = configFiles.map( name => {
 			const fileName = name.replace( ".yml", "" );
 			/* 过滤非插件配置项 */
-			if ( [ "setting", "commands", "whitelist" ].includes( fileName ) ) {
+			if ( [ "setting", "commands", "cookies", "whitelist" ].includes( fileName ) ) {
 				return null;
 			}
 			

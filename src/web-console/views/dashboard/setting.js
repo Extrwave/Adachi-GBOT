@@ -21,9 +21,7 @@ const template = `<div class="table-container config">
 				:disabled="pageLoading"
 				label="BotAppID"
 				placeholder="请输入AppID"
-				verifyReg=".+"
 				type="number"
-				verifyMsg="该项为必填项"
 				@change="updateConfig('appID')"
 				@open="activeSpreadItem"
 			/>
