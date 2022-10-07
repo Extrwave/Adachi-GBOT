@@ -131,7 +131,7 @@ export class Adachi {
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
 		scheduleJob( "0 1 */6 * * *", this.clearExitUser( this ) );
-		scheduleJob( "0 30 */4 * * *", this.getBotBaseInfo( this ) );
+		scheduleJob( "0 30 */6 * * *", this.getBotBaseInfo( this ) );
 		return this.bot;
 	}
 	
@@ -477,19 +477,7 @@ export class Adachi {
 				return;
 			}
 			await bot.redis.setString( `adachi.user-bot-id`, responseMeApi.data.id );
-			
-			let ackMaster = false;
-			const guilds = await that.getBotInGuilds( bot );
-			for ( let guild of guilds ) {
-				await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
-				if ( !ackMaster && guild.owner_id === bot.config.master ) {
-					await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
-					ackMaster = true;
-				}
-			}
-			if ( !ackMaster ) {
-				bot.logger.error( "MasterID设置错误，部分功能会受到影响" );
-			}
+			await that.getBotInGuilds( bot );
 		}
 	}
 	
@@ -567,7 +555,15 @@ export class Adachi {
 		}
 		/* 初始化频道主权限 */
 		for ( let guild of allGuilds ) {
+			await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
+			if ( !ackMaster && guild.owner_id === bot.config.master ) {
+				await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
+				ackMaster = true;
+			}
 			await bot.auth.set( "system", guild.owner_id, guild.id, AuthLevel.GuildOwner );
+		}
+		if ( !ackMaster ) {
+			bot.logger.error( "MasterID设置错误，部分功能会受到影响" );
 		}
 		return allGuilds;
 	}
