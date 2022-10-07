@@ -4,7 +4,7 @@ import { Renderer } from "@modules/renderer";
 import { BOT } from "@modules/bot";
 import { createServer } from "#@help/server";
 import { MessageScope } from "@modules/utils/message";
-import { findFreePort } from "@modules/utils/utils";
+import { findFreePort } from "@modules/utils";
 
 const help: OrderConfig = {
 	type: "order",
@@ -14,16 +14,6 @@ const help: OrderConfig = {
 	regexps: [ "(-k)?" ],
 	main: "achieves/help"
 };
-
-const detail: OrderConfig = {
-	type: "order",
-	cmdKey: "adachi-detail",
-	desc: [ "", "[序号]" ],
-	headers: [ "detail" ],
-	regexps: [ "\\d+" ],
-	main: "achieves/detail",
-	display: false
-}
 
 const sponsor: OrderConfig = {
 	type: "order",
@@ -41,9 +31,9 @@ const push: OrderConfig = {
 	headers: [ "push" ],
 	regexps: [],
 	main: "achieves/push",
-	scope: MessageScope.Group,
+	scope: MessageScope.Guild,
 	display: false,
-	detail: "通过频道推送一条私信给自己"
+	detail: "通过频道推送一条私信给自己，解决超过3条私信问题"
 }
 
 export let renderer: Renderer;
@@ -63,6 +53,6 @@ export async function init( bot: BOT ): Promise<PluginSetting> {
 	
 	return {
 		pluginName: "@help",
-		cfgList: [ help, detail, sponsor, push ]
+		cfgList: [ help, sponsor, push ]
 	};
 }

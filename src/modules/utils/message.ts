@@ -60,13 +60,13 @@ export interface GuildsMove {
 
 export enum MessageScope {
 	Neither,
-	Group = 1 << 0,
+	Guild = 1 << 0,
 	Private = 1 << 1,
-	Both = Group | Private
+	Both = Guild | Private
 }
 
 export enum MessageType {
-	Group,
+	Guild,
 	Private,
 	Unknown
 }

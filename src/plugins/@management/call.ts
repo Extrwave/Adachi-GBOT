@@ -14,11 +14,11 @@ export async function main(
 	{ sendMessage, messageData, command, message, redis, matchResult, auth }: InputParameter ) {
 	
 	const userID: string = messageData.msg.author.id;
-	
+	const guildId: string = messageData.msg.guild_id;
 	const attachments = messageData.msg.attachments;
 	
 	const header = ( <OrderMatchResult>matchResult ).header;
-	const au: AuthLevel = await auth.get( userID );
+	const au: AuthLevel = await auth.get( userID, guildId );
 	
 	const CALL_MASTER = <Order>command.getSingle( "adachi-call-master", au );
 	const REPLY_USER = <Order>command.getSingle( "adachi-reply-user", au );

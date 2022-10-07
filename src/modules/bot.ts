@@ -4,13 +4,12 @@
  */
 import {
 	AvailableIntentsEventsEnum, createOpenAPI,
-	createWebsocket, IGuild, IOpenAPI
+	createWebsocket, IGuild, IMessage, IOpenAPI
 } from "qq-guild-bot";
 import * as log from "log4js";
 import moment from "moment";
 import BotConfig from "@modules/config";
 import Database from "@modules/database";
-import Interval from "@modules/management/interval";
 import FileManagement from "@modules/file";
 import Plugin, { PluginReSubs } from "@modules/plugin";
 import WebConfiguration from "@modules/logger";
@@ -24,10 +23,10 @@ import MsgManagement, * as Msg from "@modules/message";
 import { MemberMessage, Message, MessageScope } from "@modules/utils/message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
-import { getMemberInfo } from "@modules/utils/account";
+import { getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
 import { checkChannelLimit } from "#@management/channel";
-import { Sleep } from "./utils/utils";
+import { Sleep } from "./utils";
 
 
 export interface BOT {
@@ -36,7 +35,6 @@ export interface BOT {
 	readonly client: IOpenAPI;
 	readonly ws;
 	readonly logger: log.Logger;
-	readonly interval: Interval;
 	readonly file: FileManagement;
 	readonly auth: Authorization;
 	readonly message: MsgManagement;
@@ -84,7 +82,6 @@ export class Adachi {
 		} );
 		
 		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
-		const interval = new Interval( config, redis );
 		const auth = new Authorization( config, redis );
 		const message = new MsgManager( config, client, redis );
 		const command = new Command( file );
@@ -94,7 +91,7 @@ export class Adachi {
 		this.bot = {
 			client, ws, file, redis,
 			logger, message, auth, command,
-			config, refresh, renderer, interval
+			config, refresh, renderer
 		};
 		
 		refresh.registerRefreshableFunc( renderer );
@@ -133,7 +130,6 @@ export class Adachi {
 		
 		
 		scheduleJob( "0 59 */1 * * *", this.hourlyCheck( this ) );
-		scheduleJob( "0 1 4 * * *", this.clearImage( this ) );
 		scheduleJob( "0 1 */6 * * *", this.clearExitUser( this ) );
 		scheduleJob( "0 30 */4 * * *", this.getBotBaseInfo( this ) );
 		return this.bot;
@@ -181,7 +177,7 @@ export class Adachi {
 		unionRegExp: RegExp,
 		isPrivate: boolean,
 		isAt: boolean
-	): Promise<void> {
+	): Promise<void | IMessage> {
 		
 		/* bot正在重载指令配置 */
 		if ( this.bot.refresh.isRefreshing ) {
@@ -189,38 +185,45 @@ export class Adachi {
 			return;
 		}
 		
-		/* 针对私域机器人做出 @优化 */
-		if ( this.bot.config.area === "private" && this.bot.config.atBot && !isPrivate && !isAt ) {
+		/* 针对私域机器人做出 @配置优化 */
+		if ( this.bot.config.area === "private" && this.bot.config.atBot && !isAt && !isPrivate ) {
 			return;
 		}
 		
-		/* 对设置可用子频道做出适配 更新管理员不受限制 */
-		const auth = await this.bot.auth.get( messageData.msg.author.id );
-		if ( !isPrivate && auth < AuthLevel.Manager ) {
-			const guildId = messageData.msg.guild_id;
-			const channelId = messageData.msg.channel_id;
-			const { status, msg } = await checkChannelLimit( guildId, channelId );
-			if ( status ) {
-				await sendMessage( msg );
-				return;
-			}
+		const userID = messageData.msg.author.id;
+		const guildID: string = isPrivate ? "-1" : messageData.msg.guild_id; // -1 代表私聊使用
+		const channelID = messageData.msg.channel_id;
+		
+		/* 适配Ban掉的频道 */
+		const banDbKey = "adachi.banned-guild";
+		if ( !isPrivate && await this.bot.redis.existSetMember( banDbKey, guildID ) ) {
+			return isAt ? await sendMessage( "此频道已被禁用，请联系开发者解决" ) : undefined;
 		}
 		
+		/* 对设置可用子频道做出适配 更新管理员不受限制 */
+		const { status, msg } = await checkChannelLimit( guildID, channelID, userID );
+		if ( status ) {
+			await sendMessage( msg );
+			return;
+		}
 		
-		let content: string = messageData.msg.content ? messageData.msg.content.trim() : "";
 		/* 首先排除有些憨憨带上的 [] () |, 模糊匹配可能会出现这种情况但成功 */
-		messageData.msg.content = content = content.replace( /[\[\]()|]/g, "" );
+		let content: string = messageData.msg.content = messageData.msg.content ?
+			messageData.msg.content.replace( /[\[\]()|]/g, "" ).trim()
+			: "";
 		
-		/* 人工智障聊天, 匹配不到任何指令触发聊天，对私域进行优化，不@BOT不会触发自动回复 */
-		if ( !unionRegExp.test( content ) ) {
+		/* 人工智障聊天, 匹配不到任何指令触发，对私域进行优化，@BOT才能触发自动回复 */
+		if ( !unionRegExp.test( content ) || unionRegExp.source === /()/i.source ) {
 			/* 未识别指令匹配 */
-			const auth = await this.bot.auth.get( messageData.msg.author.id );
+			const srcGuildId = messageData.msg.src_guild_id ? messageData.msg.src_guild_id : messageData.msg.guild_id;
+			const auth = await this.bot.auth.get( userID, srcGuildId );
 			const check = this.cmdLimitCheck( content, isPrivate, isAt, auth );
 			if ( check ) {
 				await sendMessage( check );
 				return;
 			}
-			if ( this.bot.config.autoChat && content.length < 20 && isAt && !isPrivate ) {
+			/* 只支持简单聊天，仅允许频道支持聊天 */
+			if ( this.bot.config.autoChat && isAt && !isPrivate ) {
 				const { autoReply } = require( "@modules/chat" );
 				await autoReply( messageData, sendMessage );
 				return;
@@ -228,11 +231,9 @@ export class Adachi {
 		}
 		
 		/* 用户数据统计与收集，当用户使用了指令之后才统计 */
-		const userID: string = messageData.msg.author.id;
-		const guildID: string = isPrivate ? "-1" : messageData.msg.guild_id; // -1 代表私聊使用
-		
 		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
-		if ( isPrivate && messageData.msg.src_guild_id ) { //私聊源频道也记录，修复未在频道使用用户信息读取问题
+		/* 私聊源频道也记录，修复未在频道使用用户信息读取问题 */
+		if ( isPrivate && messageData.msg.src_guild_id ) {
 			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, messageData.msg.src_guild_id );
 		}
 		
@@ -294,7 +295,7 @@ export class Adachi {
 		} );
 		
 		/* 指令数据统计与收集 */
-		await this.bot.redis.incHash( "adachi.hour-stat", userID.toString(), 1 ); //小时使用过的指令数目
+		await this.bot.redis.incHash( "adachi.hour-stat", userID, 1 ); //小时使用过的指令数目
 		await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
 		return;
 	}
@@ -309,14 +310,14 @@ export class Adachi {
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			const guildId: string = messageData.msg.guild_id;
-			const auth: AuthLevel = await bot.auth.get( userID );
-			const limit: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
+			const srcGuildId = messageData.msg.src_guild_id ? messageData.msg.src_guild_id : guildId;
+			const auth: AuthLevel = await bot.auth.get( userID, srcGuildId );
 			const sendMessage: Msg.SendFunc = await bot.message.sendPrivateMessage(
 				guildId, msgID
 			);
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Private );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Private );
-			await that.execute( messageData, sendMessage, cmdSet, limit, unionReg, true, true );
+			await that.execute( messageData, sendMessage, cmdSet, [], unionReg, true, true );
 			bot.logger.info( `[A: ${ authorName }][ID: ${ userID }]: ${ content }` );
 		}
 	}
@@ -327,24 +328,23 @@ export class Adachi {
 		return async function ( messageData: Message ) {
 			const isAt = await that.checkAtBOT( messageData );
 			const authorName = messageData.msg.author.username;
-			const guild = messageData.msg.guild_id;
+			const guildId = messageData.msg.guild_id;
 			const channelID = messageData.msg.channel_id;
 			const userID = messageData.msg.author.id;
 			const msgID = messageData.msg.id;
 			const content = messageData.msg.content;
 			
-			const guildInfo = <IGuild>( await bot.client.guildApi.guild( guild ) ).data;
-			const auth: AuthLevel = await bot.auth.get( userID );
-			const gLim: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guild }` );
-			const uLim: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
+			const guildInfo = <IGuild>await getGuildBaseInfo( guildId );
+			const auth: AuthLevel = await bot.auth.get( userID, guildId );
+			const uLim: string[] = await bot.redis.getSet( `adachi.user-command-limit-${ userID }-${ guildId }` );
 			const sendMessage: Msg.SendFunc = bot.message.sendGuildMessage(
 				channelID, msgID );
-			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Group );
-			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Group );
-			await that.execute( messageData, sendMessage, cmdSet, [ ...gLim, ...uLim ], unionReg, false, isAt );
+			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Guild );
+			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Guild );
+			await that.execute( messageData, sendMessage, cmdSet, [ ...uLim ], unionReg, false, isAt );
 			
 			//暂存一下msg_id, guildId, channelId 供推送消息使用
-			await bot.redis.setHashField( `adachi.guild-used-channel`, guild, channelID ); //记录可以推送消息的频道
+			await bot.redis.setHashField( `adachi.guild-used-channel`, guildId, channelID ); //记录可以推送消息的频道
 			// await bot.redis.setString( `adachi.msgId-temp-${ guild }-${ channelID }`, msgID, 290 ); //记录推送消息引用的msgID，被动
 			await bot.logger.info( `[A: ${ authorName }][G: ${ guildInfo.name }]: ${ content }` );
 		}
@@ -380,11 +380,11 @@ export class Adachi {
 		
 		/* 对封禁用户做出提示，私域有问题 */
 		if ( auth === AuthLevel.Banned && isAt ) {
-			return `您已成为封禁用户，请与管理员协商 ~ `;
+			return `你在当前频道已成为封禁用户，请与管理员协商 ~ `;
 		}
 		
 		const privateUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Private );
-		const groupUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Group );
+		const groupUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Guild );
 		
 		if ( groupUnionReg.test( content ) ) {
 			if ( !isPrivate ) {
@@ -434,19 +434,6 @@ export class Adachi {
 				await bot.redis.deleteKey( "adachi.command-stat" );
 				await bot.redis.setString( `adachi.command-stat-${ hourID }`, JSON.stringify( data ) );
 			} );
-		}
-	}
-	
-	/* 清除所有图片缓存 */
-	private clearImage( that: Adachi ): JobCallback {
-		const bot = that.bot;
-		return function (): void {
-			bot.redis.getKeysByPrefix( `adachi-temp-*` ).then( async data => {
-				data.forEach( value => {
-					bot.redis.deleteKey( value );
-				} );
-			} );
-			bot.logger.info( "已清除所有缓存图片链接" );
 		}
 	}
 	
@@ -562,6 +549,7 @@ export class Adachi {
 	public async getBotInGuilds( bot: BOT ): Promise<IGuild[]> {
 		let currentId = "", over = false, ackMaster = false, count = 10;
 		const allGuilds: IGuild[] = [];
+		/*  */
 		while ( !over && count >= 0 ) {
 			let responseMeGuilds;
 			if ( currentId !== "" ) {
@@ -570,14 +558,16 @@ export class Adachi {
 				responseMeGuilds = await bot.client.meApi.meGuilds();
 			}
 			const guilds: IGuild[] = responseMeGuilds.data;
-			if ( guilds.length <= 0 && currentId === "" ) {
-				bot.logger.error( "获取频道信息失败..." );
-			} else if ( guilds.length <= 0 ) {
-				over = true;
+			if ( guilds.length <= 0 ) {
+				currentId === "" ? bot.logger.error( "获取频道信息失败..." ) : over = true;
 			} else {
 				allGuilds.push( ...guilds );
 				currentId = guilds[guilds.length - 1].id;
 			}
+		}
+		/* 初始化频道主权限 */
+		for ( let guild of allGuilds ) {
+			await bot.auth.set( "system", guild.owner_id, guild.id, AuthLevel.GuildOwner );
 		}
 		return allGuilds;
 	}

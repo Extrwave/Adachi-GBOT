@@ -13,10 +13,6 @@ const template = `<el-dialog v-model="showModal" custom-class="user-detail-dialo
 						<span class="label">用户昵称</span>
 						<span>{{ userInfo.nickname }}</span>
 					</p>
-					<p class="friend">
-						<span class="label">已加好友</span>
-						<span>{{ userInfo.isFriend ? "是" : "否" }}</span>
-					</p>
 					<p class="nickname">
 						<span class="label">权限等级</span>
 						<span>{{ authLevel[userInfo.botAuth]?.label }}</span>
@@ -35,7 +31,7 @@ const template = `<el-dialog v-model="showModal" custom-class="user-detail-dialo
 			<el-scrollbar class="limit-info" wrap-class="scrollbar-wrapper">
 				<ul class="limit-list">
 					<template v-if="management.limits?.length" >
-						<li v-for="(l, lKey) of management.limits" :key="lKey" @click="changeCurrentKey(l)">{{ l }}</li>
+						<li v-for="(l, lKey) of management.limits" :key="lKey">{{ l.key }} - {{l.guild}}</li>
 					</template>
 					<li class="limit-empty" v-else>该用户可以使用全部指令</li>
 				</ul>
@@ -58,35 +54,28 @@ const template = `<el-dialog v-model="showModal" custom-class="user-detail-dialo
 				<li class="auth-management article-item">
 					<p class="label">权限设置</p>
 					<div class="content">
-						<el-radio-group v-model="management.auth" :disabled="userInfo.botAuth === 3" >
+						<el-radio-group v-model="management.auth" :disabled="userInfo.botAuth === 5" >
 							<el-radio-button
 								v-for="a of authLevel"
 								:key="a.value"
 								:style="{ 'background-color': a.color }"
 								:label="a.value"
-								:disabled="a.value === 3"
+								:disabled="a.value === 5"
 								>{{ a.label }}
 							</el-radio-button>
 						</el-radio-group>
 					</div>
 				</li>
-				<li class="int-management article-item">
-					<p class="label">操作冷却</p>
-					<div class="content">
-						<el-input v-model.number="management.int">
-							<template #suffix>
-								<span>ms</span>
-							</template>
-						</el-input>
-					</div>
-				</li>
 				<li class="limit-management article-item">
 					<p class="label">指令权限</p>
 					<div class="content">
-						<el-select v-model="currentKey" placeholder="选择指令Key" :disabled="management.auth === 3" @change="changeCurrentKey" >
+						<el-select v-model="currentKey" placeholder="选择指令Key" :disabled="management.auth === 5" @change="changeCurrentKey" >
 						    <el-option class="limit-key-dropdown-item" v-for="(c, cKey) of cmdKeys" :key="cKey" :value="c" />
 						</el-select>
-				    	<el-radio-group v-model="keyStatus" :disabled="!currentKey || management.auth === 3" @change="changeKeyStatus" >
+						<el-select v-model="currentGuild" placeholder="选择频道" :disabled="management.auth === 5" @change="changeCurrentGuild" >
+						    <el-option class="limit-key-dropdown-item" v-for="(c, cKey) of userInfo.guildUsed" :key="cKey" :value="c" />
+						</el-select>
+				    	<el-radio-group v-model="keyStatus" :disabled="!currentKey ||!currentGuild || management.auth === 5" @change="changeKeyStatus" >
 							<el-radio-button :label="1">ON</el-radio-button>
 							<el-radio-button :label="2">OFF</el-radio-button>
 						</el-radio-group>
@@ -105,43 +94,31 @@ const { defineComponent, reactive, toRefs, watch } = Vue;
 const { ElMessage } = ElementPlus;
 
 export default defineComponent( {
-	name: "UserDetail",
-	template,
-	emits: [ "reloadData", "closeDialog" ],
-	props: {
+	name: "UserDetail", template, emits: [ "reloadData", "closeDialog" ], props: {
 		userInfo: {
-			type: Object,
-			default: () => ( {} )
-		},
-		authLevel: {
-			type: Array,
-			default: () => []
-		},
-		cmdKeys: {
-			type: Array,
-			default: () => []
+			type: Object, default: () => ( {} )
+		}, authLevel: {
+			type: Array, default: () => []
+		}, cmdKeys: {
+			type: Array, default: () => []
 		}
-	},
-	setup( props, { emit } ) {
+	}, setup( props, { emit } ) {
 		const state = reactive( {
 			management: {
-				auth: 0,
-				int: 0,
-				limits: []
-			},
-			currentKey: "",
-			keyStatus: 0,
-			showModal: false
+				auth: 0, limits: []
+			}, current: {
+				currentKey: "", currentGuild: ""
+			}, keyStatus: 0, showModal: false
 		} );
 		
 		/* 填充管理字段对象 */
 		watch( () => props.userInfo, ( val ) => {
 			if ( Object.keys( val ).length !== 0 ) {
-				state.currentKey = "";
+				state.current.currentKey = "";
+				state.current.currentGuild = "";
 				state.keyStatus = 0;
 				state.management.auth = val.botAuth;
-				state.management.int = val.interval;
-				state.management.limits = val.limits ? JSON.parse( JSON.stringify( val.limits ) ) : [];
+				state.management.limits = val.limits ? val.limits : [];
 			}
 		}, { immediate: true, deep: true } )
 		
@@ -150,27 +127,34 @@ export default defineComponent( {
 			if ( typeof el === "string" ) {
 				return el;
 			}
-			return `频道 ${ el.group_id } - [${ formatRole( el.role )?.label }]${ el.card || el.nickname }`;
+			return `频道 ${ el.guild_name } - [${ formatRole( el.auth )?.label }] ${ el.nickname }`;
 		}
 		
 		/* 根据切换到的 key 更改按钮状态 */
 		function changeCurrentKey( key ) {
 			state.currentKey = key;
-			state.keyStatus = key
-				? state.management.limits.includes( key )
-					? 2
-					: 1
-				: 0;
+		}
+		
+		function changeCurrentGuild( key ) {
+			state.currentGuild = key;
+			state.keyStatus = key ? state.management.limits.includes( {
+				key: state.currentKey, guild: state.currentGuild
+			} ) ? 2 : 1 : 0;
 		}
 		
 		function changeKeyStatus( status ) {
+			const limit = {
+				key: state.currentKey, guild: state.currentGuild
+			};
 			/* 当切换为 on 并 limit 数组中存在该key时，移除 */
-			if ( status === 1 && state.management.limits.includes( state.currentKey ) ) {
-				state.management.limits.splice( state.management.limits.findIndex( el => el === state.currentKey ), 1 );
+			if ( status === 1 && state.management.limits.includes( limit ) ) {
+				state.management.limits.splice( state.management.limits.findIndex( el => {
+					return el.currentKey === state.currentKey && el.currentGuild === state.currentGuild
+				} ), 1 );
 			}
 			/* 当切换为 off 并 limit 数组中不存在该key时，添加 */
-			if ( status === 2 && !state.management.limits.includes( state.currentKey ) ) {
-				state.management.limits.push( state.currentKey );
+			if ( status === 2 && !state.management.limits.includes( limit ) ) {
+				state.management.limits.push( limit );
 			}
 		}
 		
@@ -178,7 +162,6 @@ export default defineComponent( {
 			$http.USER_SET( {
 				target: props.userInfo.userID,
 				auth: state.management.auth,
-				int: state.management.int,
 				limits: JSON.stringify( state.management.limits )
 			}, "POST" ).then( () => {
 				ElMessage.success( "设置保存成功" );
@@ -202,6 +185,7 @@ export default defineComponent( {
 			postChange,
 			getUsedInfo,
 			changeCurrentKey,
+			changeCurrentGuild,
 			changeKeyStatus,
 			openModal,
 			closeModal

@@ -5,19 +5,15 @@
 import bot from "ROOT";
 import express from "express";
 import { AuthLevel } from "@modules/management/auth";
-import { IGuild, IMember } from "qq-guild-bot";
-import { scheduleJob } from "node-schedule";
-
-export type GuildRole = "owner" | "admin" | "member" | "childadmin";
+import { IMember } from "qq-guild-bot";
+import { getGuildBaseInfo } from "@modules/utils/account";
 
 type GuildData = {
 	guildId: string;
 	guildAvatar: string;
 	guildName: string;
-	guildAuth: AuthLevel;
-	guildRole: GuildRole;
-	interval: number;
-	limits: string[];
+	guildAuth: 1 | 2;
+	guildRole: AuthLevel;
 }
 
 export default express.Router()
@@ -74,24 +70,14 @@ export default express.Router()
 	} )
 	.post( "/set", async ( req, res ) => {
 		const guildId: string = <string>req.body.target;
-		const int: number = parseInt( <string>req.body.int );
 		const auth = <1 | 2>parseInt( <string>req.body.auth );
-		const limits: string[] = JSON.parse( <string>req.body.limits );
 		
 		/* 封禁相关 */
 		const banDbKey = "adachi.banned-guild";
 		if ( auth === 1 ) {
-			await bot.redis.addListElement( banDbKey, guildId );
+			await bot.redis.addSetMember( banDbKey, guildId );
 		} else {
-			await bot.redis.delListElement( banDbKey, guildId );
-		}
-		
-		await bot.interval.set( guildId, "private", int );
-		
-		const dbKey: string = `adachi.group-command-limit-${ guildId }`;
-		await bot.redis.deleteKey( dbKey );
-		if ( limits.length !== 0 ) {
-			await bot.redis.addListElement( dbKey, ...limits );
+			await bot.redis.delSetMember( banDbKey, guildId );
 		}
 		
 		res.status( 200 ).send( "success" );
@@ -103,33 +89,26 @@ async function getGroupInfo( guildId: string ): Promise<GuildData> {
 	//BOT自身ID
 	const botId = await bot.redis.getString( `adachi.user-bot-id` );
 	//Guild信息,BOT member信息
-	const tempGinfo = await <IGuild>( await bot.client.guildApi.guild( guildId ) ).data;
+	const tempGinfo = await getGuildBaseInfo( guildId );
 	const botGroupInfo = await <IMember>( await bot.client.guildApi.guildMember( guildId, botId ) ).data;
 	
-	const isBanned: boolean = await bot.redis.existListElement(
+	const isBanned: boolean = await bot.redis.existSetMember(
 		"adachi.banned-guild", guildId
 	);
 	const guildAuth = isBanned ? 1 : 2;
 	
-	const interval: number = bot.interval.get( guildId, "-1" );
-	const limits: string[] = await bot.redis.getList( `adachi.group-command-limit-${ guildId }` );
-	
-	let role: GuildRole = "member";
+	let role: AuthLevel = AuthLevel.User;
 	if ( botGroupInfo.roles.includes( "4" ) ) {
-		role = "owner";
+		role = AuthLevel.GuildOwner;
 	} else if ( botGroupInfo.roles.includes( "2" ) ) {
-		role = "admin";
-	} else if ( botGroupInfo.roles.includes( "5" ) ) {
-		role = "childadmin";
+		role = AuthLevel.GuildManager;
 	}
 	
 	return {
 		guildId,
-		guildName: tempGinfo.name,
-		guildAvatar: tempGinfo.icon,
+		guildName: tempGinfo ? tempGinfo.name : "Unknown",
+		guildAvatar: tempGinfo ? tempGinfo.icon : "https://docs.adachi.top/images/adachi.png",
 		guildAuth,
 		guildRole: role,
-		interval,
-		limits
 	}
 }

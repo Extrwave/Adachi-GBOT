@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { InputParameter } from "@modules/command";
-import { execHandle } from "@modules/utils/utils";
+import { execHandle } from "@modules/utils";
 
 /* 超时检查 */
 function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any> {

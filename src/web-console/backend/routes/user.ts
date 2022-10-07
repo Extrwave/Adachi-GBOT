@@ -10,8 +10,8 @@ type UserInfo = {
 	avatar: string;
 	nickname: string;
 	botAuth: AuthLevel;
-	interval: number;
-	limits: string[];
+	guildUsed: string[];
+	limits: { key: string, guild: string }[];
 	groupInfoList: ( string | MemberInGuildInfo )[];
 	subInfo?: string[]
 }
@@ -29,7 +29,7 @@ export interface MemberInGuildInfo {
 	readonly guild_name: string,
 	readonly username: string, //用户昵称
 	readonly nickname: string, //频道中的昵称
-	readonly role: string, //身份权限
+	readonly auth: AuthLevel //身份权限
 }
 
 export default express.Router()
@@ -74,6 +74,7 @@ export default express.Router()
 			for ( const userKey of filterUserKeys ) {
 				const userInfo: UserInfo = await getUserInfo( userKey );
 				userInfos.push( { ...userInfo, subInfo: userSubData[userKey] || [] } );
+				
 			}
 			
 			userInfos = userInfos.sort( ( prev, next ) => next.botAuth - prev.botAuth );
@@ -96,25 +97,25 @@ export default express.Router()
 		res.status( 200 ).send( JSON.stringify( userInfo ) );
 	} )
 	.post( "/set", async ( req, res ) => {
-		const userID: string = <string>req.body.target;
-		const int: number = parseInt( <string>req.body.int );
+		const operator: string = bot.config.master;
+		const target: string = <string>req.body.target;
 		const auth = <AuthLevel>parseInt( <string>req.body.auth );
-		const limits: string[] = JSON.parse( <string>req.body.limits );
+		const limits: { key: string, guild: string }[] = JSON.parse( <string>req.body.limits );
 		
-		await bot.auth.set( userID, auth );
-		await bot.interval.set( userID, "private", int );
+		await bot.auth.set( operator, target, "-1", auth );
 		
-		const dbKey: string = `adachi.user-command-limit-${ userID }`;
-		await bot.redis.deleteKey( dbKey );
-		if ( limits.length !== 0 ) {
-			await bot.redis.addListElement( dbKey, ...limits );
+		//删除原有的限制
+		const dbKey: string[] = await bot.redis.getKeysByPrefix( `adachi.user-command-limit-${ target }*` );
+		await bot.redis.deleteKey( ...dbKey );
+		//设置改变后的限制
+		for ( let limit of limits ) {
+			const dbKey: string = `adachi.user-command-limit-${ target }-${ limit.guild }`;
+			await bot.redis.addSetMember( dbKey, limit.key );
 		}
-		
 		res.status( 200 ).send( "success" );
 	} )
 	.delete( "/sub/remove", async ( req, res ) => {
 		const userId = <string>req.query.userId;
-		const dbKey = `adachi.user-used-groups-${ userId }`;
 		try {
 			if ( !userId ) {
 				res.status( 400 ).send( { code: 400, data: [], msg: "Error Params" } );
@@ -153,24 +154,36 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	
 	/* 此处获取用户信息逻辑已更改 */
 	const groupInfoList: Array<MemberInGuildInfo | string> = [];
-	const botAuth: AuthLevel = await bot.auth.get( userID );
-	const interval: number = bot.interval.get( userID, "-1" );
-	const limits: string[] = await bot.redis.getList( `adachi.user-command-limit-${ userID }` );
+	const limits: { key: string, guild: string }[] = [];
+	const guilds = ( await bot.redis.getKeysByPrefix( `adachi.user-command-limit-${ userID }*` ) );
+	const guildIds = guilds.map( value => {
+		return value.split( "-" )[4];
+	} )
 	
+	for ( let guild of guildIds ) {
+		const keys = await bot.redis.getSet( `adachi.user-command-limit-${ userID }-${ guild }` );
+		keys.forEach( value => {
+			limits.push( { key: value, guild: guild } );
+		} )
+	}
+	
+	/* 如果为全局管理员，则在首页上显示，否则只在详情页展示 */
+	const botAuth: AuthLevel = await bot.auth.get( userID, "-1" );
 	//获取用户使用过的频道ID
-	const usedGroups: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
+	const usedGuilds: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
 	let avatar;
 	let nickname;
 	
-	for ( let el of usedGroups ) {
-		const groupID: string = el;
-		if ( groupID === "-1" ) {
+	for ( let el of usedGuilds ) {
+		if ( el === "-1" ) {
 			groupInfoList.push( "私聊方式使用" );
 			continue;
 		}
+		const memberAuth = await bot.auth.get( userID, el );
 		const guildBaseInfo = await getGuildBaseInfo( el );
 		const guildMemberInfo = await getMemberInfo( userID, el );
 		const gName = guildBaseInfo ? guildBaseInfo.name : "Unknown";
+		/* 获取用户在每个频道内的信息 */
 		if ( guildMemberInfo?.account ) {
 			nickname = guildMemberInfo.account.user.username;
 			avatar = guildMemberInfo.account.user.avatar;
@@ -180,21 +193,23 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 				guild_name: gName,
 				username: guildMemberInfo.account.user.username,
 				nickname: guildMemberInfo.account.nick,
-				role: guildMemberInfo.account.roles[0],
+				auth: memberAuth
 			} );
 		}
 	}
 	if ( !avatar )
 		avatar = "https://docs.adachi.top/images/adachi.png";
 	if ( !nickname )
-		nickname = "已退出/单私聊";
+		nickname = "已退出";
 	
 	return {
 		userID,
 		avatar,
 		nickname,
 		botAuth,
-		interval,
+		guildUsed: usedGuilds.filter( value => {
+			return value !== "-1";
+		} ),
 		limits,
 		groupInfoList
 	}

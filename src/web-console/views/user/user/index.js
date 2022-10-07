@@ -28,11 +28,6 @@ const template = `<div class="table-container user">
 					<span>{{ row.subInfo.length }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column prop="isFriend" label="好友" align="center" min-width="60px">
-				<template #default="{row}">
-					<span :style="{ color: row.isFriend ? '#55db2c' : '#ff0000' }">{{ row.isFriend ? "是" : "否" }}</span>
-				</template>
-			</el-table-column>
 			<el-table-column prop="setting" label="操作" align="center" min-width="110px">
 				<template #default="{row}">
     	      		<el-button v-if="row.subInfo.length" type="text" @click="removeSub(row.userID)">取消订阅</el-button>
@@ -47,7 +42,8 @@ const template = `<div class="table-container user">
 			:page-size="pageSize"
 			:pager-count="7"
 			:total="totalUser"
-			@current-change="getUserData"></el-pagination>
+			@current-change="getUserData">
+		</el-pagination>
 	</div>
 	<user-detail
 		ref="userDetailRef"
@@ -116,16 +112,24 @@ export default defineComponent( {
 			value: 0
 		}, {
 			label: "User",
-			color: "#55db2c",
+			color: "#53a340",
 			value: 1
 		}, {
-			label: "Manager",
-			color: "#31c0c2",
+			label: "GuildManager",
+			color: "#0073da",
 			value: 2
 		}, {
-			label: "Master",
-			color: "#ff0000",
+			label: "GuildOwner",
+			color: "#6f73f0",
 			value: 3
+		}, {
+			label: "Manager",
+			color: "#f17a16",
+			value: 4
+		}, {
+			label: "Master",
+			color: "#e94e49",
+			value: 5
 		} ];
 		
 		const tableHeight = computed( () => {
@@ -160,7 +164,7 @@ export default defineComponent( {
 		
 		async function removeSub( userId ) {
 			try {
-				await ElMessageBox.confirm( "确定移除该用户所有订阅服务？", '提示', {
+				ElMessageBox.confirm( "确定移除该用户所有订阅服务？", '提示', {
 					confirmButtonText: "确定",
 					cancelButtonText: "取消",
 					type: "warning",

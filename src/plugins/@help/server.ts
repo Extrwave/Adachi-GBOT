@@ -1,7 +1,6 @@
 import { Logger } from "log4js";
 import express from "express";
 import bot from "ROOT";
-import { findFreePort } from "@modules/utils/utils";
 
 const HelpRoute = express.Router().get( "/", async ( req, res ) => {
 	const data = await bot.redis.getString( "adachi.help-data" );

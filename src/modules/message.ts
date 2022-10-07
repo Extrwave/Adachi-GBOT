@@ -185,7 +185,7 @@ export default class MsgManager implements MsgManagementMethod {
 
 export function getMessageType( data: Message ): MessageType {
 	if ( data.eventType === 'MESSAGE_CREATE' || data.eventType === 'AT_MESSAGE_CREATE' ) {
-		return MessageType.Group;
+		return MessageType.Guild;
 	} else if ( data.eventType === 'DIRECT_MESSAGE_CREATE' ) {
 		return MessageType.Private;
 	} else {

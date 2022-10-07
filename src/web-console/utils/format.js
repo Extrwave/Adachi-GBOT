@@ -54,22 +54,30 @@ export function parseTime( timeValue, cFormat ) {
 /* 格式化群身份 */
 export function formatRole( str ) {
 	const map = {
-		member: {
+		"0": {
+			label: "封禁者",
+			color: "#727272",
+		},
+		"1": {
 			label: "成  员",
-			color: "#A3ADC2"
+			color: "#53a340",
 		},
-		admin: {
-			label: "绿管理",
-			color: "#69b67c"
+		"2": {
+			label: "管理员",
+			color: "#0073da",
 		},
-		owner: {
+		"3": {
 			label: "频道主",
-			color: "#FFCA36"
+			color: "#6f73f0",
 		},
-		childadmin: {
-			label: "蓝管理",
-			color: "#4a85ba"
+		"4": {
+			label: "全局管理",
+			color: "#f17a16"
+		},
+		"5": {
+			label: "开发者",
+			color: "#e94e49"
 		}
-	};
+	}
 	return map[str];
 }

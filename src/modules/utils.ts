@@ -90,3 +90,15 @@ export function cookie2Obj( cookie: string ): any {
 		.map( item => item.split( '=' ) )
 		.reduce( ( acc, [ k, v ] ) => ( acc[k.trim().replace( '"', '' )] = v ) && acc, {} );
 }
+
+/* 从@消息中获取@的用户 */
+export function idParser( id: string ): { code: string, target: string } {
+	const result = id.match( /<@!(.*)>/ );
+	let targetID;
+	if ( result === null ) {
+		return { code: "error", target: "用户匹配出错." };
+	} else {
+		targetID = result[1];
+		return { code: "ok", target: targetID };
+	}
+}

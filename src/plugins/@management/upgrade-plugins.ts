@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { exec } from "child_process";
 import { InputParameter } from "@modules/command";
 import { PluginUpgradeServices } from "@modules/plugin";
-import { execHandle } from "@modules/utils/utils";
+import { execHandle } from "@modules/utils";
 
 /* 超时检查 */
 function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any> {

@@ -12,7 +12,8 @@ const manager: SwitchConfig = {
 	regexp: [ "<@!\\d+>" ],
 	onKey: "man",
 	offKey: "unman",
-	auth: AuthLevel.Master,
+	scope: MessageScope.Guild,
+	auth: AuthLevel.GuildOwner,
 	main: "manager",
 	detail: "设置成员对BOT的管理权限，非QQ频道管理\n" +
 		"后续可能同步实现频道管理（挖坑"
@@ -27,7 +28,8 @@ const ban: SwitchConfig = {
 	regexp: [ "<@!\\d+>" ],
 	onKey: "ban",
 	offKey: "unban",
-	auth: AuthLevel.Manager,
+	scope: MessageScope.Guild,
+	auth: AuthLevel.GuildManager,
 	main: "ban",
 	detail: "封禁或者解禁某人对BOT的使用权"
 };
@@ -40,8 +42,9 @@ const limit: SwitchConfig = {
 	header: "limit",
 	onKey: "on",
 	offKey: "off",
-	regexp: [ "<@!\\d+>", "[.-\\w]+", "#{OPT}" ],
-	auth: AuthLevel.Manager,
+	regexp: [ "<@!\\d+>?", "[-\\w]+", "#{OPT}" ],
+	scope: MessageScope.Guild,
+	auth: AuthLevel.GuildManager,
 	main: "limit",
 	detail: "封禁或者解禁某人对BOT的具体某一指令使用权"
 };
@@ -66,16 +69,6 @@ const announce: OrderConfig = {
 	auth: AuthLevel.Master,
 	main: "anno",
 	detail: "该指令用于全局发送公告"
-}
-
-const getAnnounce: OrderConfig = {
-	type: "order",
-	cmdKey: "adachi-get-announce",
-	desc: [ "获取公告", "" ],
-	headers: [ "anno" ],
-	regexps: [],
-	main: "anno",
-	detail: "该指令用于获取开发者公告"
 }
 
 const callMaster: OrderConfig = {
@@ -108,7 +101,7 @@ const setUseChannel: SwitchConfig = {
 	regexp: [ "(#.+)?", "#{OPT}" ],
 	onKey: "on",
 	offKey: "off",
-	auth: AuthLevel.Manager,
+	auth: AuthLevel.GuildOwner,
 	main: "channel",
 	detail: "设置BOT专属可用子频道，即不会再其他地方响应指令\n" +
 		"并在非专属区域做出提示，引导前往专属子频道\n" +
@@ -122,7 +115,7 @@ const cancelUseChannel: OrderConfig = {
 	headers: [ "uchannel" ],
 	regexps: [],
 	main: "channel",
-	auth: AuthLevel.Manager,
+	auth: AuthLevel.GuildOwner,
 	detail: "该操作会使BOT取消所有专属子频道限制 ~ "
 }
 
@@ -166,14 +159,25 @@ const restart: OrderConfig = {
 	detail: "用于重启 bot，使用win-start方式启动服务无法使用该指令"
 }
 
+const getAuth: OrderConfig = {
+	type: "order",
+	cmdKey: "adachi-get-auth",
+	desc: [ "查看权限", "" ],
+	headers: [ "auth" ],
+	display: false,
+	regexps: [ "<@!\\d+>" ],
+	main: "viewAuth",
+	detail: "该指令用于新版管理模式Debug用"
+}
+
 export async function init(): Promise<PluginSetting> {
 	return {
 		pluginName: "@management",
 		cfgList: [
 			manager, refresh, ban, limit,
-			announce, getAnnounce, callMaster,
+			announce, callMaster,
 			replyUser, setUseChannel, cancelUseChannel,
-			upgrade, upgrade_plugins, restart
+			upgrade, upgrade_plugins, restart, getAuth
 		]
 	}
 }

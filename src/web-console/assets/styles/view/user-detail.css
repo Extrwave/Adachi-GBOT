@@ -47,7 +47,7 @@
 }
 
 .user-detail .limit-info .limit-list > li {
-	width: 50%;
+	width: 80%;
 	line-height: 24px;
 	font-size: 15px;
 }
@@ -107,6 +107,7 @@
 	transition: opacity .2s;
 }
 
+/* 首尾元素的圆角 */
 .user-detail .management-info > .auth-management .el-radio-group .el-radio-button:first-child {
 	border-radius: 4px 0 0 4px;
 }
@@ -115,6 +116,7 @@
 	border-radius: 0 4px 4px 0;
 }
 
+/* 选中高亮 */
 .user-detail .management-info > .auth-management .el-radio-group .el-radio-button.is-active {
 	opacity: 1;
 }
@@ -125,40 +127,17 @@
 
 .user-detail .management-info > .auth-management .el-radio-button__inner {
 	box-sizing: border-box;
-	font-size: 16px;
-	padding: 7px 14px;
+	font-size: 12px;
+	padding: 5px 4px;
 	color: #ffffff;
 	border: none;
 	box-shadow: none !important;
 }
 
-/* 操作冷却 */
-.user-detail .management-info > .int-management .el-input {
-	position: relative;
-	width: 86px;
-}
-
-.user-detail .management-info > .int-management .el-input .el-input__wrapper {
-	padding: 0 20px 0 5px;
-	height: inherit;
-	background-color: transparent;
-	border: none;
-	border-radius: 0;
-	border-bottom: 1px solid #424242;
-	text-align: center;
-	box-shadow: none;
-}
-
-.user-detail .management-info > .int-management .el-input .el-input__suffix {
-	color: #424242;
-	width: 16px;
-	height: inherit;
-	line-height: var(--el-input-height);
-}
-
 /* 指令权限 */
 .user-detail .management-info > .limit-management .el-select {
-	width: 186px;
+	width: 120px;
+	padding: 0px 4px;
 }
 
 .user-detail .management-info > .limit-management .el-select .el-input {
@@ -181,7 +160,7 @@
 }
 
 .user-detail .management-info > .limit-management .el-radio-group {
-	margin-left: 32px;
+	margin-left: 16px;
 }
 
 .user-detail .management-info > .limit-management .el-radio-button__inner {
@@ -206,40 +185,6 @@
 	line-height: 26px;
 	height: 26px;
 	color: #424242;
-}
-
-/* 群组列表 */
-.send-msg .group-list-box {
-	height: 60px;
-}
-
-.send-msg .group-list-box .group-list {
-	display: flex;
-	flex-wrap: wrap;
-	row-gap: 10px;
-	column-gap: 20px;
-}
-
-.send-msg .group-list-box .group-list > li {
-	display: flex;
-	align-items: center;
-	line-height: 24px;
-	font-size: 15px;
-}
-
-.send-msg .group-list-box .group-list > li > img {
-	width: 32px;
-	height: 32px;
-	border-radius: 4px;
-}
-
-.send-msg .group-list-box .group-list > li > span {
-	width: 60px;
-	margin-left: 4px;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	font-size: 12px;
 }
 
 @media (max-width: 768px) {

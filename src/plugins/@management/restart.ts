@@ -1,5 +1,5 @@
 import { InputParameter } from "@modules/command";
-import { execHandle } from "@modules/utils/utils";
+import { execHandle } from "@modules/utils";
 
 
 export async function main( { sendMessage, logger }: InputParameter ): Promise<void> {

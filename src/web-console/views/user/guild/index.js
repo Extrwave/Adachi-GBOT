@@ -7,8 +7,8 @@ const template = `<div class="table-container user">
     <div class="table-view">
 		<el-table v-loading="tableLoading" :data="guildList" header-row-class-name="table-header" :height="tableHeight" stripe @selection-change="selectionChange">
         	<el-table-column fixed="left" type="selection" width="50" align="center" prop="selection" label="筛选"></el-table-column>
-			<el-table-column prop="guildId" label="ID" align="center" min-width="110px"></el-table-column>
-			<el-table-column prop="avatar" label="频道" align="center" min-width="230px">
+			<el-table-column prop="guildId" label="频道ID" align="center" min-width="110px"></el-table-column>
+			<el-table-column prop="avatar" label="频道名称" align="center" min-width="230px">
 				<template #default="{row}">
 					<div class="user-info">
 						<img class="user-avatar" :src="row.guildAvatar" alt="ERROR" draggable="false" />
@@ -16,14 +16,14 @@ const template = `<div class="table-container user">
 					</div>
 				</template>
 			</el-table-column>
-			<el-table-column prop="guildAuth" label="权限" align="center" min-width="100px">
+			<el-table-column prop="guildAuth" label="频道权限" align="center" min-width="100px">
 				<template #default="{row}">
 					<div class="lighter-block" :style="{ 'background-color': authLevel[row.guildAuth - 1].color }">
-						<span>{{ authLevel[row.guildAuth - 1].label }}</span>
+						<span>{{ authLevel[row.guildAuth -1]?.label }}</span>
 					</div>
 				</template>
 			</el-table-column>
-			<el-table-column prop="guildAuth" label="频道身份" align="center" min-width="100px">
+			<el-table-column prop="guildAuth" label="BOT身份" align="center" min-width="100px">
 				<template #default="{row}">
 					<div class="lighter-block" :style="{ 'background-color': getRole(row.guildRole).color }">
 						<span>{{ getRole(row.guildRole).label }}</span>

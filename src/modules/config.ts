@@ -1,5 +1,5 @@
 import FileManagement from "@modules/file";
-import { randomSecret } from "./utils/utils";
+import { randomSecret } from "./utils";
 
 export default class BotConfig {
 	public readonly appID: string;

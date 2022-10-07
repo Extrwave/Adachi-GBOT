@@ -138,7 +138,8 @@ export default class Command {
 	private static initAuthObject(): Record<AuthLevel, any> {
 		return {
 			[AuthLevel.Banned]: [], [AuthLevel.User]: [],
-			[AuthLevel.Master]: [], [AuthLevel.Manager]: []
+			[AuthLevel.GuildManager]: [], [AuthLevel.GuildOwner]: [],
+			[AuthLevel.Manager]: [], [AuthLevel.Master]: []
 		};
 	}
 	
@@ -156,7 +157,6 @@ export default class Command {
 				commands.push( ...cmd );
 			}
 			this.add( commands );
-			await bot.redis.deleteKey( "adachi-help-image" );
 			return "指令配置重新加载完毕";
 		} catch ( error ) {
 			throw <RefreshCatch>{
@@ -171,7 +171,7 @@ export default class Command {
 		commands.forEach( cmd => {
 			this.raws.push( cmd.raw );
 			for ( let auth = cmd.auth; auth <= AuthLevel.Master; auth++ ) {
-				if ( cmd.scope & MessageScope.Group ) {
+				if ( cmd.scope & MessageScope.Guild ) {
 					this.groups[auth].push( cmd );
 				}
 				if ( cmd.scope & MessageScope.Private ) {
