@@ -26,7 +26,6 @@ interface AuthorizationMethod {
 	set( operator: string, target: string, guildID: string, level: AuthLevel ): Promise<void>;
 	get( target: string, guildID: string ): Promise<AuthLevel>;
 	opCheck( operator: string, target: string, guildID: string ): Promise<boolean | string>;
-	authCheck( userID: string, guildID: string, level: AuthLevel ): Promise<boolean>;
 }
 
 export default class Authorization implements AuthorizationMethod {
@@ -77,10 +76,5 @@ export default class Authorization implements AuthorizationMethod {
 			return `操作用户 [ <@!${ target }> ] 失败：权限不足`;
 		}
 		return true;
-	}
-	
-	public async authCheck( userID: string, guildID: string, level: AuthLevel ) {
-		const auth: AuthLevel = await this.get( userID, guildID );
-		return auth >= level;
 	}
 }

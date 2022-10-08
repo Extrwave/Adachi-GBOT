@@ -477,6 +477,7 @@ export class Adachi {
 				return;
 			}
 			await bot.redis.setString( `adachi.user-bot-id`, responseMeApi.data.id );
+			/* 10.7日更新数据兼容问题 */
 			await that.getBotInGuilds( bot );
 		}
 	}

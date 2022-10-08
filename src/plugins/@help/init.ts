@@ -18,9 +18,9 @@ const help: OrderConfig = {
 const sponsor: OrderConfig = {
 	type: "order",
 	cmdKey: "adachi-help-sponsor",
-	desc: [ "赞助", "(qq|wx|zfb)" ],
+	desc: [ "赞助", "" ],
 	headers: [ "sponsor" ],
-	regexps: [ "(qq|wx|zfb)?" ],
+	regexps: [],
 	main: "achieves/sponsor",
 }
 
