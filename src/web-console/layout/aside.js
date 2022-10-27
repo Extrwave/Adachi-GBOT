@@ -1,7 +1,7 @@
 const template =
 	`<el-aside class="layout-aside">
 	<div class="title">
-		<a href="https://github.com/SilveryStar/Adachi-BOT" target="_blank">
+		<a href="https://github.com/Extrwave/Adachi-GBOT" target="_blank">
 			Adachi-Admin<sub>Beta</sub>
 		</a>
 	</div>
