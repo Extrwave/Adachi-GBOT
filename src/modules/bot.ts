@@ -573,6 +573,17 @@ export class Adachi {
 		while ( true ) {
 			if ( bot.ws.session.ws.alive ) {
 				bot.logger.info( "BOT已成功上线 ~" );
+				let sendMessage: Msg.SendFunc;
+				const single = await bot.redis.getHashField( "adachi.restart-param", "private" );
+				const guild = await bot.redis.getHashField( "adachi.restart-param", "guild" );
+				const channel = await bot.redis.getHashField( "adachi.restart-param", "channel" );
+				const msgId = await bot.redis.getHashField( "adachi.restart-param", "msgId" );
+				if ( guild || channel && msgId && single ) {
+					single === "true" ? sendMessage = await bot.message.sendPrivateMessage( guild, msgId )
+						: sendMessage = bot.message.sendGuildMessage( channel, msgId );
+					await sendMessage( "BOT重启成功" );
+				}
+				await bot.redis.deleteKey( "adachi.restart-param" );
 				return;
 			}
 			await Sleep( 3000 );
