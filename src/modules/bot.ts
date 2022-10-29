@@ -516,7 +516,7 @@ export class Adachi {
 			//清除使用记录
 			const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
 			await bot.redis.deleteKey( dbKey, ...dbKeys );
-			bot.logger.info( `已清除用户 ${ userId } 使用数据` );
+			bot.logger.debug( `已清除用户 ${ userId } 使用数据` );
 		}
 	}
 	
@@ -524,7 +524,7 @@ export class Adachi {
 	private clearExitUser( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return function (): void {
-			bot.logger.info( "开始检测用户是否退出BOT相关频道~" );
+			bot.logger.debug( "开始检测用户是否退出BOT相关频道~" );
 			bot.redis.getKeysByPrefix( `adachi.user-used-groups-*` ).then( async data => {
 				data.forEach( value => {
 					const userId = value.split( "-" )[3];

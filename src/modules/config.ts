@@ -47,7 +47,7 @@ export default class BotConfig {
 		privateIntervalTime: 2000,
 		helpPort: 54919,
 		helpMessageStyle: "message",
-		logLevel: "info",
+		logLevel: "debug",
 		webConsole: {
 			enable: false,
 			adminName: "admin",
