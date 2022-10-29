@@ -63,7 +63,7 @@ export default class Plugin {
 					}
 				}
 				registerCmd.push( ...commands );
-				bot.logger.info( `[ ${ pluginName } ]插件加载完成` );
+				bot.logger.debug( `[ ${ pluginName } ]插件加载完成` );
 			} catch ( error ) {
 				bot.logger.error( `插件加载异常: ${ <string>error }` );
 			}

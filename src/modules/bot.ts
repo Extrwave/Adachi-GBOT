@@ -582,6 +582,7 @@ export class Adachi {
 					single === "true" ? sendMessage = await bot.message.sendPrivateMessage( guild, msgId )
 						: sendMessage = bot.message.sendGuildMessage( channel, msgId );
 					await sendMessage( "BOT重启成功" );
+					bot.logger.info( "BOT重启成功" );
 				}
 				await bot.redis.deleteKey( "adachi.restart-param" );
 				return;
