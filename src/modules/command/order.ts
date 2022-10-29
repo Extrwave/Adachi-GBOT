@@ -45,7 +45,7 @@ export class Order extends BasicConfig {
 		for ( let header of headers ) {
 			const pair: RegPair = { header, genRegExps: [] };
 			for ( let reg of rawRegs ) {
-				const r: string = [ "", ...reg ].join( "\\s*" );
+				const r: string = [ "", ...reg ].join( "\\s*?" );
 				const h: string = escapeRegExp( header );
 				const pattern: string = Order.addStartStopChar(
 					h + r,
@@ -84,7 +84,7 @@ export class Order extends BasicConfig {
 				
 				/* 消息是否同时包含指令起始符与指令头 */
 				const headerRegStr: string = rawHeader.length !== 0 && /[\u4e00-\u9fa5]/.test( rawHeader )
-					? `${ hasHeader ? "(?=.*" + bot.config.header + ")" : "" }(?=.*${ rawHeader })`
+					? `${ hasHeader ? "(?=.*" + bot.config.header + ")" : "" }(?=.*?${ rawHeader })`
 					: bot.config.header
 						? pair.header
 						: "";
@@ -101,7 +101,7 @@ export class Order extends BasicConfig {
 					content = content.replace( fogReg, "" );
 					for ( let params of this.regParam ) {
 						params = [pair.header, ...params];
-						const paramReg = new RegExp( `^${ params.join( "\\s*" ) }$` );
+						const paramReg = new RegExp( `^${ params.join( "\\s*?" ) }$` );
 						const matchParam = paramReg.test( pair.header + content );
 						if ( matchParam ) {
 							throw { type: "order", header: pair.header };
