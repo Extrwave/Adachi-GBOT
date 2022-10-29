@@ -572,7 +572,7 @@ export class Adachi {
 	public async botIsAlive( bot: BOT ) {
 		while ( true ) {
 			if ( bot.ws.session.ws.alive ) {
-				bot.logger.info( "BOT已成功上线 ~" );
+				bot.logger.debug( "BOT已成功上线 ~" );
 				let sendMessage: Msg.SendFunc;
 				const single = await bot.redis.getHashField( "adachi.restart-param", "private" );
 				const guild = await bot.redis.getHashField( "adachi.restart-param", "guild" );
