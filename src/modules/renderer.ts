@@ -153,7 +153,7 @@ export class BasicRenderer {
 						"--disable-dev-shm-usage"
 					]
 				} );
-				bot.logger.info( "浏览器启动成功" );
+				bot.logger.debug( "浏览器启动成功" );
 				resolve( browser );
 			} catch ( error ) {
 				const err: string = `浏览器启动失败: ${ ( <Error>error ).stack }`;

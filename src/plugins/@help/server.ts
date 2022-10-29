@@ -12,6 +12,6 @@ export function createServer( port: number, logger: Logger ): void {
 	app.use( express.static( __dirname ) );
 	app.use( "/api/help", HelpRoute );
 	app.listen( port, () => {
-		logger.info( `[ @help ]插件 Express 服务已启动，端口为 ${ port }` );
+		logger.debug( `[ @help ]插件 Express 服务已启动，端口为 ${ port }` );
 	} );
 }

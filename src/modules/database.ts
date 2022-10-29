@@ -56,7 +56,7 @@ export default class Database implements DatabaseMethod {
 		
 		this.client = createClient( port, host, { auth_pass } );
 		this.client.on( "connect", async () => {
-			logger.info( "Redis 数据库已连接" );
+			logger.debug( "Redis 数据库已连接" );
 		} );
 	}
 	
