@@ -38,7 +38,6 @@ interface ManagementMethod {
 	
 	updateYAML( ymlName: string, data: any, place?: PresetPlace, ...index: string[] ): void;
 	
-	// updateYAMLs( ymlName: string, data: Array<{ index: UpdateIndex, data: any }>, place?: PresetPlace ): void;
 }
 
 export default class FileManagement implements ManagementMethod {
@@ -152,13 +151,4 @@ export default class FileManagement implements ManagementMethod {
 		const newData: any = set( oldData, index, data );
 		this.writeYAML( ymlName, newData, place );
 	}
-	
-	// public updateYAMLs(
-	// 	ymlName: string,
-	// 	data: Array<{ index: UpdateIndex; data: any }>,
-	// 	place: PresetPlace = "config"
-	// ): void {
-	// 	const oldData: any = this.loadYAML( ymlName, place );
-	//
-	// }
 }

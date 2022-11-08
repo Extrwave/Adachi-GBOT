@@ -159,17 +159,6 @@ const restart: OrderConfig = {
 	detail: "用于重启 bot，使用win-start方式启动服务无法使用该指令"
 }
 
-const getAuth: OrderConfig = {
-	type: "order",
-	cmdKey: "adachi-get-auth",
-	desc: [ "查看权限", "" ],
-	headers: [ "auth" ],
-	display: false,
-	regexps: [ "<@!\\d+>" ],
-	main: "viewAuth",
-	detail: "该指令用于新版管理模式Debug用"
-}
-
 export async function init(): Promise<PluginSetting> {
 	return {
 		pluginName: "@management",
@@ -177,7 +166,7 @@ export async function init(): Promise<PluginSetting> {
 			manager, refresh, ban, limit,
 			announce, callMaster,
 			replyUser, setUseChannel, cancelUseChannel,
-			upgrade, upgrade_plugins, restart, getAuth
+			upgrade, upgrade_plugins, restart
 		]
 	}
 }
