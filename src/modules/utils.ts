@@ -77,20 +77,6 @@ export function Sleep( time: number ) {
 	} )
 }
 
-export function obj2ParamsStr( obj: object ): string {
-	const params: string[] = [];
-	for ( let key in obj ) {
-		params.push( `${ key }=${ obj[key] }` );
-	}
-	return params.join( '&' );
-}
-
-export function cookie2Obj( cookie: string ): any {
-	return decodeURIComponent( cookie ).split( ";" )
-		.map( item => item.split( '=' ) )
-		.reduce( ( acc, [ k, v ] ) => ( acc[k.trim().replace( '"', '' )] = v ) && acc, {} );
-}
-
 /* 从@消息中获取@的用户 */
 export function idParser( id: string ): { code: string, target: string } {
 	const result = id.match( /<@!(.*)>/ );
@@ -101,4 +87,12 @@ export function idParser( id: string ): { code: string, target: string } {
 		targetID = result[1];
 		return { code: "ok", target: targetID };
 	}
+}
+
+export function obj2ParamsStr( obj: object ): string {
+	const params: string[] = [];
+	for ( let key in obj ) {
+		params.push( `${ key }=${ obj[key] }` );
+	}
+	return params.join( '&' );
 }
