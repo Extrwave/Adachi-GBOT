@@ -223,9 +223,9 @@ export class Adachi {
 				return;
 			}
 			/* 只支持简单聊天，仅允许频道支持聊天 */
-			if ( this.bot.config.autoChat && isAt && !isPrivate ) {
+			if ( isAt && !isPrivate ) {
 				const { autoReply } = require( "@modules/chat" );
-				await autoReply( messageData, sendMessage );
+				await autoReply( messageData, sendMessage, this.bot.config );
 				return;
 			}
 		}

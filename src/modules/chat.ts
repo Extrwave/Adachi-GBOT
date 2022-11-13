@@ -2,11 +2,12 @@
 Author: Ethereal
 CreateTime: 2022/6/21
  */
+
 import * as msg from "@modules/message";
 import { API, getChatResponse, getEmoji, getTextResponse, getWeDog } from "@modules/utils/api";
 import { Message } from "@modules/utils/message";
 
-export async function autoReply( messageData: Message, sendMessage: msg.SendFunc ) {
+export async function autoReply( messageData: Message, sendMessage: msg.SendFunc, autoChat: boolean ) {
 	//处理传入的数据
 	const msg: string = messageData.msg.content;
 	//开始匹配回答
@@ -19,29 +20,32 @@ export async function autoReply( messageData: Message, sendMessage: msg.SendFunc
 		return;
 	}
 	
-	let message;
-	switch ( true ) {
-		case /渣/.test( msg ):
-			message = await getTextResponse( API.lovelive );
-			break;
-		case /emo/.test( msg ):
-			message = await getTextResponse( API.hitokoto );
-			break;
-		case /诗/.test( msg ):
-			message = await getTextResponse( API.poetry );
-			break;
-		case /舔狗/.test( msg ):
-			message = await getWeDog();
-			break;
-		case /教程|帮助/.test( msg ):
-			message = "相关教程地址，或者前往官频查看视频教程帖子\n" +
-				"米游社cookie获取: https://blog.ethreal.cn/archives/hdmyscookies\n" +
-				"云原神token获取: https://blog.ethreal.cn/archives/yysgettoken";
-			break;
-		default:
-			//调用青云客免费API
-			message = await getChatResponse( msg );
-			break;
+	if ( /Help|教程|帮助|Cookie|Start/i.test( msg ) ) {
+		const message = "官频有教程贴和视频教程 ~ \n" +
+			"基本使用教程：https://blog.ethreal.cn/archives/teachadachibot\n" +
+			"cookie获取教程: https://blog.ethreal.cn/archives/hdmyscookies\n" +
+			"云原神签到教程: https://blog.ethreal.cn/archives/yysgettoken";
+		await sendMessage( message );
+		return;
 	}
-	await sendMessage( message );
+	
+	if ( autoChat ) {
+		switch ( true ) {
+			case /渣/.test( msg ):
+				await sendMessage( await getTextResponse( API.lovelive ) );
+				break;
+			case /emo/.test( msg ):
+				await sendMessage( await getTextResponse( API.hitokoto ) );
+				break;
+			case /诗/.test( msg ):
+				await sendMessage( await getTextResponse( API.poetry ) );
+				break;
+			case /舔狗/.test( msg ):
+				await sendMessage( await getWeDog() );
+				break;
+			default:
+				//调用青云客免费API
+				await sendMessage( await getChatResponse( msg ) );
+		}
+	}
 }
