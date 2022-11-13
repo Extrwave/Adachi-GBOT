@@ -13,8 +13,6 @@ export default class BotConfig {
 	public readonly dbPort: number;
 	public readonly dbPassword: string;
 	public readonly countThreshold: number;
-	public readonly groupIntervalTime: number;
-	public readonly privateIntervalTime: number;
 	public readonly helpPort: number;
 	public readonly helpMessageStyle: string;
 	public readonly logLevel: "trace" | "debug" | "info" | "warn" |
@@ -43,8 +41,6 @@ export default class BotConfig {
 		dbPort: 6379,
 		dbPassword: "",
 		countThreshold: 60,
-		groupIntervalTime: 1500,
-		privateIntervalTime: 2000,
 		helpPort: 54919,
 		helpMessageStyle: "message",
 		logLevel: "debug",
@@ -80,8 +76,6 @@ export default class BotConfig {
 		this.atBot = config.atBot;
 		this.autoChat = config.autoChat;
 		this.helpPort = config.helpPort;
-		this.groupIntervalTime = config.groupIntervalTime;
-		this.privateIntervalTime = config.privateIntervalTime;
 		this.countThreshold = config.countThreshold;
 		this.webConsole = {
 			enable: config.webConsole.enable,
