@@ -86,8 +86,8 @@ export default class MsgManager implements MsgManagementMethod {
 		const client = this.client;
 		const sendFileImage = this.sendFileImageFunc( true );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
-			if ( typeof content === 'undefined' ) {
-				content = `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请带上截图向开发者反馈 ~`;
+			if ( !content ) {
+				content = `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
 				const response = await client.directMessageApi.postDirectMessage( guildId, {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
@@ -98,8 +98,10 @@ export default class MsgManager implements MsgManagementMethod {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
+				bot.logger.info( "[send private] : " + content );
 				return response.data;
-			} else if ( content.file_image ) {
+			}
+			if ( content.file_image ) {
 				let formData = new FormData();
 				formData.append( "file_image", content.file_image );
 				if ( msgId )
@@ -113,6 +115,7 @@ export default class MsgManager implements MsgManagementMethod {
 					content.content = `<@!${ atUser } ${ content.content }>`;
 				}
 				const response = await client.directMessageApi.postDirectMessage( guildId, content );
+				bot.logger.info( "[send private] : " + content.content );
 				return response.data;
 			}
 		}
@@ -122,7 +125,7 @@ export default class MsgManager implements MsgManagementMethod {
 		const client = this.client;
 		const sendFileImage = this.sendFileImageFunc( false );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
-			if ( typeof content === 'undefined' ) {
+			if ( !content ) {
 				content = `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请带上截图向开发者反馈 ~`;
 				const response = await client.messageApi.postMessage( guildId, {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
@@ -134,8 +137,10 @@ export default class MsgManager implements MsgManagementMethod {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
+				bot.logger.info( `[send ${ guildId }] : ${ content }` );
 				return response.data;
-			} else if ( content.file_image ) {
+			}
+			if ( content.file_image ) {
 				let formData = new FormData();
 				formData.append( "file_image", content.file_image );
 				if ( msgId )
@@ -149,6 +154,7 @@ export default class MsgManager implements MsgManagementMethod {
 					content.content = `<@!${ atUser } ${ content.content }>`;
 				}
 				const response = await client.messageApi.postMessage( guildId, content );
+				bot.logger.info( `[send ${ guildId }] : ${ content.content }` );
 				return response.data;
 			}
 		}
