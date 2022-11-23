@@ -29,7 +29,7 @@ export default class BotConfig {
 	};
 	
 	static initObject = {
-		tip: "前往 https://adachi.ethreal.cn 查看配置详情",
+		tip: "前往 https://docs.ethreal.cn 查看配置详情",
 		appID: "appID",
 		token: "token",
 		sandbox: false,
