@@ -2,7 +2,7 @@ const template =
 	`<el-aside class="layout-aside">
 	<div class="title">
 		<a href="https://github.com/Extrwave/Adachi-GBOT" target="_blank">
-			Adachi-Admin<sub>Beta</sub>
+			一碗牛杂<sub>Beta</sub>
 		</a>
 	</div>
 	<el-scrollbar>

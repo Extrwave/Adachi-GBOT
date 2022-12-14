@@ -1,7 +1,7 @@
 const template =
 	`<div class="login-base">
 	<header class="login-header">
-		<h3>Adachi-Admin</h3>
+		<h3>一碗牛杂</h3>
 	</header>
 	<main class="login-main">
 		<div class="login-main-content">
@@ -25,7 +25,7 @@ const template =
 	</main>
 	<footer class="login-footer">
 		<span v-if="!isMobile">MIT Licensed | </span>
-		<span>Adachi管理面板 ©2021 SilveryStar</span>
+		<span>一碗牛杂 - 管理面板</span>
 	</footer>
 </div>`;
 
