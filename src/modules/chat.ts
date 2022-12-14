@@ -22,9 +22,9 @@ export async function autoReply( messageData: Message, sendMessage: msg.SendFunc
 	
 	if ( /Help|教程|帮助|Cookie|Start/i.test( msg ) ) {
 		const message = "官频有教程贴和视频教程 ~ \n" +
-			"基本使用教程：https://blog.ethreal.cn/archives/teachadachibot\n" +
-			"cookie获取教程: https://blog.ethreal.cn/archives/hdmyscookies\n" +
-			"云原神签到教程: https://blog.ethreal.cn/archives/yysgettoken";
+			"基本使用教程：https://blog.ethreal.cn/archives/bothelp\n" +
+			"cookie获取教程: https://blog.ethreal.cn/archives/cookies\n" +
+			"云原神签到教程: https://blog.ethreal.cn/archives/yystoken";
 		await sendMessage( message );
 		return;
 	}
