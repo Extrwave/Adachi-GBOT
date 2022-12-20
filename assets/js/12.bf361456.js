@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[12],{431:function(t,e,n){"use strict";n.r(e);var s=n(65),l=Object(s.a)({},(function(){var t=this.$createElement,e=this._self._c||t;return e("ContentSlotsDistributor",{attrs:{"slot-key":this.$parent.slotKey}},[e("p",[this._v("请前往官方频道反馈你的问题，会有人为你解答")])])}),[],!1,null,null,null);e.default=l.exports}}]);
