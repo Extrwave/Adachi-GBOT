@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://docs.adachi.top/images/adachi.png" width="200"/>
+    <img src="https://cdn.ethreal.cn/img/keqing-1671524823.png" width="200"/>
     <h3>- Adachi-GBOT -</h3>
     <div>
         <a href="https://docs.ethreal.cn" target="_blank">官方文档</a> &nbsp;|&nbsp;
@@ -14,7 +14,7 @@
     <small>&gt; 请前往插件库安装对应插件 &lt;</small>
     <div>
         <br/>
-        <a href="https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&inviteCode=ZcZDq&from=246610&biz=ka ">~ Adachi-BOT交流频道 ~</a>
+        <a href="https://pd.qq.com/s/7skooapj3">~ 交流频道（枫叶丹） ~</a>
     </div>
 </div>
 
