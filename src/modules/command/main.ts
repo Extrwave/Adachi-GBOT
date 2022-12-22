@@ -247,6 +247,12 @@ export default class Command {
 	}
 }
 
+/**
+ * 去除用户消息中的指令信息
+ *
+ * @param string 消息具体内容
+ * @param prefix 匹配到的指令头
+ */
 export function removeHeaderInContent( string: string, prefix: string ): string {
 	if ( bot.config.header !== "" )
 		return string.replace( new RegExp( `${ prefix.charAt( 0 ) }|${ prefix.slice( 1 ) }`, "g" ), '' );

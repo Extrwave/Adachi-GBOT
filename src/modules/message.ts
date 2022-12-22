@@ -86,21 +86,16 @@ export default class MsgManager implements MsgManagementMethod {
 		const client = this.client;
 		const sendFileImage = this.sendFileImageFunc( true );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
-			if ( !content ) {
-				content = `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
+			if ( !content || typeof content === 'string' ) {
+				content = content ? content : `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
 				const response = await client.directMessageApi.postDirectMessage( guildId, {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
-				return response.data;
-			} else if ( typeof content === 'string' ) {
-				const response = await client.directMessageApi.postDirectMessage( guildId, {
-					content: atUser ? `<@!${ atUser }> ${ content }` : content,
-					msg_id: msgId
-				} );
-				bot.logger.info( "[send private] : " + content );
+				bot.logger.info( `[send to ${ guildId }] : ` + content );
 				return response.data;
 			}
+			
 			if ( content.file_image ) {
 				let formData = new FormData();
 				formData.append( "file_image", content.file_image );
@@ -109,15 +104,15 @@ export default class MsgManager implements MsgManagementMethod {
 				if ( content.content )
 					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
 				return sendFileImage( guildId, formData );
-			} else {
-				content.msg_id = msgId;
-				if ( content.content && atUser ) {
-					content.content = `<@!${ atUser } ${ content.content }>`;
-				}
-				const response = await client.directMessageApi.postDirectMessage( guildId, content );
-				bot.logger.info( "[send private] : " + content.content );
-				return response.data;
 			}
+			
+			content.msg_id = msgId;
+			if ( content.content ) {
+				content.content = atUser ? `<@!${ atUser } ${ content.content }>` : content.content;
+			}
+			const response = await client.directMessageApi.postDirectMessage( guildId, content );
+			bot.logger.info( `[send to ${ guildId }] : ` + content.content || content.image );
+			return response.data;
 		}
 	}
 	
@@ -125,21 +120,16 @@ export default class MsgManager implements MsgManagementMethod {
 		const client = this.client;
 		const sendFileImage = this.sendFileImageFunc( false );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
-			if ( !content ) {
-				content = `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请带上截图向开发者反馈 ~`;
+			if ( !content || typeof content === 'string' ) {
+				content = content ? content : `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
 				const response = await client.messageApi.postMessage( guildId, {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
-				return response.data;
-			} else if ( typeof content === 'string' ) {
-				const response = await client.messageApi.postMessage( guildId, {
-					content: atUser ? `<@!${ atUser }> ${ content }` : content,
-					msg_id: msgId
-				} );
-				bot.logger.info( `[send ${ guildId }] : ${ content }` );
+				bot.logger.info( `[send to ${ guildId }] : ` + content );
 				return response.data;
 			}
+			
 			if ( content.file_image ) {
 				let formData = new FormData();
 				formData.append( "file_image", content.file_image );
@@ -148,15 +138,15 @@ export default class MsgManager implements MsgManagementMethod {
 				if ( content.content )
 					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
 				return sendFileImage( guildId, formData );
-			} else {
-				content.msg_id = msgId;
-				if ( content.content && atUser ) {
-					content.content = `<@!${ atUser } ${ content.content }>`;
-				}
-				const response = await client.messageApi.postMessage( guildId, content );
-				bot.logger.info( `[send ${ guildId }] : ${ content.content }` );
-				return response.data;
 			}
+			
+			content.msg_id = msgId;
+			if ( content.content ) {
+				content.content = atUser ? `<@!${ atUser } ${ content.content }>` : content.content;
+			}
+			const response = await client.messageApi.postMessage( guildId, content );
+			bot.logger.info( `[send to ${ guildId }] : ` + content.content || content.image );
+			return response.data;
 		}
 	}
 	
