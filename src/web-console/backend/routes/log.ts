@@ -6,7 +6,7 @@ export default express.Router().get( "/", async ( req, res ) => {
 	const length = parseInt( <string>req.query.length ); // 页长度
 	const logLevel = <string>req.query.logLevel; // 日志等级
 	const msgType = parseInt( <string>req.query.msgType ); // 消息类型 0：系统 1: 私聊 2: 频道
-	const guildName = <string>req.query.guildName; // 频道名称，仅 msgType 为 2 时可用
+	const filterName = <string>req.query.filterName; // 查询名称，用户名或者频道名
 	const utcDiffer = 8 * 60 * 60 * 1000;
 	const date = new Date( parseInt( <string>req.query.date ) + utcDiffer ).toJSON();  // 日期时间戳
 	
@@ -30,20 +30,21 @@ export default express.Router().get( "/", async ( req, res ) => {
 						return false;
 					}
 					/* 过滤消息类型 */
-					if ( !Number.isNaN( msgType ) ) {
-						const reg = /\[(G|ID): ((\d|.)+)]/;
-						const result = reg.exec( el.message );
-						if ( result ) {
-							const type = <'G' | 'ID'>result[1];
-							if ( msgType !== ( type === 'G' ? 2 : 1 ) ) {
-								return false;
-							}
-							if ( msgType === 2 && guildName && guildName !== result[2] ) {
-								return false;
-							}
-						} else if ( msgType !== 0 ) {
+					const reg = /\[(Guild|Private)] \[A: (.+)] \[G: (.+)]/;
+					const result = reg.exec( el.message );
+					/* result[1]为类别，result[2]为用户名，result[3]为频道名 */
+					if ( result ) {
+						const type = <'Guild' | 'Private'>result[1];
+						/* 过滤频道或者私聊的选择 */
+						if ( !Number.isNaN( msgType ) && msgType !== ( type === 'Guild' ? 2 : 1 ) ) {
 							return false;
 						}
+						/* 过滤频道名或者用户名的选择 */
+						if ( filterName && filterName !== result[2] && filterName !== result[3] ) {
+							return false;
+						}
+					} else if ( msgType !== 0 ) {
+						return false;
 					}
 					return true;
 				} );

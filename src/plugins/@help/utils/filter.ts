@@ -1,11 +1,11 @@
 import { AuthLevel } from "@modules/management/auth";
 import { BasicConfig, InputParameter } from "@modules/command/main";
-import Database from "@modules/database";
+import Redis, { __RedisKey } from "@modules/redis";
 import { getMessageType } from "@modules/message";
 import { Message, MessageScope, MessageType } from "@modules/utils/message";
 
-async function getLimited( id: string, type: string, redis: Database ): Promise<string[]> {
-	const dbKey: string = `adachi.${ type }-command-limit-${ id }`;
+async function getLimited( id: string, isGuild: boolean, redis: Redis ): Promise<string[]> {
+	const dbKey: string = isGuild ? __RedisKey.COMMAND_LIMIT_GUILD : __RedisKey.COMMAND_LIMIT_USER;
 	return await redis.getList( dbKey );
 }
 
@@ -23,14 +23,14 @@ export async function filterUserUsableCommand( i: InputParameter ): Promise<Basi
 			? MessageScope.Guild : MessageScope.Private )
 		.filter( el => el.display );
 	
-	const userLimit: string[] = await getLimited( userID, "user", i.redis );
+	const userLimit: string[] = await getLimited( userID, false, i.redis );
 	commands = commands.filter( el => !userLimit.includes( el.cmdKey ) );
 	if ( type === MessageType.Private ) {
 		return commands;
 	}
 	
 	const groupID: string = ( <Message>i.messageData ).msg.channel_id;
-	const groupLimit: string[] = await getLimited( groupID, "group", i.redis );
+	const groupLimit: string[] = await getLimited( groupID, true, i.redis );
 	commands = commands.filter( el => !groupLimit.includes( el.cmdKey ) );
 	return commands;
 }

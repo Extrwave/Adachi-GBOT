@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import { InputParameter } from "@modules/command";
 import { PluginUpgradeServices } from "@modules/plugin";
 import { execHandle } from "@modules/utils";
+import { __RedisKey } from "@modules/redis";
 
 /* 超时检查 */
 function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any> {
@@ -129,7 +130,7 @@ export async function main( i: InputParameter ): Promise<void> {
 			return;
 		}
 		
-		dbKey = `adachi.${ pluginName }.update-time`;
+		dbKey = `${ __RedisKey.PLUGIN_UPDATE_TIME }-${ pluginName }`;
 		const checkResult: { check: boolean; newDate?: string, error?: string } = await checkGitCommit( dbKey, i, repo );
 		if ( !checkResult.check ) {
 			if ( checkResult.newDate ) {
@@ -167,7 +168,7 @@ export async function main( i: InputParameter ): Promise<void> {
 	for ( let key in PluginUpgradeServices ) {
 		const repo: string = PluginUpgradeServices[key];
 		if ( repo ) {
-			dbKey = `adachi.${ key }.update-time`;
+			dbKey = `${ __RedisKey.PLUGIN_UPDATE_TIME }-${ key }`;
 			const checkResult: { check: boolean; newDate?: string, error?: string } = await checkGitCommit( dbKey, i, repo );
 			if ( !checkResult.check ) {
 				if ( checkResult.newDate ) {

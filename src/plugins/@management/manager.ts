@@ -3,6 +3,8 @@ import { InputParameter, SwitchMatchResult } from "@modules/command";
 import { idParser } from "@modules/utils";
 
 /**
+ * 多重身份以最近更改为准
+ *
  * @Master 只控制所有用户的全局管理设置
  * @GuildOwner 控制自己频道的频道管理员设置以及往下兼容权限
  * @GuildManager 控制当前频道的 User ban limit 权限

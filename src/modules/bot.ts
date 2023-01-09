@@ -9,7 +9,7 @@ import {
 import * as log from "log4js";
 import moment from "moment";
 import BotConfig from "@modules/config";
-import Database from "@modules/database";
+import Redis, { __RedisKey } from "@modules/redis";
 import FileManagement from "@modules/file";
 import Plugin, { PluginReSubs } from "@modules/plugin";
 import WebConfiguration from "@modules/logger";
@@ -30,7 +30,7 @@ import { Sleep } from "./utils";
 
 
 export interface BOT {
-	readonly redis: Database;
+	readonly redis: Redis;
 	readonly config: BotConfig;
 	readonly client: IOpenAPI;
 	readonly ws;
@@ -81,7 +81,7 @@ export class Adachi {
 			}
 		} );
 		
-		const redis = new Database( config.dbPort, config.dbPassword, logger, file );
+		const redis = new Redis( config.dbPort, config.dbPassword, logger, file );
 		const auth = new Authorization( config, redis );
 		const message = new MsgManager( config, client, redis );
 		const command = new Command( file );
@@ -105,13 +105,13 @@ export class Adachi {
 				/* 私域机器人 */
 				this.bot.ws.on( "GUILD_MESSAGES", ( data: Message ) => {
 					if ( data.eventType === 'MESSAGE_CREATE' )
-						this.parseGroupMsg( this )( data );
+						this.parseGuildMsg( this )( data );
 				} );
 			} else {
 				/* 公域机器人 */
 				this.bot.ws.on( "PUBLIC_GUILD_MESSAGES", ( data: Message ) => {
 					if ( data.eventType === 'AT_MESSAGE_CREATE' )
-						this.parseGroupMsg( this )( data );
+						this.parseGuildMsg( this )( data );
 				} );
 			}
 			/* 私信相关 */
@@ -185,7 +185,7 @@ export class Adachi {
 			return;
 		}
 		
-		/* 针对私域机器人做出 @配置优化 */
+		/* 针对私域机器人的 @消息识别开关 */
 		if ( this.bot.config.area === "private" && this.bot.config.atBot && !isAt && !isPrivate ) {
 			return;
 		}
@@ -195,12 +195,11 @@ export class Adachi {
 		const channelID = messageData.msg.channel_id;
 		
 		/* 适配Ban掉的频道 */
-		const banDbKey = "adachi.banned-guild";
-		if ( !isPrivate && await this.bot.redis.existSetMember( banDbKey, guildID ) ) {
-			return isAt ? await sendMessage( "此频道已被禁用，请联系开发者解决" ) : undefined;
+		if ( !isPrivate && await this.bot.redis.existSetMember( __RedisKey.GUILD_BAN, guildID ) ) {
+			return isAt ? await sendMessage( "此频道已被禁用，请点击BOT头像前往官方频道反馈" ) : undefined;
 		}
 		
-		/* 对设置可用子频道做出适配 更新管理员不受限制 */
+		/* 对设置可用子频道做出适配 */
 		const { status, msg } = await checkChannelLimit( guildID, channelID, userID );
 		if ( status ) {
 			await sendMessage( msg );
@@ -231,10 +230,10 @@ export class Adachi {
 		}
 		
 		/* 用户数据统计与收集，当用户使用了指令之后才统计 */
-		await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, guildID ); //使用过的用户包括使用过的频道
+		await this.bot.redis.addSetMember( `${ __RedisKey.USER_USED_GUILD }-${ userID }`, guildID ); //使用过的用户包括使用过的频道
 		/* 私聊源频道也记录，修复未在频道使用用户信息读取问题 */
 		if ( isPrivate && messageData.msg.src_guild_id ) {
-			await this.bot.redis.addSetMember( `adachi.user-used-groups-${ userID }`, messageData.msg.src_guild_id );
+			await this.bot.redis.addSetMember( `${ __RedisKey.USER_USED_GUILD }-${ userID }`, messageData.msg.src_guild_id );
 		}
 		
 		/* 获取匹配指令对应的处理方法 */
@@ -295,8 +294,7 @@ export class Adachi {
 		} );
 		
 		/* 指令数据统计与收集 */
-		await this.bot.redis.incHash( "adachi.hour-stat", userID, 1 ); //小时使用过的指令数目
-		await this.bot.redis.incHash( "adachi.command-stat", cmd.cmdKey, 1 );
+		await this.bot.redis.incHash( __RedisKey.COMMAND_STAT, cmd.cmdKey, 1 );
 		return;
 	}
 	
@@ -312,18 +310,18 @@ export class Adachi {
 			const guildId: string = messageData.msg.guild_id;
 			const srcGuildId = messageData.msg.src_guild_id ? messageData.msg.src_guild_id : guildId;
 			const auth: AuthLevel = await bot.auth.get( userID, srcGuildId );
-			const sendMessage: Msg.SendFunc = await bot.message.sendPrivateMessage(
-				guildId, msgID
-			);
+			const guildInfo = <IGuild>await getGuildBaseInfo( srcGuildId );
+			const guildName = guildInfo ? guildInfo.name : "神秘频道";
+			const sendMessage: Msg.SendFunc = await bot.message.getSendPrivateFunc( userID, srcGuildId, msgID );
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Private );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Private );
 			await that.execute( messageData, sendMessage, cmdSet, [], unionReg, true, true );
-			bot.logger.info( `[A: ${ authorName }][ID: ${ userID }]: ${ content }` );
+			bot.logger.info( `[Recv] [Private] [A: ${ authorName }] [G: ${ guildName }]: ${ content }` );
 		}
 	}
 	
 	/* 处理群聊事件 */
-	private parseGroupMsg( that: Adachi ) {
+	private parseGuildMsg( that: Adachi ) {
 		const bot = that.bot;
 		return async function ( messageData: Message ) {
 			const isAt = await that.checkAtBOT( messageData );
@@ -335,24 +333,24 @@ export class Adachi {
 			const content = messageData.msg.content;
 			
 			const guildInfo = <IGuild>await getGuildBaseInfo( guildId );
+			const guildName = guildInfo ? guildInfo.name : "神秘频道";
 			const auth: AuthLevel = await bot.auth.get( userID, guildId );
-			const uLim: string[] = await bot.redis.getSet( `adachi.user-command-limit-${ userID }-${ guildId }` );
-			const sendMessage: Msg.SendFunc = bot.message.sendGuildMessage(
-				channelID, msgID );
+			const uLim: string[] = await bot.redis.getSet( `${ __RedisKey.COMMAND_LIMIT_USER }-${ userID }-${ guildId }` );
+			const sendMessage: Msg.SendFunc = await bot.message.getSendGuildFunc( userID, guildId, channelID, msgID );
 			const cmdSet: BasicConfig[] = bot.command.get( auth, MessageScope.Guild );
 			const unionReg: RegExp = bot.command.getUnion( auth, MessageScope.Guild );
 			await that.execute( messageData, sendMessage, cmdSet, [ ...uLim ], unionReg, false, isAt );
 			
 			//暂存一下msg_id, guildId, channelId 供推送消息使用
-			await bot.redis.setHashField( `adachi.guild-used-channel`, guildId, channelID ); //记录可以推送消息的频道
+			await bot.redis.setHashField( __RedisKey.GUILD_USED_CHANNEL, guildId, channelID ); //记录可以推送消息的频道
 			// await bot.redis.setString( `adachi.msgId-temp-${ guild }-${ channelID }`, msgID, 290 ); //记录推送消息引用的msgID，被动
-			await bot.logger.info( `[A: ${ authorName }][G: ${ guildInfo.name }]: ${ content }` );
+			await bot.logger.info( `[Recv] [Guild] [A: ${ authorName }] [G: ${ guildName }]: ${ content }` );
 		}
 	}
 	
 	/*去掉消息中的@自己信息*/
 	private async checkAtBOT( msg: Message ): Promise<boolean> {
-		const botID = await this.bot.redis.getString( `adachi.user-bot-id` );
+		const botID = await this.bot.redis.getString( __RedisKey.USER_BOT_ID );
 		const mention = msg.msg.mentions;
 		
 		if ( !mention || mention.length <= 0 ) {
@@ -402,37 +400,14 @@ export class Adachi {
 		return msg;
 	}
 	
-	/* 数据统计 与 超量使用监看 */
+	/* WebConsole 指令使用数据统计 */
 	private hourlyCheck( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return function (): void {
-			bot.redis.getHash( "adachi.hour-stat" ).then( async data => {
-				const cmdOverusedUser: string[] = [];
-				const threshold: number = bot.config.countThreshold;
-				Object.keys( data ).forEach( key => {
-					if ( parseInt( data[key] ) > threshold ) {
-						cmdOverusedUser.push( key );
-					}
-				} );
-				
-				const length: number = cmdOverusedUser.length;
-				if ( length !== 0 ) {
-					const msg: string =
-						`上个小时内有 ${ length } 个用户指令使用次数超过了阈值` +
-						[ "", ...cmdOverusedUser.map( el => `${ el }: ${ data[el] }次` ) ]
-							.join( "\n  - " );
-					const sendMessage = await bot.message.getSendMasterFunc();
-					await sendMessage( msg );
-					/*频道限制BOT主动推送消息次数*/
-					bot.logger.info( msg );
-				}
-				await bot.redis.deleteKey( "adachi.hour-stat" );
-			} );
-			
-			bot.redis.getHash( "adachi.command-stat" ).then( async data => {
+			bot.redis.getHash( __RedisKey.COMMAND_STAT ).then( async data => {
 				const hourID: string = moment().format( "yy/MM/DD/HH" );
-				await bot.redis.deleteKey( "adachi.command-stat" );
-				await bot.redis.setString( `adachi.command-stat-${ hourID }`, JSON.stringify( data ) );
+				await bot.redis.deleteKey( __RedisKey.COMMAND_STAT );
+				await bot.redis.setString( `${ __RedisKey.COMMAND_STAT }-${ hourID }`, JSON.stringify( data ) );
 			} );
 		}
 	}
@@ -470,15 +445,15 @@ export class Adachi {
 	private getBotBaseInfo( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return async function () {
-			await bot.redis.deleteKey( `adachi.guild-used` ); //重启重新获取BOT所在频道信息
+			await bot.redis.deleteKey( __RedisKey.GUILD_USED ); //重启重新获取BOT所在频道信息
 			const responseMeApi = await bot.client.meApi.me();
 			if ( !responseMeApi.data.id ) {
 				bot.logger.error( "获取BOT自身信息失败..." );
 				return;
 			}
-			await bot.redis.setString( `adachi.user-bot-id`, responseMeApi.data.id );
+			await bot.redis.setString( __RedisKey.USER_BOT_ID, responseMeApi.data.id );
 			/* 10.7日更新数据兼容问题 */
-			await that.getBotInGuilds( bot );
+			await that.getGuildsBotIn( bot );
 		}
 	}
 	
@@ -486,7 +461,7 @@ export class Adachi {
 	private userDecrease( that: Adachi ) {
 		const bot = that.bot
 		return async function ( guildId: string, userId: string ) {
-			const dbKey = `adachi.user-used-groups-${ userId }`;
+			const dbKey = `${ __RedisKey.USER_USED_GUILD }-${ userId }`;
 			await bot.redis.delSetMember( dbKey, guildId );
 		}
 	}
@@ -497,8 +472,7 @@ export class Adachi {
 		return async function ( userId: string ) {
 			
 			const userInfo = await getMemberInfo( userId );
-			const dbKey = `adachi.user-used-groups-${ userId }`;
-			const guilds = await bot.redis.getSet( `adachi.user-used-groups-${ userId }` );
+			const guilds = await bot.redis.getSet( `${ __RedisKey.USER_USED_GUILD }-${ userId }` );
 			
 			/* 与机器人还有共同频道就不清除数据，或者只是信息获取失败，暂时不处理 */
 			if ( userInfo || guilds.length > 1 ) {
@@ -515,17 +489,17 @@ export class Adachi {
 			}
 			//清除使用记录
 			const dbKeys = await bot.redis.getKeysByPrefix( `*${ userId }*` );
-			await bot.redis.deleteKey( dbKey, ...dbKeys );
+			await bot.redis.deleteKey( ...dbKeys );
 			bot.logger.debug( `已清除用户 ${ userId } 使用数据` );
 		}
 	}
 	
-	/* 清除BOT未上线时被移出频道的相关用户信息 (速度很慢，不要await调用) */
+	/* 清除BOT未上线时被移出频道的相关用户信息 (速度很慢) */
 	private clearExitUser( that: Adachi ): JobCallback {
 		const bot = that.bot;
 		return function (): void {
 			bot.logger.debug( "开始检测用户是否退出BOT相关频道~" );
-			bot.redis.getKeysByPrefix( `adachi.user-used-groups-*` ).then( async data => {
+			bot.redis.getKeysByPrefix( `${ __RedisKey.USER_USED_GUILD }-*` ).then( async data => {
 				data.forEach( value => {
 					const userId = value.split( "-" )[3];
 					that.clearUsedInfo( that )( userId );
@@ -535,7 +509,7 @@ export class Adachi {
 	}
 	
 	/* 获取BOT所在所有频道信息 */
-	public async getBotInGuilds( bot: BOT ): Promise<IGuild[]> {
+	public async getGuildsBotIn( bot: BOT ): Promise<IGuild[]> {
 		let currentId = "", over = false, ackMaster = false, count = 10;
 		const allGuilds: IGuild[] = [];
 		/*  */
@@ -556,9 +530,9 @@ export class Adachi {
 		}
 		/* 初始化频道主权限 */
 		for ( let guild of allGuilds ) {
-			await bot.redis.addSetMember( `adachi.guild-used`, guild.id ); //存入BOT所进入的频道
+			await bot.redis.addSetMember( __RedisKey.GUILD_USED, guild.id ); //存入BOT所进入的频道
 			if ( !ackMaster && guild.owner_id === bot.config.master ) {
-				await bot.redis.setString( `adachi.guild-master`, guild.id ); //当前BOT主人所在频道
+				await bot.redis.setString( __RedisKey.GUILD_MASTER, guild.id ); //当前BOT主人所在频道
 				ackMaster = true;
 			}
 			await bot.auth.set( "system", guild.owner_id, guild.id, AuthLevel.GuildOwner );
@@ -574,17 +548,18 @@ export class Adachi {
 			if ( bot.ws.session.ws.alive ) {
 				bot.logger.info( "BOT已成功上线 ~" );
 				let sendMessage: Msg.SendFunc;
-				const single = await bot.redis.getHashField( "adachi.restart-param", "private" );
-				const guild = await bot.redis.getHashField( "adachi.restart-param", "guild" );
-				const channel = await bot.redis.getHashField( "adachi.restart-param", "channel" );
-				const msgId = await bot.redis.getHashField( "adachi.restart-param", "msgId" );
-				if ( guild || channel && msgId && single ) {
-					single === "true" ? sendMessage = await bot.message.sendPrivateMessage( guild, msgId )
-						: sendMessage = bot.message.sendGuildMessage( channel, msgId );
+				const guildId = await bot.redis.getHashField( __RedisKey.RESTART_PARAM, "guildId" );
+				const srcGuildId = await bot.redis.getHashField( __RedisKey.RESTART_PARAM, "srcGuildId" );
+				const userId = await bot.redis.getHashField( __RedisKey.RESTART_PARAM, "userId" );
+				const channel = await bot.redis.getHashField( __RedisKey.RESTART_PARAM, "channelId" );
+				const msgId = await bot.redis.getHashField( __RedisKey.RESTART_PARAM, "msgId" );
+				if ( srcGuildId || channel && msgId ) {
+					srcGuildId ? sendMessage = await bot.message.getSendPrivateFunc( userId, srcGuildId, msgId )
+						: sendMessage = await bot.message.getSendGuildFunc( userId, srcGuildId, channel, msgId );
 					await sendMessage( "BOT重启成功" );
 					bot.logger.info( "BOT重启成功" );
 				}
-				await bot.redis.deleteKey( "adachi.restart-param" );
+				await bot.redis.deleteKey( __RedisKey.RESTART_PARAM );
 				return;
 			}
 			await Sleep( 3000 );

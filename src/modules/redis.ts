@@ -2,6 +2,39 @@ import { createClient, RedisClient } from "redis";
 import { Logger } from "log4js";
 import FileManagement from "./file";
 
+export const __RedisKey = {
+	/* GUILD */
+	GUILD_BAN: "adachi.banned-guild", //被ban掉的频道
+	GUILD_USED: "adachi.guild-used", //BOT所在所有频道
+	GUILD_USED_CHANNEL: "adachi.guild-used-channel", //频道主动消息子频道
+	GUILD_MASTER: "adachi.guild-master", //BOT主人所在的检测到的第一个频道
+	GUILD_INFO: "adachi.guild-info", //频道详细信息
+	
+	/* USER */
+	USER_BOT_ID: "adachi.user-bot-id", //BOT ID
+	USER_INFO: "adachi.user-info", //泛获取用户的基本信息
+	USER_USED_GUILD: "adachi.user-used-guild", //用户使用过BOT的所有频道
+	
+	/* Command */
+	COMMAND_STAT: "adachi.command-stat",
+	COMMAND_LIMIT_USER: "adachi.command-limit-user",
+	COMMAND_LIMIT_GUILD: "adachi.command-limit-guild",
+	
+	/* Management */
+	AUTH_LEVEL: "adachi.auth-level",
+	CHANNEL_LIMIT: "adachi.channel-limit", //设置可用子频道
+	BANED_GUILD: "adachi.banned-guild",
+	
+	/* Function */
+	RESTART_PARAM: "adachi.restart-param", //指令重启后保存启动回复消息路径
+	HELP_DATA: "adachi.help-data",
+	MESSAGE_CALL_PASSIVE: "adachi.message-call-passive",
+	MESSAGE_CALL_INITIATIVE: "adachi.message-call-initiative",
+	PLUGIN_UPDATE_TIME: "adachi.plugin-update-time",
+	BOT_UPDATE_TIME: "adachi.bot-update-time"
+	
+}
+
 interface DatabaseMethod {
 	setTimeout( key: string, time: number ): Promise<void>;
 	
@@ -48,7 +81,7 @@ interface DatabaseMethod {
 	existSetMember( key: string, value: any ): Promise<boolean>;
 }
 
-export default class Database implements DatabaseMethod {
+export default class Redis implements DatabaseMethod {
 	public readonly client: RedisClient;
 	
 	constructor( port: number, auth_pass, logger: Logger, file: FileManagement ) {

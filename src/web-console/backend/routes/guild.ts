@@ -7,6 +7,7 @@ import express from "express";
 import { AuthLevel } from "@modules/management/auth";
 import { IMember } from "qq-guild-bot";
 import { getGuildBaseInfo } from "@modules/utils/account";
+import { __RedisKey } from "@modules/redis";
 
 type GuildData = {
 	guildId: string;
@@ -30,7 +31,7 @@ export default express.Router()
 		
 		try {
 			//获取BOT进入频道列表
-			let glMap = await bot.redis.getSet( `adachi.guild-used` );
+			let glMap = await bot.redis.getSet( __RedisKey.GUILD_USED );
 			const dateGlMap = glMap
 				// 过滤条件：id
 				.filter( ( key ) => {
@@ -59,7 +60,7 @@ export default express.Router()
 			return;
 		}
 		
-		const glMap = await bot.redis.getSet( `adachi.guild-used` );
+		const glMap = await bot.redis.getSet( __RedisKey.GUILD_USED );
 		if ( !glMap.includes( guildId ) ) {
 			res.status( 404 ).send( { code: 404, data: {}, msg: "NotFound" } );
 			return
@@ -73,7 +74,7 @@ export default express.Router()
 		const auth = <1 | 2>parseInt( <string>req.body.auth );
 		
 		/* 封禁相关 */
-		const banDbKey = "adachi.banned-guild";
+		const banDbKey = __RedisKey.BANED_GUILD;
 		if ( auth === 1 ) {
 			await bot.redis.addSetMember( banDbKey, guildId );
 		} else {
@@ -87,13 +88,13 @@ export default express.Router()
 async function getGroupInfo( guildId: string ): Promise<GuildData> {
 	
 	//BOT自身ID
-	const botId = await bot.redis.getString( `adachi.user-bot-id` );
+	const botId = await bot.redis.getString( __RedisKey.USER_BOT_ID );
 	//Guild信息,BOT member信息
 	const tempGinfo = await getGuildBaseInfo( guildId );
 	const botGroupInfo = await <IMember>( await bot.client.guildApi.guildMember( guildId, botId ) ).data;
 	
 	const isBanned: boolean = await bot.redis.existSetMember(
-		"adachi.banned-guild", guildId
+		__RedisKey.BANED_GUILD, guildId
 	);
 	const guildAuth = isBanned ? 1 : 2;
 	

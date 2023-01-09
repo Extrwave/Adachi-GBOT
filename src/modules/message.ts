@@ -6,10 +6,11 @@ import bot from "ROOT";
 import * as fs from 'fs';
 import FormData from 'form-data';////需要自己安装
 import BotConfig from "@modules/config";
-import { IDirectMessage, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
-import Database from "@modules/database";
+import { IDirectMessage, IGuild, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
+import Redis, { __RedisKey } from "@modules/redis";
 import { Message, MessageType } from "@modules/utils/message";
 import requests from "@modules/requests";
+import { Account, getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
 
 export interface MessageToSend extends MessageToCreate {
 	file_image?: fs.ReadStream;
@@ -20,17 +21,17 @@ export type SendFunc = ( content: MessageToSend | string, atUser?: string ) => P
 interface MsgManagementMethod {
 	getSendPrivateFunc( guildId: string, userId: string ): Promise<SendFunc>;
 	getSendMasterFunc( msgId: string ): Promise<SendFunc>;
-	sendPrivateMessage( guildId: string, msgId: string ): SendFunc;
-	sendGuildMessage( channelId: string, msgId: string ): SendFunc;
+	// sendPrivateMessage( guildId: string, msgId: string ): SendFunc;
+	getSendGuildFunc( userId: string, guildId: string, channelId: string, msgId: string ): Promise<SendFunc>;
 }
 
 export default class MsgManager implements MsgManagementMethod {
 	
 	private readonly client: IOpenAPI;
-	private readonly redis: Database;
+	private readonly redis: Redis;
 	private readonly config: BotConfig;
 	
-	constructor( config: BotConfig, client: IOpenAPI, redis: Database ) {
+	constructor( config: BotConfig, client: IOpenAPI, redis: Redis ) {
 		this.client = client;
 		this.redis = redis;
 		this.config = config;
@@ -51,28 +52,32 @@ export default class MsgManager implements MsgManagementMethod {
 	}
 	
 	/*获取私信发送方法 构建*/
-	public async getSendPrivateFunc( guildId: string, userId: string, msgId?: string ): Promise<SendFunc> {
-		msgId = "1000";//随时都可能失效，失效后删掉此行
-		const { guild_id, channel_id, create_time } = await this.getPrivateSendParam( guildId, userId );
-		return this.sendPrivateEntity( guild_id, msgId );
-	}
-	
-	/*私信回复方法 被动回复*/
-	public sendPrivateMessage( guildId: string, msgId: string ): SendFunc {
-		msgId = "1000"; //随时都可能失效，失效后删掉此行
-		return this.sendPrivateEntity( guildId, msgId );
+	public async getSendPrivateFunc( userId: string, guildId: string, msgId?: string ): Promise<SendFunc> {
+		msgId = msgId ? msgId : "1000";//随时都可能失效，失效后删掉此行
+		const { guild_id } = await this.getPrivateSendParam( guildId, userId );
+		const guildInfo = <IGuild>await getGuildBaseInfo( guildId );
+		const guildName = guildInfo ? guildInfo.name : "神秘频道";
+		const userInfo = <Account>await getMemberInfo( userId, guildId );
+		const userName = userInfo ? userInfo.account.nick : "神秘用户";
+		return this.sendPrivateEntity( userName, guildName, guild_id, msgId );
 	}
 	
 	/* 回复频道消息方法，主动、被动*/
-	public sendGuildMessage( channelId: string, msgId?: string ): SendFunc {
-		return this.sendGuildEntity( channelId, msgId );
+	public async getSendGuildFunc( userId: string, guildId: string, channelId: string, msgId?: string ): Promise<SendFunc> {
+		msgId = msgId ? msgId : "1000"; //随时都可能失效，失效后删掉此行
+		const guildInfo = <IGuild>await getGuildBaseInfo( guildId );
+		const guildName = guildInfo ? guildInfo.name : "神秘频道";
+		const userInfo = <Account>await getMemberInfo( userId, guildId );
+		const userName = userInfo ? userInfo.account.nick : "神秘用户";
+		return this.sendGuildEntity( userName, guildName, channelId, msgId );
 	}
+	
 	
 	/* 给管理员发送消息的方法，主动/被动 */
 	public async getSendMasterFunc( msgId?: string ): Promise<SendFunc> {
-		msgId = "1000";//随时都可能失效，失效后删掉此行
-		const masterGuildId = await this.redis.getString( `adachi.guild-master` ); //当前BOT主人所在频道
-		return await this.getSendPrivateFunc( masterGuildId, this.config.master, msgId );
+		msgId = msgId ? msgId : "1000";//随时都可能失效，失效后删掉此行
+		const masterGuildId = await this.redis.getString( __RedisKey.GUILD_MASTER ); //当前BOT主人所在频道
+		return await this.getSendPrivateFunc( this.config.master, masterGuildId, msgId );
 	}
 	
 	async getMessageInfo( channelId: string, msgId: string ):
@@ -82,7 +87,7 @@ export default class MsgManager implements MsgManagementMethod {
 		return response.data;
 	}
 	
-	sendPrivateEntity( guildId: string, msgId?: string ) {
+	sendPrivateEntity( userName: string, guildName: string, guildId: string, msgId?: string ) {
 		const client = this.client;
 		const sendFileImage = this.sendFileImageFunc( true );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
@@ -92,7 +97,7 @@ export default class MsgManager implements MsgManagementMethod {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
-				bot.logger.info( `[send to ${ guildId }] : ` + content );
+				bot.logger.info( `[Send] [Private] [A: ${ userName }] [G: ${ guildName }]: ` + content );
 				return response.data;
 			}
 			
@@ -103,6 +108,7 @@ export default class MsgManager implements MsgManagementMethod {
 					formData.append( "msg_id", msgId );
 				if ( content.content )
 					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
+				bot.logger.info( `[Send] [Private] [A: ${ userName }] [G: ${ guildName }]: ` + "[图片消息]" );
 				return sendFileImage( guildId, formData );
 			}
 			
@@ -111,22 +117,22 @@ export default class MsgManager implements MsgManagementMethod {
 				content.content = atUser ? `<@!${ atUser } ${ content.content }>` : content.content;
 			}
 			const response = await client.directMessageApi.postDirectMessage( guildId, content );
-			bot.logger.info( `[send to ${ guildId }] : ` + content.content || content.image );
+			bot.logger.info( `[Send] [Private] [A: ${ userName }] [G: ${ guildName }]: ` + "[其他消息]" );
 			return response.data;
 		}
 	}
 	
-	sendGuildEntity( guildId: string, msgId?: string ) {
+	sendGuildEntity( userName: string, guildName: string, channelId: string, msgId?: string ) {
 		const client = this.client;
 		const sendFileImage = this.sendFileImageFunc( false );
 		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
 			if ( !content || typeof content === 'string' ) {
 				content = content ? content : `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
-				const response = await client.messageApi.postMessage( guildId, {
+				const response = await client.messageApi.postMessage( channelId, {
 					content: atUser ? `<@!${ atUser }> ${ content }` : content,
 					msg_id: msgId
 				} );
-				bot.logger.info( `[send to ${ guildId }] : ` + content );
+				bot.logger.info( `[Send] [Guild] [A: ${ userName }] [G: ${ guildName }]: ` + content );
 				return response.data;
 			}
 			
@@ -137,15 +143,16 @@ export default class MsgManager implements MsgManagementMethod {
 					formData.append( "msg_id", msgId );
 				if ( content.content )
 					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
-				return sendFileImage( guildId, formData );
+				bot.logger.info( `[Send] [Guild] [A: ${ userName }] [G: ${ guildName }]: ` + "[图片消息]" );
+				return sendFileImage( channelId, formData );
 			}
 			
 			content.msg_id = msgId;
 			if ( content.content ) {
 				content.content = atUser ? `<@!${ atUser } ${ content.content }>` : content.content;
 			}
-			const response = await client.messageApi.postMessage( guildId, content );
-			bot.logger.info( `[send to ${ guildId }] : ` + content.content || content.image );
+			const response = await client.messageApi.postMessage( channelId, content );
+			bot.logger.info( `[Send] [Guild] [A: ${ userName }] [G: ${ guildName }]: ` + "[其他消息]" );
 			return response.data;
 		}
 	}

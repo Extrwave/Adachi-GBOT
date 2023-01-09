@@ -73,7 +73,7 @@ const announce: OrderConfig = {
 
 const callMaster: OrderConfig = {
 	type: "order",
-	cmdKey: "adachi-call-master",
+	cmdKey: "adachi-leave-message-call",
 	desc: [ "给我留言", "" ],
 	headers: [ "call" ],
 	regexps: [ "(.+\\s?)*" ],
@@ -83,9 +83,9 @@ const callMaster: OrderConfig = {
 
 const replyUser: OrderConfig = {
 	type: "order",
-	cmdKey: "adachi-reply-user",
+	cmdKey: "adachi-leave-message-reply",
 	desc: [ "回复留言", "" ],
-	headers: [ "user" ],
+	headers: [ "reply" ],
 	regexps: [ "(.+\\s?)*" ],
 	main: "call",
 	auth: AuthLevel.Master,

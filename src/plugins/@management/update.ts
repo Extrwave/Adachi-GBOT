@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { InputParameter } from "@modules/command";
 import { execHandle } from "@modules/utils";
+import { __RedisKey } from "@modules/redis";
 
 /* 超时检查 */
 function waitWithTimeout( promise: Promise<any>, timeout: number ): Promise<any> {
@@ -53,7 +54,7 @@ async function updateBot( { messageData, sendMessage, logger }: InputParameter )
 }
 
 export async function main( i: InputParameter ): Promise<void> {
-	const dbKey: string = "adachi.update-time";
+	const dbKey: string = __RedisKey.BOT_UPDATE_TIME;
 	
 	let commits: any[] = []
 	try {

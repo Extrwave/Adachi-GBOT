@@ -5,6 +5,7 @@ import { AuthLevel } from "@modules/management/auth";
 import { getMessageType, SendFunc } from "@modules/message";
 import { getGuildBaseInfo } from "@modules/utils/account";
 import { EmbedMsg } from "@modules/utils/embed";
+import { __RedisKey } from "@modules/redis";
 
 /**
 Author: Ethereal
@@ -20,8 +21,8 @@ export async function main(
 	const header = ( <OrderMatchResult>matchResult ).header;
 	const au: AuthLevel = await auth.get( userID, guildId );
 	
-	const CALL_MASTER = <Order>command.getSingle( "adachi-call-master", au );
-	const REPLY_USER = <Order>command.getSingle( "adachi-reply-user", au );
+	const CALL_MASTER = <Order>command.getSingle( "adachi-leave-message-call", au );
+	const REPLY_USER = <Order>command.getSingle( "adachi-leave-message-reply", au );
 	
 	if ( CALL_MASTER.getHeaders().includes( header ) ) {
 		const content = messageData.msg.content;
@@ -35,7 +36,6 @@ export async function main(
 		const msgType: MessageType = getMessageType( messageData ); //获取消息类型
 		const type = msgType === MessageType.Private ? "私聊" : "频道";
 		const guildId = messageData.msg.src_guild_id ? messageData.msg.src_guild_id : messageData.msg.guild_id;
-		const fakeGuildId = messageData.msg.guild_id;
 		const channelId = messageData.msg.channel_id;
 		const msgId = messageData.msg.id;
 		
@@ -46,13 +46,13 @@ export async function main(
 		const embedMsg: Embed = new EmbedMsg(
 			'有人给你留言啦 ~ ',
 			"",
-			'频道反馈消息',
+			'频道用户留言',
 			avatar,
 			`用户：${ name }`,
 			`方式：${ type }`,
 			`频道：${ guildInfo?.name }`,
 			`消息：\n\n`,
-			`${ content }\n\n`,
+			`  ${ content }\n\n`,
 			`使用 ${ REPLY_USER.getHeaders()[0] } 引用消息快捷回复 ~ `
 		)
 		try {
@@ -67,14 +67,11 @@ export async function main(
 			if ( !messageRes || !messageRes.id ) {
 				throw new Error( "发送消息返回对象异常" );
 			}
-			const dbKey = `adachi.message-reply-id-${ messageRes.id }`;
-			const gdbKey = `adachi.message-reply-guild-${ messageRes.id }`;
+			const dbKey = `${ __RedisKey.MESSAGE_CALL_PASSIVE }-${ messageRes.id }`;
+			const gdbKey = `${ __RedisKey.MESSAGE_CALL_INITIATIVE }-${ messageRes.id }`;
 			if ( msgType === MessageType.Private ) {
-				await redis.setHashField( dbKey, "fakeGuild", fakeGuildId );
-				await redis.setHashField( dbKey, "channelId", "" );
 				await redis.setHashField( dbKey, "msgId", msgId );
 			} else {
-				await redis.setHashField( dbKey, "fakeGuild", "" );
 				await redis.setHashField( dbKey, "channelId", channelId );
 				await redis.setHashField( dbKey, "msgId", msgId );
 			}
@@ -87,15 +84,15 @@ export async function main(
 			return;
 		}
 	} else if ( REPLY_USER.getHeaders().includes( header ) ) {
-		const rawContent: string = "开发者回复：" + messageData.msg.content;
 		const msgRefId = messageData.msg.message_reference?.message_id;
 		if ( !msgRefId ) {
 			await sendMessage( "请引用需要回复的消息" );
 			return;
 		}
-		const dbKey = `adachi.message-reply-id-${ msgRefId }`;
-		const gdbKey = `adachi.message-reply-guild-${ msgRefId }`;
-		const fakeGuildId = await redis.getHashField( dbKey, "fakeGuild" );
+		
+		const rawContent: string = "开发者回复：" + messageData.msg.content;
+		const dbKey = `${ __RedisKey.MESSAGE_CALL_PASSIVE }-${ msgRefId }`;
+		const gdbKey = `${ __RedisKey.MESSAGE_CALL_INITIATIVE }-${ msgRefId }`;
 		const channelId = await redis.getHashField( dbKey, "channelId" );
 		const msgId = await redis.getHashField( dbKey, "msgId" );
 		const guildId = await redis.getHashField( gdbKey, "srcGuild" );
@@ -113,14 +110,12 @@ export async function main(
 		}
 		try {
 			let sendToUser: SendFunc;
-			if ( fakeGuildId !== "" ) {
-				//首先处理私聊信息回复逻辑
-				sendToUser = message.sendPrivateMessage( fakeGuildId, msgId );
-			} else if ( channelId !== "" ) {
-				sendToUser = message.sendGuildMessage( channelId, msgId );
+			//首先处理私聊信息回复逻辑
+			if ( channelId !== "" ) {
+				sendToUser = await message.getSendGuildFunc( userId, guildId, channelId, msgId );
 			} else {
 				//消息ID已超过五分钟，采用私聊推送
-				sendToUser = await message.getSendPrivateFunc( guildId, userId );
+				sendToUser = await message.getSendPrivateFunc( userId, guildId, msgId );
 				content.message_reference = undefined;
 			}
 			//发送消息
