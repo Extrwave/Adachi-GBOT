@@ -1,5 +1,6 @@
 import { InputParameter, SwitchMatchResult } from "@modules/command";
 import { idParser } from "@modules/utils";
+import { __RedisKey } from "@modules/redis";
 
 export async function main(
 	{
@@ -29,7 +30,7 @@ export async function main(
 		return;
 	}
 	
-	const dbKey = `adachi.user-command-limit-${ target }-${ guildId }`;
+	const dbKey = `${ __RedisKey.COMMAND_LIMIT_USER }-${ target }-${ guildId }`;
 	const reply = `用户 [ <@!${ target }> ] 的 ${ key } 权限在此频道已${ states }`;
 	if ( match.isOn() ) {
 		await redis.delSetMember( dbKey, key );

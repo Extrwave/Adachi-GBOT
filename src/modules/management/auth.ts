@@ -1,5 +1,5 @@
 import BotConfig from "@modules/config";
-import Database from "@modules/database";
+import Redis, { __RedisKey } from "@modules/redis";
 
 /**
  * 新版权限管理设计
@@ -30,10 +30,10 @@ interface AuthorizationMethod {
 
 export default class Authorization implements AuthorizationMethod {
 	private readonly master: string;
-	private readonly redis: Database;
-	private static dbKey: string = `adachi.auth-level-`;
+	private readonly redis: Redis;
+	private static dbKey: string = `${ __RedisKey.AUTH_LEVEL }-`;
 	
-	constructor( config: BotConfig, redis: Database ) {
+	constructor( config: BotConfig, redis: Redis ) {
 		this.master = config.master;
 		this.redis = redis;
 	}

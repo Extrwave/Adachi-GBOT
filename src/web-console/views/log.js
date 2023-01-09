@@ -30,8 +30,8 @@ const template = `<div class="table-container fix-height logger">
     					<el-option v-for="(t, tKey) of msgType" :key="tKey" :label="t.label" :value="t.value"/>
   					</el-select>
 				</div>
-				<div v-show="queryParams.msgType === 2" class="log-nav-item">
-					<el-input v-model="queryParams.guildName" placeholder="输入频道名称" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
+				<div class="log-nav-item">
+					<el-input v-model="queryParams.filterName" placeholder="输入频道名或用户名" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
 				</div>
 			</div>
 			<div class="picker-right">
@@ -108,8 +108,8 @@ export default defineComponent( {
 		
 		const queryParams = ref( {
 			logLevel: "",
-			msgType: null,
-			guildName: ""
+			msgType: "",
+			filterName: ""
 		} )
 		
 		const scrollbarRef = ref( null );
@@ -152,27 +152,28 @@ export default defineComponent( {
 		function filterWsLogs( logs ) {
 			const logLevel = queryParams.value.logLevel;
 			const msgType = parseInt( queryParams.value.msgType );
-			const guildName = queryParams.value.guildName;
+			const filterName = queryParams.value.filterName;
 			return logs.filter( el => {
 				/* 过滤日志等级 */
 				if ( logLevel && el.level !== logLevel.toUpperCase() ) {
 					return false;
 				}
 				/* 过滤消息类型 */
-				if ( !Number.isNaN( msgType ) ) {
-					const reg = /\[(G|ID): ((\d|.)+)]/;
-					const result = reg.exec( el.message );
-					if ( result ) {
-						const type = result[1];
-						if ( msgType !== ( type === 'G' ? 2 : 1 ) ) {
-							return false;
-						}
-						if ( msgType === 2 && guildName && guildName !== result[2] ) {
-							return false;
-						}
-					} else if ( msgType !== 0 ) {
+				const reg = /\[(Guild|Private)] \[A: (.+)] \[G: (.+)]/;
+				const result = reg.exec( el.message );
+				/* result[1]为类别，result[2]为用户名，result[3]为频道名 */
+				if ( result ) {
+					const type = result[1];
+					/* 过滤频道或者私聊的选择 */
+					if ( !Number.isNaN( msgType ) && msgType !== ( type === 'Guild' ? 2 : 1 ) ) {
 						return false;
 					}
+					/* 过滤频道名或者用户名的选择 */
+					if ( filterName && filterName !== result[2] && filterName !== result[3] ) {
+						return false;
+					}
+				} else if ( msgType !== 0 ) {
+					return false;
 				}
 				return true;
 			} );
@@ -224,7 +225,7 @@ export default defineComponent( {
 			queryParams.value = {
 				logLevel: "",
 				msgType: null,
-				guildName: ""
+				filterName: ""
 			}
 			
 			getLogsData( date ).then( () => {
@@ -240,7 +241,7 @@ export default defineComponent( {
 		
 		/* 消息类型切换 */
 		async function msgTypeChange() {
-			queryParams.value.guildName = "";
+			queryParams.value.filterName = "";
 			await handleFilter();
 		}
 		
@@ -296,8 +297,10 @@ export default defineComponent( {
 				.toString()
 				.split( "\n\n" )
 				.map( el => {
-					el = el.replace( /\[A: (.+)]\[ID: (\d+)]/, " [Recv] [Pri-$1]" )
-						.replace( /\[A: (.+)]\[G: (.+)]/, " [Recv] [Group] $1" )
+					el = el.replace( /\[Recv]\[Private]\[A: (.+)]\[G: (\d+)]/, " [Recv] [Private] $1" )
+						.replace( /\[Recv]\[Guild]\[A: (.+)]\[G: (.+)]/, " [Recv] [Guild] $1" )
+						.replace( /\[Send]\[Private]\[A: (.+)]\[G: (\d+)]/, " [Send] [Private] $1" )
+						.replace( /\[Send]\[Guild]\[A: (.+)]\[G: (.+)]/, " [Send] [Guild] $1" )
 						.replace( /(\[[A-Z]+]) - (.*)/, "$1 [Event] $2" )
 						.replace( /&#93;/g, "]" )
 						.replace( /&#91;/g, "[" );

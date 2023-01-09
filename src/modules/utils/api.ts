@@ -4,24 +4,17 @@ CreateTime: 2022/6/21
  */
 import request from "@modules/requests";
 
-interface ApiType {
-	qingyunke: string,
-	poetry: string,
-	hitokoto: string,
-	dogs: string,
-	lovelive: string
-}
 
-export const API: ApiType = {
-	qingyunke: "http://api.qingyunke.com/api.php?key=free&appid=0&msg=",
-	poetry: "https://v1.hitokoto.cn?encode=text&&c=i",
-	hitokoto: "https://v1.hitokoto.cn?encode=text&&c=j", //获取一言网站的一句话，具体详情 https://developer.hitokoto.cn/sentence/
-	lovelive: "https://api.lovelive.tools/api/SweetNothings/Serialization/Text", //获取一句情话，具体参见 https://lovelive.tools/
-	dogs: "https://api.dzzui.com/api/tiangou?format=json" //获取一段舔狗日记
+export const __API = {
+	QINGYUNKE: "http://api.qingyunke.com/api.php?key=free&appid=0&msg=",
+	POETRY: "https://v1.hitokoto.cn?encode=text&&c=i",
+	HITOKOTO: "https://v1.hitokoto.cn?encode=text&&c=j", //获取一言网站的一句话，具体详情 https://developer.hitokoto.cn/sentence/
+	LOVELIVE: "https://api.lovelive.tools/api/SweetNothings/Serialization/Text", //获取一句情话，具体参见 https://lovelive.tools/
+	DOGS: "https://api.dzzui.com/api/tiangou?format=text" //获取一段舔狗日记
 };
 
 const HEADERS = {
-	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46",
+	"User-Agent": "Adachi-GBOT - Thanks You",
 	"Accept-Encoding": "gzip, deflate",
 	"Connection": "keep-alive",
 	"Accept": "*/*"
@@ -29,9 +22,9 @@ const HEADERS = {
 
 
 //调用青云客的免费对话API，但是延迟比较高，2s左右，详情http://api.qingyunke.com/
-async function getBaseChat( text: string ): Promise<any> {
+async function getQYKChat( text: string ): Promise<any> {
 	return new Promise( ( resolve, reject ) => {
-		const URL = encodeURI( API.qingyunke + text );
+		const URL = encodeURI( __API.QINGYUNKE + text );
 		request( {
 			method: "GET",
 			url: URL,
@@ -51,7 +44,7 @@ async function getBaseChat( text: string ): Promise<any> {
 }
 
 export async function getChatResponse( text: string ): Promise<string> {
-	let msg = await getBaseChat( text );
+	let msg = await getQYKChat( text );
 	if ( !msg || msg.result !== 0 ) {
 		return `接口挂掉啦~~`;
 	}
@@ -65,26 +58,6 @@ export async function getChatResponse( text: string ): Promise<string> {
 	msg.content = msg.content.replace( regExp1, '\n\n' );
 	return msg.content;
 }
-
-export async function getWeDog(): Promise<string> {
-	return new Promise( ( resolve, reject ) => {
-		request( {
-			method: "GET",
-			url: API.dogs,
-			headers: {
-				...HEADERS,
-			}
-		} )
-			.then( ( result ) => {
-				const msg = JSON.parse( result );
-				resolve( msg.text );
-			} )
-			.catch( ( reason ) => {
-				reject( reason );
-			} );
-	} );
-}
-
 
 export async function getTextResponse( type: string ): Promise<string> {
 	return new Promise( ( resolve, reject ) => {
@@ -111,7 +84,7 @@ export function getEmoji(): string {
 		"https://c2cpicdw.qpic.cn/offpic_new/1678800780//1678800780-4170714532-4E83609698BC1753845AA0BE8D66051D/0?term=2",
 		"https://c2cpicdw.qpic.cn/offpic_new/1678800780//1678800780-3888586142-E9BD0789F60B2045ECBA19E36DD25EC7/0?term=2"
 	];
-	//Math.random()返回0-1之间随机一个数，确保text数组长度不要为1，可能会报空指针异常
-	return text[Math.round( Math.random() * text.length - 1 )];
+	//Math.random()返回0-1之间随机一个数 Math.floor()向下取整
+	return text[Math.floor( Math.random() * text.length )];
 }
 

@@ -3,7 +3,7 @@ import { configure, addLayout, getLogger, Configuration, Appender, Logger } from
 import { parseZone } from "moment";
 
 function getTimeString( date: Date ): string {
-	return parseZone( date ).local().format( "HH:mm:ss.SSS" );
+	return parseZone( date ).local().format( "HH:mm:ss" );
 }
 
 export default class WebConfiguration {

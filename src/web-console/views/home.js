@@ -1,6 +1,6 @@
 const template = `<div class="table-container no-background fix-height">
 	<div class="home-content">
-		<p>欢迎使用 Adachi-GBOT 的网页控制台</p>
+		<p>欢迎使用 一碗牛杂 的网页控制台</p>
 		<p>这是一个正在进行初步测试的功能模块</p>
 		<p>本功能旨在简化指令式繁琐的管理模式</p>
 		<p>为用户提供更直观更简便的管理体验</p>

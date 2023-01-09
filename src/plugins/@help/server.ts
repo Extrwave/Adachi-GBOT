@@ -1,9 +1,10 @@
 import { Logger } from "log4js";
 import express from "express";
 import bot from "ROOT";
+import { __RedisKey } from "@modules/redis";
 
 const HelpRoute = express.Router().get( "/", async ( req, res ) => {
-	const data = await bot.redis.getString( "adachi.help-data" );
+	const data = await bot.redis.getString( __RedisKey.HELP_DATA );
 	res.send( JSON.parse( data ) );
 } )
 

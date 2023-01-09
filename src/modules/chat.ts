@@ -4,7 +4,7 @@ CreateTime: 2022/6/21
  */
 
 import * as msg from "@modules/message";
-import { API, getChatResponse, getEmoji, getTextResponse, getWeDog } from "@modules/utils/api";
+import { __API, getChatResponse, getEmoji, getTextResponse } from "@modules/utils/api";
 import { Message } from "@modules/utils/message";
 
 export async function autoReply( messageData: Message, sendMessage: msg.SendFunc, autoChat: boolean ) {
@@ -29,23 +29,21 @@ export async function autoReply( messageData: Message, sendMessage: msg.SendFunc
 		return;
 	}
 	
-	if ( autoChat ) {
-		switch ( true ) {
-			case /渣/.test( msg ):
-				await sendMessage( await getTextResponse( API.lovelive ) );
-				break;
-			case /emo/.test( msg ):
-				await sendMessage( await getTextResponse( API.hitokoto ) );
-				break;
-			case /诗/.test( msg ):
-				await sendMessage( await getTextResponse( API.poetry ) );
-				break;
-			case /舔狗/.test( msg ):
-				await sendMessage( await getWeDog() );
-				break;
-			default:
-				//调用青云客免费API
-				await sendMessage( await getChatResponse( msg ) );
-		}
+	switch ( true ) {
+		case /渣/.test( msg ):
+			await sendMessage( await getTextResponse( __API.LOVELIVE ) );
+			break;
+		case /emo/.test( msg ):
+			await sendMessage( await getTextResponse( __API.HITOKOTO ) );
+			break;
+		case /诗/.test( msg ):
+			await sendMessage( await getTextResponse( __API.POETRY ) );
+			break;
+		case /舔狗/.test( msg ):
+			await sendMessage( await getTextResponse( __API.DOGS ) );
+			break;
+		default:
+			//调用青云客免费API
+			autoChat ? await sendMessage( await getChatResponse( msg ) ) : "";
 	}
 }

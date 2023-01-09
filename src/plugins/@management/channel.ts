@@ -3,6 +3,7 @@ import { InputParameter, OrderMatchResult, SwitchMatchResult } from "@modules/co
 import { IChannel } from "qq-guild-bot";
 import { Message } from "@modules/utils/message";
 import { AuthLevel } from "@modules/management/auth";
+import { __RedisKey } from "@modules/redis";
 
 /**
 Author: Ethereal
@@ -11,7 +12,7 @@ CreateTime: 2022/8/6
 
 async function setChannel( guildId: string, channelId: string, match: SwitchMatchResult, messageData: Message ): Promise<string> {
 	
-	const dbKey = `adachi.channel-limit-${ guildId }`;
+	const dbKey = `${ __RedisKey.CHANNEL_LIMIT }-${ guildId }`;
 	
 	if ( match.match.length <= 0 ) {
 		if ( messageData.msg.direct_message ) {
@@ -47,7 +48,7 @@ async function setChannel( guildId: string, channelId: string, match: SwitchMatc
 }
 
 async function cancelChannel( guildId: string ): Promise<string> {
-	const dbKey = `adachi.channel-limit-${ guildId }`;
+	const dbKey = `${ __RedisKey.CHANNEL_LIMIT }-${ guildId }`;
 	await bot.redis.deleteKey( dbKey );
 	return "当前BOT可在所有子频道使用";
 }
@@ -73,7 +74,7 @@ export async function main(
 export async function checkChannelLimit( guildId: string, channelId: string, userId: string ): Promise<{ status: boolean, msg: string }> {
 	//取消此项设置对于管理员的限制，避免无法取消子频道限制的现象
 	if ( guildId !== "-1" && await bot.auth.get( userId, guildId ) <= AuthLevel.GuildManager ) {
-		const dbKey = `adachi.channel-limit-${ guildId }`;
+		const dbKey = `${ __RedisKey.CHANNEL_LIMIT }-${ guildId }`;
 		const num = await bot.redis.getSetMemberNum( dbKey );
 		if ( num > 0 ) {
 			const isAllow = await bot.redis.existSetMember( dbKey, channelId );

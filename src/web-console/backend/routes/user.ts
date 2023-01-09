@@ -4,6 +4,7 @@ import { AuthLevel } from "@modules/management/auth";
 import { PluginReSubs, SubInfo } from "@modules/plugin";
 import { BOT } from "@modules/bot";
 import { getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
+import { __RedisKey } from "@modules/redis";
 
 type UserInfo = {
 	userID: string;
@@ -50,7 +51,7 @@ export default express.Router()
 			/* 用户订阅信息 */
 			const userSubData: Record<string, string[]> = await formatSubUsers( bot );
 			
-			let userData: string[] = await bot.redis.getKeysByPrefix( "adachi.user-used-groups-" );
+			let userData: string[] = await bot.redis.getKeysByPrefix( __RedisKey.USER_USED_GUILD );
 			userData = userData.map( ( userKey: string ) => <string>userKey.split( "-" ).pop() )
 			
 			const cmdKeys: string[] = bot.command.cmdKeys;
@@ -105,11 +106,11 @@ export default express.Router()
 		await bot.auth.set( operator, target, "-1", auth );
 		
 		//删除原有的限制
-		const dbKey: string[] = await bot.redis.getKeysByPrefix( `adachi.user-command-limit-${ target }*` );
+		const dbKey: string[] = await bot.redis.getKeysByPrefix( `${ __RedisKey.COMMAND_LIMIT_USER }-${ target }*` );
 		await bot.redis.deleteKey( ...dbKey );
 		//设置改变后的限制
 		for ( let limit of limits ) {
-			const dbKey: string = `adachi.user-command-limit-${ target }-${ limit.guild }`;
+			const dbKey: string = `${ __RedisKey.COMMAND_LIMIT_USER }-${ target }-${ limit.guild }`;
 			await bot.redis.addSetMember( dbKey, limit.key );
 		}
 		res.status( 200 ).send( "success" );
@@ -155,13 +156,13 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	/* 此处获取用户信息逻辑已更改 */
 	const groupInfoList: Array<MemberInGuildInfo | string> = [];
 	const limits: { key: string, guild: string }[] = [];
-	const guilds = ( await bot.redis.getKeysByPrefix( `adachi.user-command-limit-${ userID }*` ) );
+	const guilds = ( await bot.redis.getKeysByPrefix( `${ __RedisKey.COMMAND_LIMIT_USER }-${ userID }*` ) );
 	const guildIds = guilds.map( value => {
 		return value.split( "-" )[4];
 	} )
 	
 	for ( let guild of guildIds ) {
-		const keys = await bot.redis.getSet( `adachi.user-command-limit-${ userID }-${ guild }` );
+		const keys = await bot.redis.getSet( `${ __RedisKey.COMMAND_LIMIT_USER }-${ userID }-${ guild }` );
 		keys.forEach( value => {
 			limits.push( { key: value, guild: guild } );
 		} )
@@ -170,7 +171,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	/* 如果为全局管理员，则在首页上显示，否则只在详情页展示 */
 	const botAuth: AuthLevel = await bot.auth.get( userID, "-1" );
 	//获取用户使用过的频道ID
-	const usedGuilds: string[] = await bot.redis.getSet( `adachi.user-used-groups-${ userID }` );
+	const usedGuilds: string[] = await bot.redis.getSet( `${ __RedisKey.USER_USED_GUILD }-${ userID }` );
 	let avatar;
 	let nickname;
 	
@@ -182,7 +183,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 		const memberAuth = await bot.auth.get( userID, el );
 		const guildBaseInfo = await getGuildBaseInfo( el );
 		const guildMemberInfo = await getMemberInfo( userID, el );
-		const gName = guildBaseInfo ? guildBaseInfo.name : "Unknown";
+		const gName = guildBaseInfo ? guildBaseInfo.name : "神秘频道";
 		/* 获取用户在每个频道内的信息 */
 		if ( guildMemberInfo?.account ) {
 			nickname = guildMemberInfo.account.user.username;

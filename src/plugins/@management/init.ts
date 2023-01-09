@@ -73,7 +73,7 @@ const announce: OrderConfig = {
 
 const callMaster: OrderConfig = {
 	type: "order",
-	cmdKey: "adachi-call-master",
+	cmdKey: "adachi-leave-message-call",
 	desc: [ "给我留言", "" ],
 	headers: [ "call" ],
 	regexps: [ "(.+\\s?)*" ],
@@ -83,9 +83,9 @@ const callMaster: OrderConfig = {
 
 const replyUser: OrderConfig = {
 	type: "order",
-	cmdKey: "adachi-reply-user",
+	cmdKey: "adachi-leave-message-reply",
 	desc: [ "回复留言", "" ],
-	headers: [ "user" ],
+	headers: [ "reply" ],
 	regexps: [ "(.+\\s?)*" ],
 	main: "call",
 	auth: AuthLevel.Master,
@@ -121,12 +121,12 @@ const cancelUseChannel: OrderConfig = {
 
 const upgrade: OrderConfig = {
 	type: "order",
-	cmdKey: "adachi-hot-upgrade",
+	cmdKey: "adachi-hot-update",
 	desc: [ "更新bot", "(-f)" ],
-	headers: [ "upgrade" ],
+	headers: [ "update" ],
 	regexps: [ "(-f)?" ],
 	auth: AuthLevel.Master,
-	main: "upgrade",
+	main: "update",
 	detail: "该指令用于检测并更新 bot 源码\n" +
 		"要求项目必须是通过 git clone 下载的且不能为 win-start 启动\n" +
 		"若存在更新则会更新并重启 bot\n" +
@@ -135,12 +135,12 @@ const upgrade: OrderConfig = {
 
 const upgrade_plugins: OrderConfig = {
 	type: "order",
-	cmdKey: "adachi-hot-upgrade-plugins",
+	cmdKey: "adachi-hot-update-plugins",
 	desc: [ "更新插件", "(-f) (插件名)" ],
-	headers: [ "upgradep" ],
+	headers: [ "updatep" ],
 	regexps: [ "(-f)?", "([\u4E00-\u9FA5\\w\\-]+)?" ],
 	auth: AuthLevel.Master,
-	main: "upgrade-plugins",
+	main: "update-plugins",
 	detail: "该指令用于检测并更新 bot plugin 源码\n" +
 		"要求项目必须是通过 git clone 下载的且不能为 win-start 启动\n" +
 		"若存在更新则会更新插件并重启 bot\n" +

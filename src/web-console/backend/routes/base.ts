@@ -4,6 +4,7 @@ import bot from "ROOT";
 import { parseZone } from "moment";
 import { formatMemories } from "../utils/format";
 import { restart } from "pm2";
+import { __RedisKey } from "@modules/redis";
 
 interface DayData {
 	dayID: string;
@@ -25,7 +26,7 @@ export default express.Router()
 			const weakData: WeekData[] = [];
 			for ( let i = 0; i < 7; i++ ) {
 				const dayID: string = parseZone( date ).format( "yy/MM/DD" );
-				const hours: string[] = await bot.redis.getKeysByPrefix( `adachi.command-stat-${ dayID }` );
+				const hours: string[] = await bot.redis.getKeysByPrefix( `${ __RedisKey.COMMAND_STAT }-${ dayID }` );
 				const subData: DayData = { dayID, data: [] };
 				
 				for ( let hour of hours ) {
@@ -38,11 +39,11 @@ export default express.Router()
 			}
 			
 			/* 用户数量 */
-			const userData: string[] = await bot.redis.getKeysByPrefix( "adachi.user-used-groups-" );
+			const userData: string[] = await bot.redis.getKeysByPrefix( __RedisKey.USER_USED_GUILD );
 			const userCount = userData.length;
 			
 			/* 群组数量 */
-			const guildCount: number = await bot.redis.getSetMemberNum( `adachi.guild-used` );
+			const guildCount: number = await bot.redis.getSetMemberNum( __RedisKey.GUILD_USED );
 			
 			/* 内存占用 */
 			const totalMem = formatMemories( totalmem(), "G" );
@@ -61,18 +62,19 @@ export default express.Router()
 			const resp = { weakData, userCount, guildCount, memories, cpuUsed };
 			res.status( 200 ).send( { code: 200, data: resp } );
 		} catch ( error ) {
-			res.status( 500 ).send( { code: 500, data: {}, msg: (<Error>error).stack } );
+			res.status( 500 ).send( { code: 500, data: {}, msg: ( <Error>error ).stack } );
 		}
 	} )
-	.post("/refresh", async (req, res) => {
+	.post( "/refresh", async ( req, res ) => {
 		try {
 			const resp: string[] = await bot.refresh.do();
 			res.status( 200 ).send( { code: 200, data: resp } );
 		} catch ( error ) {
-			res.status( 500 ).send( { code: 500, data: {}, msg: (<Error>error).stack } );
+			res.status( 500 ).send( { code: 500, data: {}, msg: ( <Error>error ).stack } );
 		}
-	})
-	.post("/restart", async (req, res) => {
-		restart( "adachi-gbot", () => {} );
+	} )
+	.post( "/restart", async ( req, res ) => {
+		restart( "adachi-gbot", () => {
+		} );
 		res.status( 200 ).send( { code: 200, data: {} } );
-	});
+	} );

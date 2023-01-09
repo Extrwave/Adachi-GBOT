@@ -7,6 +7,7 @@ import { RenderResult } from "@modules/renderer";
 import { renderer } from "../init";
 import { MessageScope } from "@modules/utils/message";
 import { AuthLevel } from "@modules/management/auth";
+import { __RedisKey } from "@modules/redis";
 
 
 interface HelpCommand {
@@ -57,7 +58,6 @@ function arkStyle( title: string, list: string[] ): Ark {
 
 /* 使用图片帮助 */
 async function cardStyle( i: InputParameter, commands: BasicConfig[], version: string ): Promise<RenderResult> {
-	const dbKey = "adachi.help-data";
 	const cmdList: HelpCommand[] = commands.map( ( cmd, cKey ) => {
 		return {
 			id: cKey + 1,
@@ -74,7 +74,7 @@ async function cardStyle( i: InputParameter, commands: BasicConfig[], version: s
 		cmdData[cmd.pluginName] = cmdData[cmd.pluginName] ? [ ...cmdData[cmd.pluginName], cmd ] : [ cmd ];
 	}
 	
-	await i.redis.setString( dbKey, JSON.stringify( {
+	await i.redis.setString( __RedisKey.HELP_DATA, JSON.stringify( {
 		version: version,
 		commands: cmdData
 	} ) );
