@@ -6,14 +6,18 @@ import bot from "ROOT";
 import * as fs from 'fs';
 import FormData from 'form-data';////需要自己安装
 import BotConfig from "@modules/config";
+import requests from "@modules/requests";
 import { IDirectMessage, IGuild, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
 import Redis, { __RedisKey } from "@modules/redis";
+import { Markdown } from "@modules/utils/markdown";
+import { Keyboard } from "@modules/utils/keyboard";
 import { Message, MessageType } from "@modules/utils/message";
-import requests from "@modules/requests";
 import { Account, getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
 
 export interface MessageToSend extends MessageToCreate {
 	file_image?: fs.ReadStream;
+	markdown?: Markdown;
+	keyboard?: Keyboard
 }
 
 export type SendFunc = ( content: MessageToSend | string, atUser?: string ) => Promise<IMessage | void>;
@@ -21,7 +25,6 @@ export type SendFunc = ( content: MessageToSend | string, atUser?: string ) => P
 interface MsgManagementMethod {
 	getSendPrivateFunc( guildId: string, userId: string ): Promise<SendFunc>;
 	getSendMasterFunc( msgId: string ): Promise<SendFunc>;
-	// sendPrivateMessage( guildId: string, msgId: string ): SendFunc;
 	getSendGuildFunc( userId: string, guildId: string, channelId: string, msgId: string ): Promise<SendFunc>;
 }
 

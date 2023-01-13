@@ -125,10 +125,10 @@ export async function main( i: InputParameter ): Promise<void> {
 			.get( AuthLevel.Master, MessageScope.Private )
 			.filter( el => el.display );
 		const res = await cardStyle( i, allCommands, version );
-		if ( res.code === "ok" ) {
+		if ( res.code === "local" ) {
 			await i.sendMessage( { file_image: res.data } );
 			return;
-		} else if ( res.code === "other" ) {
+		} else if ( res.code === "url" ) {
 			await i.sendMessage( { image: res.data } );
 			return;
 		} else {
@@ -137,7 +137,7 @@ export async function main( i: InputParameter ): Promise<void> {
 		}
 	}
 	
-	const title: string = `Adachi-GBOT v${ version }~`;
+	const title: string = `一碗牛杂 v${ version }~`;
 	let ID: number = 0;
 	if ( showKeys ) {
 		const keys: string = commands.reduce( ( pre, cur ) => {

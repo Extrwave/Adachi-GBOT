@@ -6,14 +6,24 @@ import * as fs from "fs"
 import { Buffer } from "buffer";
 import { v4 } from 'uuid'
 
-interface RenderSuccess {
-	code: "ok";
+interface RenderLocal {
+	code: "local";
 	data: fs.ReadStream
+}
+
+interface RenderBase64 {
+	code: "base64";
+	data: string
+}
+
+interface RenderUrl {
+	code: "url";
+	data: string
 }
 
 interface RenderOther {
 	code: "other";
-	data: string;
+	data: any
 }
 
 interface RenderError {
@@ -26,7 +36,7 @@ export interface PageFunction {
 	( page: puppeteer.Page ): Promise<Buffer | string | void>
 }
 
-export type RenderResult = RenderSuccess | RenderOther | RenderError;
+export type RenderResult = RenderLocal | RenderBase64 | RenderUrl | RenderOther | RenderError;
 
 export class Renderer {
 	private readonly httpBase: string;
@@ -60,10 +70,10 @@ export class Renderer {
 		try {
 			const url: string = this.getURL( route, params );
 			const base64 = await bot.renderer.screenshot( url, viewPort, selector, { encoding: 'base64' } );
-			return { code: "other", data: base64 };
+			return { code: "base64", data: base64 };
 		} catch ( error ) {
 			const err = <string>( <Error>error ).stack;
-			return { code: "other", data: err };
+			return { code: "error", data: err };
 		}
 	}
 	
@@ -82,7 +92,7 @@ export class Renderer {
 					type: 'jpeg'
 				} );
 				const imageStream = fs.createReadStream( fileName );
-				resolve( { code: "ok", data: imageStream } );
+				resolve( { code: "local", data: imageStream } );
 				setTimeout( () => {
 					fs.rmSync( fileName );
 				}, 10000 );
