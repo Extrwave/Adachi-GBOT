@@ -527,7 +527,9 @@ export class Adachi {
 				allGuilds.push( ...guilds );
 				currentId = guilds[guilds.length - 1].id;
 			}
+			await Sleep( 3000 );
 		}
+		bot.logger.info( "BOT 获取所有频道完成..." );
 		/* 初始化频道主权限 */
 		for ( let guild of allGuilds ) {
 			await bot.redis.addSetMember( __RedisKey.GUILD_USED, guild.id ); //存入BOT所进入的频道
