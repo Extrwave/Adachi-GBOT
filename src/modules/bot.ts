@@ -20,7 +20,7 @@ import Command, { BasicConfig, MatchResult, removeHeaderInContent } from "@modul
 import Authorization, { AuthLevel } from "@modules/management/auth";
 import MsgManager from "@modules/message";
 import MsgManagement, * as Msg from "@modules/message";
-import { MemberMessage, Message, MessageScope } from "@modules/utils/message";
+import { ErrorMsg, MemberMessage, Message, MessageScope } from "@modules/utils/message";
 import { JobCallback, scheduleJob } from "node-schedule";
 import { trim } from "lodash";
 import { getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
@@ -510,26 +510,38 @@ export class Adachi {
 	
 	/* 获取BOT所在所有频道信息 */
 	public async getGuildsBotIn( bot: BOT ): Promise<IGuild[]> {
-		let currentId = "", over = false, ackMaster = false, count = 10;
+		let currentId = "", over = false, ackMaster = false, retry = 3;
 		const allGuilds: IGuild[] = [];
 		/*  */
-		while ( !over && count >= 0 ) {
-			let responseMeGuilds;
-			if ( currentId !== "" ) {
-				responseMeGuilds = await bot.client.meApi.meGuilds( { after: currentId } );
-			} else {
-				responseMeGuilds = await bot.client.meApi.meGuilds();
+		while ( !over ) {
+			try {
+				let responseMeGuilds;
+				if ( currentId !== "" ) {
+					responseMeGuilds = await bot.client.meApi.meGuilds( { after: currentId } );
+				} else {
+					responseMeGuilds = await bot.client.meApi.meGuilds();
+				}
+				const guilds: IGuild[] = responseMeGuilds.data;
+				if ( guilds.length > 0 ) {
+					allGuilds.push( ...guilds );
+					currentId = guilds[guilds.length - 1].id;
+				} else {
+					over = true;
+				}
+				await Sleep( 1000 );
+			} catch ( error ) {
+				const err = <ErrorMsg>error;
+				bot.logger.debug( err );
+				if ( !err.code || err.code !== 11305 ) {
+					if ( retry <= 0 ) {
+						bot.logger.error( "BOT 获取频道未知错误完成..." );
+						break;
+					}
+					retry = retry--;
+				}
 			}
-			const guilds: IGuild[] = responseMeGuilds.data;
-			if ( guilds.length <= 0 ) {
-				currentId === "" ? bot.logger.error( "获取频道信息失败..." ) : over = true;
-			} else {
-				allGuilds.push( ...guilds );
-				currentId = guilds[guilds.length - 1].id;
-			}
-			await Sleep( 3000 );
 		}
-		bot.logger.info( "BOT 获取所有频道完成..." );
+		bot.logger.info( `BOT 获取所有频道完成，共：${ allGuilds.length } 个` );
 		/* 初始化频道主权限 */
 		for ( let guild of allGuilds ) {
 			await bot.redis.addSetMember( __RedisKey.GUILD_USED, guild.id ); //存入BOT所进入的频道

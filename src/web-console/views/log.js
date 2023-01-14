@@ -30,7 +30,7 @@ const template = `<div class="table-container fix-height logger">
     					<el-option v-for="(t, tKey) of msgType" :key="tKey" :label="t.label" :value="t.value"/>
   					</el-select>
 				</div>
-				<div class="log-nav-item">
+				<div class="log-nav-item" v-show="(queryParams.msgType === 1 || queryParams.msgType === 2)">
 					<el-input v-model="queryParams.filterName" placeholder="输入频道名或用户名" @keydown.enter="handleFilter" @clear="handleFilter" clearable></el-input>
 				</div>
 			</div>
@@ -159,21 +159,25 @@ export default defineComponent( {
 					return false;
 				}
 				/* 过滤消息类型 */
-				const reg = /\[(Guild|Private)] \[A: (.+)] \[G: (.+)]/;
-				const result = reg.exec( el.message );
-				/* result[1]为类别，result[2]为用户名，result[3]为频道名 */
-				if ( result ) {
-					const type = result[1];
-					/* 过滤频道或者私聊的选择 */
-					if ( !Number.isNaN( msgType ) && msgType !== ( type === 'Guild' ? 2 : 1 ) ) {
+				if ( !Number.isNaN( msgType ) ) {
+					/* 过滤消息类型 */
+					const reg = /\[(Recv|Send)] \[(Guild|Private)] \[A: (.+)] \[G: (.+)]/;
+					const result = reg.exec( el.message );
+					/* result[1]为类别，result[2]为用户名，result[3]为频道名 */
+					if ( result ) {
+						const type = result[2];
+						/* 过滤频道或者私聊的选择 */
+						if ( msgType !== ( type === 'Guild' ? 2 : 1 ) ) {
+							return false;
+						}
+						/* 过滤频道名或者用户名的选择 */
+						if ( filterName ) {
+							const reg = new RegExp( filterName, "ig" );
+							return reg.test( result[3] ) || reg.test( result[4] );
+						}
+					} else if ( msgType !== 0 ) {
 						return false;
 					}
-					/* 过滤频道名或者用户名的选择 */
-					if ( filterName && filterName !== result[2] && filterName !== result[3] ) {
-						return false;
-					}
-				} else if ( msgType !== 0 ) {
-					return false;
 				}
 				return true;
 			} );

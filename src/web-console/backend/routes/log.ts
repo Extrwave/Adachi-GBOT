@@ -29,29 +29,31 @@ export default express.Router().get( "/", async ( req, res ) => {
 					if ( logLevel && el.level !== logLevel.toUpperCase() ) {
 						return false;
 					}
-					/* 过滤消息类型 */
-					const reg = /\[(Guild|Private)] \[A: (.+)] \[G: (.+)]/;
-					const result = reg.exec( el.message );
-					/* result[1]为类别，result[2]为用户名，result[3]为频道名 */
-					if ( result ) {
-						const type = <'Guild' | 'Private'>result[1];
-						/* 过滤频道或者私聊的选择 */
-						if ( !Number.isNaN( msgType ) && msgType !== ( type === 'Guild' ? 2 : 1 ) ) {
+					if ( !Number.isNaN( msgType ) ) {
+						/* 过滤消息类型 */
+						const reg = /\[(Recv|Send)] \[(Guild|Private)] \[A: (.+)] \[G: (.+)]/;
+						const result = reg.exec( el.message );
+						/* result[1]为类别，result[2]为用户名，result[3]为频道名 */
+						if ( result ) {
+							const type = <'Guild' | 'Private'>result[2];
+							/* 过滤频道或者私聊的选择 */
+							if ( msgType !== ( type === 'Guild' ? 2 : 1 ) ) {
+								return false;
+							}
+							/* 过滤频道名或者用户名的选择 */
+							if ( filterName ) {
+								const reg = new RegExp( filterName, "ig" );
+								return reg.test( result[3] ) || reg.test( result[4] );
+							}
+						} else if ( msgType !== 0 ) {
 							return false;
 						}
-						/* 过滤频道名或者用户名的选择 */
-						if ( filterName && filterName !== result[2] && filterName !== result[3] ) {
-							return false;
-						}
-					} else if ( msgType !== 0 ) {
-						return false;
 					}
 					return true;
 				} );
 			
 			const pageRespData = respData.slice( ( page - 1 ) * length, page * length );
 			res.status( 200 ).send( { code: 200, data: pageRespData, total: respData.length } );
-			
 			return;
 		}
 		res.status( 404 ).send( { code: 404, data: {}, msg: "NotFound" } );
