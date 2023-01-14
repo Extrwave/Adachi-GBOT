@@ -9,6 +9,7 @@ export const __RedisKey = {
 	GUILD_USED_CHANNEL: "adachi.guild-used-channel", //频道主动消息子频道
 	GUILD_MASTER: "adachi.guild-master", //BOT主人所在的检测到的第一个频道
 	GUILD_INFO: "adachi.guild-info", //频道详细信息
+	GUILD_TEMP_MSG_ID: "adachi.msgId-temp", //频道暂存主动推送使用msgId，减少主动次数
 	
 	/* USER */
 	USER_BOT_ID: "adachi.user-bot-id", //BOT ID

@@ -11,7 +11,7 @@ import { IDirectMessage, IGuild, IMessage, IMessageRes, IOpenAPI, MessageToCreat
 import Redis, { __RedisKey } from "@modules/redis";
 import { Markdown } from "@modules/utils/markdown";
 import { Keyboard } from "@modules/utils/keyboard";
-import { Message, MessageType } from "@modules/utils/message";
+import { ErrorMsg, Message, MessageType } from "@modules/utils/message";
 import { Account, getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
 
 export interface MessageToSend extends MessageToCreate {
@@ -23,9 +23,14 @@ export interface MessageToSend extends MessageToCreate {
 export type SendFunc = ( content: MessageToSend | string, atUser?: string ) => Promise<IMessage | void>;
 
 interface MsgManagementMethod {
-	getSendPrivateFunc( guildId: string, userId: string ): Promise<SendFunc>;
-	getSendMasterFunc( msgId: string ): Promise<SendFunc>;
-	getSendGuildFunc( userId: string, guildId: string, channelId: string, msgId: string ): Promise<SendFunc>;
+	/* 已知频道私信发送方法 */
+	getSendPrivateFunc( userId: string, guildId: string, msgId?: string ): Promise<SendFunc>;
+	/* 主动私信推送方法 */
+	getPostPrivateFunc( userId: string, msgId?: string ): Promise<SendFunc | undefined>;
+	/* 主动Master私信推送方法 */
+	getSendMasterFunc( msgId?: string ): Promise<SendFunc>;
+	/* 主被动频道消息发送方法 */
+	getSendGuildFunc( userId: string, guildId: string, channelId: string, msgId?: string ): Promise<SendFunc>;
 }
 
 export default class MsgManager implements MsgManagementMethod {
@@ -82,6 +87,46 @@ export default class MsgManager implements MsgManagementMethod {
 		const masterGuildId = await this.redis.getString( __RedisKey.GUILD_MASTER ); //当前BOT主人所在频道
 		return await this.getSendPrivateFunc( this.config.master, masterGuildId, msgId );
 	}
+	
+	/* 主动私信推送方法 */
+	public async getPostPrivateFunc( userId: string, msgId?: string ): Promise<SendFunc | undefined> {
+		msgId = msgId ? msgId : "1000";//随时都可能失效，失效后删掉此行
+		const guilds: string[] = await bot.redis.getSet( `${ __RedisKey.USER_USED_GUILD }-${ userId }` );
+		
+		for ( let guildId of guilds ) {
+			/* 排除私聊使用场景 */
+			if ( guildId === "-1" ) {
+				continue;
+			}
+			
+			/* 判断用户是否退出频道 */
+			const userInfo = await getMemberInfo( userId, guildId );
+			if ( !userInfo ) {
+				continue;
+			}
+			
+			await bot.redis.setString( `${ __RedisKey.USER_INFO }-${ userId }`, JSON.stringify( userInfo ), 3600 * 24 );
+			try {
+				/* 尝试发送一条空消息判断是否支持发送 */
+				const response = await bot.client.directMessageApi.createDirectMessage( {
+					source_guild_id: guildId,
+					recipient_id: userId
+				} );
+				await bot.client.directMessageApi.postDirectMessage( response.data.guild_id, {
+					content: "",
+					msg_id: msgId
+				} );
+			} catch ( error ) {
+				const err = <ErrorMsg>error;
+				if ( err.code === 50006 ) {
+					return await this.getSendPrivateFunc( userId, guildId, msgId );
+				}
+			}
+		}
+		bot.logger.debug( `[${ userId }] 用户无可用推送消息的频道` );
+		return;
+	}
+	
 	
 	async getMessageInfo( channelId: string, msgId: string ):
 		Promise<IMessageRes> {

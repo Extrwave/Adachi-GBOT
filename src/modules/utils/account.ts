@@ -4,7 +4,7 @@ import bot from "ROOT";
 import { __RedisKey } from "@modules/redis";
 
 export interface Account {
-	guildID: string,
+	guildId: string,
 	account: IMember
 }
 
@@ -43,18 +43,18 @@ export async function getMemberInfo( userID: string, guildID?: string ): Promise
 }
 
 /* 精准获取用户信息对象 */
-async function getMemberInfoInGuild( userID: string, guildID: string ): Promise<Account | undefined> {
+async function getMemberInfoInGuild( userId: string, guildId: string ): Promise<Account | undefined> {
 	try {
-		const response = await bot.client.guildApi.guildMember( guildID, userID );
+		const response = await bot.client.guildApi.guildMember( guildId, userId );
 		if ( response.status === 200 && response.data.user !== null ) {
-			const obj = { guildID: guildID, account: response.data };
-			await bot.redis.setString( `${ __RedisKey.USER_INFO }-${ userID }`, JSON.stringify( obj ), 3600 * 24 )
+			const obj = { guildId: guildId, account: response.data };
+			await bot.redis.setString( `${ __RedisKey.USER_INFO }-${ userId }`, JSON.stringify( obj ), 3600 * 24 )
 			return obj;
 		} else {
-			await bot.redis.delSetMember( `${ __RedisKey.USER_USED_GUILD }-${ userID }`, guildID );
+			await bot.redis.delSetMember( `${ __RedisKey.USER_USED_GUILD }-${ userId }`, guildId );
 		}
 	} catch ( err ) {
-		bot.logger.debug( err );
+		// bot.logger.debug( err );
 	}
 }
 
@@ -80,7 +80,7 @@ export async function getGuildBaseInfo( guildID: string ): Promise<GuildBaseInfo
 			return response.data;
 		}
 	} catch ( err ) {
-		bot.logger.debug( err );
+		// bot.logger.debug( err );
 	}
 }
 
