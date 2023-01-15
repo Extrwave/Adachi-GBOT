@@ -122,7 +122,7 @@ export async function main( i: InputParameter ): Promise<void> {
 	/* 使用图片帮助,默认获取全部指令 */
 	if ( i.config.helpMessageStyle === "card" ) {
 		const allCommands: BasicConfig[] = i.command
-			.get( AuthLevel.Master, MessageScope.Private )
+			.get( AuthLevel.Master, MessageScope.Both )
 			.filter( el => el.display );
 		const res = await cardStyle( i, allCommands, version );
 		if ( res.code === "local" ) {

@@ -2,13 +2,13 @@ const template = `<div class="help">
 	<header>
 		<img src="https://adachi-bot.oss-cn-beijing.aliyuncs.com/Version2/help/top-bg.png" alt="top-bg">
 		<div class="left-header">
-			<p>Adachi-GBOT</p>
+			<p>一碗牛杂</p>
 			<p>{{ model === "keys" ? "指令key值表" : "使用文档" }}</p>
 		</div>
 		<div class="right-header">
-			<p class="version">ver{{ data.version }}</p>
-			<p v-if="data.detailCmd" class="desc">使用 {{ data.detailCmd }}+指令序号 查看更多信息</p>
-			<p class="desc">[]表示必填，()表示选填，|表示选择</p>
+			<p class="version">官方频道：&nbsp; 枫叶丹</p>
+			<p v-if="data.detailCmd" class="desc">使用 {{ data.detailCmd }} + 指令序号 查看更多信息</p>
+			<p class="desc">[ ] 表示必填<br>( ) 表示选填<br>| 表示选择</p>
 		</div>
 	</header>
 	<main>
@@ -26,7 +26,7 @@ const template = `<div class="help">
 		</section>
 	</main>
 	<footer>
-		<p class="sign">Modify by Adachi-GBOT</p>
+		<p class="sign">@Copyright 一碗牛杂</p>
 	</footer>
 </div>`
 

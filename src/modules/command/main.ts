@@ -232,8 +232,17 @@ export default class Command {
 	public get( auth: AuthLevel, scope: MessageScope ): BasicConfig[] {
 		if ( scope === MessageScope.Private ) {
 			return this.privates[auth];
-		} else {
+		} else if ( scope === MessageScope.Guild ) {
 			return this.groups[auth];
+		} else {
+			const configMap = new Map<string, BasicConfig>();
+			this.groups[auth].forEach( value => {
+				configMap.set( value.cmdKey, value );
+			} )
+			this.privates[auth].forEach( value => {
+				configMap.set( value.cmdKey, value );
+			} )
+			return Array.from( configMap.values() );
 		}
 	}
 	

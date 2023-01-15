@@ -32,7 +32,6 @@ const push: OrderConfig = {
 	regexps: [],
 	main: "achieves/push",
 	scope: MessageScope.Guild,
-	display: false,
 	detail: "通过频道推送一条私信给自己，解决超过3条私信问题"
 }
 

@@ -385,17 +385,9 @@ export class Adachi {
 		const groupUnionReg: RegExp = this.bot.command.getUnion( AuthLevel.Master, MessageScope.Guild );
 		
 		if ( groupUnionReg.test( content ) ) {
-			if ( !isPrivate ) {
-				msg = `您没有权限执行此命令 ~ `;
-			} else {
-				msg = `该指令仅限群聊使用 ~ `;
-			}
+			msg = isPrivate ? `该指令仅限群聊使用 ~ ` : `您没有权限执行此命令 ~ `;
 		} else if ( privateUnionReg.test( content ) ) {
-			if ( isPrivate ) {
-				msg = `您没有权限执行此命令 ~ `;
-			} else {
-				msg = `该指令仅限私聊使用 ~ `;
-			}
+			msg = isPrivate ? `您没有权限执行此命令 ~ ` : `该指令仅限群聊使用 ~ `;
 		}
 		return msg;
 	}
