@@ -9,7 +9,6 @@ export default class BotConfig {
 	public readonly master: string;
 	public readonly header: string;
 	public readonly atBot: boolean;
-	public readonly autoChat: boolean;
 	public readonly dbPort: number;
 	public readonly dbPassword: string;
 	public readonly countThreshold: number;
@@ -28,6 +27,13 @@ export default class BotConfig {
 		readonly jwtSecret: string
 	};
 	
+	public readonly autoChat: {
+		readonly enable: boolean;
+		readonly type: number;
+		readonly secretId: string;
+		readonly secretKey: string;
+	}
+	
 	static initObject = {
 		tip: "前往 https://docs.ethreal.cn 查看配置详情",
 		appID: "appID",
@@ -37,7 +43,6 @@ export default class BotConfig {
 		area: "private",
 		header: "/",
 		atBot: false,
-		autoChat: false,
 		dbPort: 6379,
 		dbPassword: "",
 		countThreshold: 60,
@@ -52,12 +57,22 @@ export default class BotConfig {
 			tcpLoggerPort: 54921,
 			logHighWaterMark: 64,
 			jwtSecret: randomSecret( 16 )
+		},
+		autoChat: {
+			tip1: "type参数说明：1为青云客，2为腾讯NLP（需要secret）",
+			enable: false,
+			type: 1,
+			secretId: "xxxxx",
+			secretKey: "xxxxx"
 		}
 	};
 	
 	constructor( file: FileManagement ) {
 		const config: any = file.loadYAML( "setting" );
-		const checkFields: Array<keyof BotConfig> = [ "appID", "token", "dbPassword", "atBot" ];
+		const checkFields: Array<keyof BotConfig> = [
+			"appID", "token", "dbPassword",
+			"atBot", "autoChat"
+		];
 		
 		for ( let key of checkFields ) {
 			if ( config[key] === undefined ) {
@@ -74,7 +89,6 @@ export default class BotConfig {
 		this.dbPort = config.dbPort;
 		this.dbPassword = config.dbPassword;
 		this.atBot = config.atBot;
-		this.autoChat = config.autoChat;
 		this.helpPort = config.helpPort;
 		this.countThreshold = config.countThreshold;
 		this.webConsole = {
@@ -86,6 +100,13 @@ export default class BotConfig {
 			logHighWaterMark: config.webConsole.logHighWaterMark,
 			jwtSecret: config.webConsole.jwtSecret
 		};
+		
+		this.autoChat = {
+			enable: config.autoChat.enable,
+			type: config.autoChat.type,
+			secretId: config.autoChat.secretId,
+			secretKey: config.autoChat.secretKey,
+		}
 		
 		/* 公域Ark消息模板需要申请才可以使用 */
 		const helpList: string[] = [ "message", "embed", "ark", "card" ];

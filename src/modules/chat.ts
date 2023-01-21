@@ -4,11 +4,13 @@ CreateTime: 2022/6/21
  */
 
 import * as msg from "@modules/message";
-import { __API, getChatResponse, getEmoji, getTextResponse } from "@modules/utils/api";
+import { __API, getChatResponse, getEmoji, getTextResponse } from "@modules/utils/chat-api";
 import { Message } from "@modules/utils/message";
+import BotConfig from "@modules/config";
 
-export async function autoReply( messageData: Message, sendMessage: msg.SendFunc, autoChat: boolean ) {
+export async function autoReply( messageData: Message, sendMessage: msg.SendFunc, config: BotConfig ) {
 	//处理传入的数据
+	const autoChat = config.autoChat;
 	const msg: string = messageData.msg.content;
 	//开始匹配回答
 	if ( msg.length <= 0 ) {

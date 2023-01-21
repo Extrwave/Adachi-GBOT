@@ -2,6 +2,8 @@
 Author: Ethereal
 CreateTime: 2022/6/21
  */
+
+import bot from "ROOT";
 import request from "@modules/requests";
 
 
@@ -20,43 +22,27 @@ const HEADERS = {
 	"Accept": "*/*"
 };
 
-
-//调用青云客的免费对话API，但是延迟比较高，2s左右，详情http://api.qingyunke.com/
-async function getQYKChat( text: string ): Promise<any> {
-	return new Promise( ( resolve, reject ) => {
-		const URL = encodeURI( __API.QINGYUNKE + text );
-		request( {
-			method: "GET",
-			url: URL,
-			headers: {
-				...HEADERS,
-			},
-			timeout: 6000
-		} )
-			.then( ( result ) => {
-				const date = JSON.parse( result );
-				resolve( date );
-			} )
-			.catch( ( reason ) => {
-				reject( reason );
-			} );
-	} );
-}
-
 export async function getChatResponse( text: string ): Promise<string> {
-	let msg = await getQYKChat( text );
-	if ( !msg || msg.result !== 0 ) {
+	let msg = '';
+	if ( bot.config.autoChat.type === 2 ) {
+		//调用腾讯NLP接口回复
+		msg = await getTxNlpChat( text );
+	} else {
+		msg = await getQYKChat( text );
+	}
+	
+	if ( msg.length <= 0 ) {
 		return `接口挂掉啦~~`;
 	}
-	//API默认的名字是 “菲菲”，你可以改成你喜欢的名字
-	//修改可能导致部分返回错误，比如 “菲菲公主” ---> “阿晴公主”
 	const reg = new RegExp( '菲菲', "g" );
 	const regExp = new RegExp( 'tianyu', "g" );
 	const regExp1 = new RegExp( '\{br\}', 'g' );
-	msg.content = msg.content.replace( reg, '阿晴' );
-	msg.content = msg.content.replace( regExp, '伍陆柒' ).trim();
-	msg.content = msg.content.replace( regExp1, '\n\n' );
-	return msg.content;
+	const regExp2 = new RegExp( '腾讯小龙女', 'g' );
+	msg = msg.replace( reg, '阿晴' );
+	msg = msg.replace( regExp2, '阿晴' );
+	msg = msg.replace( regExp, '伍陆柒' ).trim();
+	msg = msg.replace( regExp1, '\n\n' );
+	return msg;
 }
 
 export async function getTextResponse( type: string ): Promise<string> {
@@ -88,3 +74,52 @@ export function getEmoji(): string {
 	return text[Math.floor( Math.random() * text.length )];
 }
 
+
+//调用青云客的免费对话API，但是延迟比较高，2s左右，详情http://api.qingyunke.com/
+async function getQYKChat( text: string ): Promise<string> {
+	return new Promise( ( resolve, reject ) => {
+		const URL = encodeURI( __API.QINGYUNKE + text );
+		request( {
+			method: "GET",
+			url: URL,
+			headers: {
+				...HEADERS,
+			},
+			timeout: 6000
+		} )
+			.then( ( result ) => {
+				const date = JSON.parse( result );
+				resolve( date.content );
+			} )
+			.catch( ( reason ) => {
+				reject( reason );
+			} );
+	} );
+}
+
+//实例化Nlp需要的参数
+const tencentCloud = require( "tencentcloud-sdk-nodejs-nlp" );
+const NlpClient = tencentCloud.nlp.v20190408.Client;
+const clientConfig = {
+	credential: {
+		secretId: bot.config.autoChat.secretId,
+		secretKey: bot.config.autoChat.secretKey,
+	},
+	region: "ap-guangzhou",
+	profile: {
+		httpProfile: {
+			endpoint: "nlp.tencentcloudapi.com",
+		},
+	},
+};
+//实例化NLP对象
+const client = new NlpClient( clientConfig );
+
+export async function getTxNlpChat( text: string ): Promise<string> {
+	const params = { "Query": text };
+	if ( !bot.config.autoChat.secretId || !bot.config.autoChat.secretKey ) {
+		return "Secret配置错误，无法访问哦 ~";
+	}
+	const reply = await client.ChatBot( params );
+	return reply.Reply ? reply.Reply : "请求出错了";
+}

@@ -1,6 +1,6 @@
 {
   "name": "Adachi-GBOT",
-  "version": "2.8.2",
+  "version": "2.8.3",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "pm2 start adachi-gbot.config.js",
@@ -34,6 +34,7 @@
     "qrcode": "^1.5.1",
     "redis": "^3.1.2",
     "resty-client": "0.0.5",
+    "tencentcloud-sdk-nodejs-nlp": "^4.0.526",
     "ts-node": "^10.8.1",
     "tsconfig-paths": "^4.0.0",
     "typescript": "^4.7.3",
