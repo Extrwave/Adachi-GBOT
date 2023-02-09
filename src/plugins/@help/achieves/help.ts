@@ -137,7 +137,7 @@ export async function main( i: InputParameter ): Promise<void> {
 		}
 	}
 	
-	const title: string = `一碗牛杂 v${ version }~`;
+	const title: string = `Adachi-GBOT v${ version }~`;
 	let ID: number = 0;
 	if ( showKeys ) {
 		const keys: string = commands.reduce( ( pre, cur ) => {
