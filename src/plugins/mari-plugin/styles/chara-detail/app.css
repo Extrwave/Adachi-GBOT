@@ -1,0 +1,502 @@
+.chara-detail {
+	position: relative;
+	justify-content: space-between;
+	padding: 25px;
+	box-sizing: border-box;
+}
+
+.chara-detail::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: url("https://cdn.ethreal.cn/genshin/panel/detail-page.png") top center no-repeat;
+	background-size: cover;
+	filter: hue-rotate(var(--bg-hue-rotate)) brightness(80%);
+}
+
+.chara-detail.none::before {
+	filter: grayscale(100%);
+}
+
+/* 通用标题 */
+.model-title {
+	font-weight: 400;
+	font-size: 32px;
+	line-height: 39px;
+	color: #fff;
+	text-shadow: 2px 2px 2px #000;
+}
+
+/* 卡片公共样式 */
+.card {
+	position: relative;
+	border: 1px solid rgba(0, 0, 0, 0.6);
+	border-radius: 8px;
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.25) 100%);
+	box-sizing: border-box;
+	color: #fff;
+}
+
+.card .list-item {
+	display: flex;
+	align-items: center;
+	height: 45px;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 22px;
+	color: #fff;
+}
+
+.card .list-item:nth-of-type(2n) {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.card .list-item:last-child {
+	border-radius: 0 0 8px 8px;
+}
+
+.card .list-item.special {
+	color: #F5DEB3;
+}
+
+.card .bg-icon {
+	position: absolute;
+	top: 50%;
+	right: 10px;
+	opacity: 0.15;
+	font-size: 86px;
+	color: #fff;
+	transform: translateY(-50%);
+}
+
+.card .star-list {
+	display: flex;
+	align-items: center;
+}
+
+.card .star-list > img {
+	width: 26px;
+	height: 26px;
+	margin-right: -6px;
+}
+
+/* 立绘 */
+.chara-detail > .portrait-box {
+	position: absolute;
+	top: 120px;
+	left: 600px;
+	height: 45%;
+	z-index: 10;
+}
+
+.chara-detail > .portrait-box > .portrait {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	height: 100%;
+	transform: translate(-50%, -50%);
+}
+
+.chara-detail > .detail-top,
+.chara-detail > .detail-bottom {
+	margin-left: 25px;
+}
+
+/* 上侧布局 */
+.chara-detail > .detail-top {
+	position: relative;
+	display: block;
+	width: 900px;
+	z-index: 100;
+}
+
+.detail-top > .user {
+	display: flex;
+	align-items: center;
+}
+
+.user > img {
+	width: 104px;
+	height: 104px;
+	border-radius: 50%;
+	border: 6px solid rgba(255, 255, 255, 0.15);
+	filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.25));
+}
+
+.user > .user-info {
+	margin-left: 32px;
+	font-weight: 400;
+	font-size: 24px;
+	line-height: 29px;
+	color: #fff;
+	text-shadow: 2px 2px 2px #000;
+}
+
+.user > .user-info > p:last-child {
+	margin-top: 12px;
+}
+
+/* 基本信息 */
+.detail-top > .base-info {
+	margin-top: 40px;
+	width: 288px;
+}
+
+.base-info > .list-item {
+	justify-content: space-between;
+	padding: 0 12px;
+}
+
+.base-info > .list-item .label {
+	margin-left: 8px;
+}
+
+.base-info > .list-item > .base-info-value {
+	display: flex;
+	align-items: center;
+}
+
+.base-info > .list-item .extra {
+	margin-left: 4px;
+	font-size: 14px;
+	color: #82FF9A;
+}
+
+/* 命座 */
+.detail-top > .talent {
+	display: flex;
+	margin-top: 50px;
+}
+
+.talent > .model-title {
+	margin-top: 20px;
+}
+
+.talent > .talent-content {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-left: 10px;
+	width: 210px;
+}
+
+.talent > .talent-content > li {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: -12px;
+	width: 82px;
+	height: 82px;
+}
+
+.talent > .talent-content > li:nth-of-type(n + 4) {
+	margin-top: -12px;
+	left: -36px;
+}
+
+.talent > .talent-content > li.block {
+	filter: brightness(60%);
+	opacity: .6;
+}
+
+.talent > .talent-content > li::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background: url("https://mari-plugin.oss-cn-beijing.aliyuncs.com/image/background/talent.png") center center no-repeat;
+	background-size: contain;
+	filter: hue-rotate(var(--talent-hue-rotate));
+}
+
+.chara-detail.none .talent > .talent-content > li::before {
+	filter: grayscale(100%);
+}
+
+.talent > .talent-content > li > img {
+	position: relative;
+	width: 38px;
+	z-index: 100;
+}
+
+/* 天赋 */
+.detail-top > .skill {
+	display: flex;
+	margin-top: 20px;
+}
+
+.skill > .model-title {
+	margin-top: 10px;
+}
+
+.skill > .skill-content {
+	display: flex;
+	align-items: center;
+	margin-left: 20px;
+}
+
+.skill > .skill-content > li {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 8px;
+	width: 62px;
+	height: 62px;
+	background: url("https://mari-plugin.oss-cn-beijing.aliyuncs.com/image/background/skill.svg") center center no-repeat;
+	background-size: contain;
+}
+
+.skill > .skill-content > li > img {
+	width: 38px;
+}
+
+.skill > .skill-content > li > .skill-level {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	width: 30px;
+	height: 16px;
+	background-color: rgba(0, 0, 0, 0.4);
+	border-radius: 8px;
+	font-size: 14px;
+	line-height: 18px;
+	color: #fff;
+	text-align: center;
+	transform: translateX(-50%);
+}
+
+.skill > .skill-content > li > .skill-level.special {
+	background-color: #45deff;
+}
+
+/* 下侧布局 */
+.chara-detail > .detail-bottom {
+	position: relative;
+	display: block;
+	width: 900px;
+	z-index: 100;
+}
+
+.detail-top > .avatar-info {
+	position: absolute;
+	left: 55%;
+	top: 15px;
+}
+
+.avatar-info > p:first-child {
+	display: flex;
+	align-items: flex-end;
+	margin-bottom: 8px;
+}
+
+.avatar-info .avatar-name {
+	font-weight: 400;
+	font-size: 42px;
+	line-height: 50px;
+	color: #FFFFFF;
+	text-shadow: 2px 2px 2px #000;
+}
+
+.avatar-info .level-info {
+	margin-bottom: 8px;
+	margin-left: 8px;
+	width: 67px;
+	height: 26px;
+	background-color: rgba(255, 255, 255, 0.3);
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+	border-radius: 4px;
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 28px;
+	text-align: center;
+	color: #F5DEB3;
+}
+
+.avatar-info .talent-info {
+	margin-bottom: 8px;
+	margin-left: 8px;
+	width: 67px;
+	height: 26px;
+	background-color: #B14E16;
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+	border-radius: 4px;
+	font-size: 20px;
+	line-height: 28px;
+	text-align: center;
+	color: #fff;
+}
+
+.avatar-info > .fetter-info {
+	margin-left: 4px;
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 24px;
+	color: #fff;
+	text-shadow: 2px 2px 2px #000;
+}
+
+/* 圣遗物列表 */
+.detail-bottom > .artifact-list {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	flex-wrap: wrap;
+	margin-top: 27px;
+}
+
+.artifact-list .artifact {
+	margin: 15px 20px 15px 0;
+}
+
+/* 圣遗物套装效果 */
+.detail-bottom > .artifact-list > .extra-info {
+	position: relative;
+	margin-right: 18px;
+	width: 252px;
+	margin-top: 15px;
+	height: 332px;
+}
+
+.artifact-effect {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-around;
+	padding: 18px;
+	width: 100%;
+	height: 127px;
+	margin-top: 26px;
+	box-sizing: border-box;
+}
+
+.artifact-effect > p {
+	position: relative;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 24px;
+	color: #fff;
+	z-index: 100;
+}
+
+.artifact-effect > p > span:last-child {
+	margin-left: 12px;
+	color: #90EE90;
+}
+
+.artifact-effect .artifact-effect-empty {
+	width: 100%;
+	text-align: center;
+	opacity: 0.5;
+}
+
+/* 武器信息 */
+.weapon-card {
+	display: flex;
+	padding: 18px 16px;
+	width: 252px;
+	height: 177px;
+}
+
+.weapon-card > .weapon-icon {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 92px;
+	margin-right: 18px;
+	text-align: center;
+}
+
+.weapon-card > .weapon-icon > img {
+	width: 92px;
+	height: 92px;
+	background-color: rgba(0, 0, 0, 0.25);
+	border: 3px solid var(--base-color);
+	border-radius: 8px;
+	box-sizing: border-box;
+}
+
+.weapon-card > .weapon-icon > p {
+	margin-top: 18px;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 22px;
+	white-space: nowrap;
+}
+
+.weapon-card > .weapon-info {
+	flex-shrink: 0;
+}
+
+.weapon-card > .weapon-info > .level-rank {
+	display: flex;
+	align-items: center;
+}
+
+.weapon-card > .weapon-info > .level-rank > span:first-child {
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 24px;
+}
+
+.weapon-card > .weapon-info > .level-rank > span:last-child {
+	margin-left: 6px;
+	padding: 0 6px;
+	background-color: #B14E16;
+	border-radius: 4px;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 20px;
+}
+
+.weapon-card > .weapon-info > .star-list {
+	margin-top: 8px;
+}
+
+.weapon-card > .weapon-info > .star-list > img {
+	width: 22px;
+	height: 22px;
+	margin-right: -6px;
+}
+
+.weapon-card > .weapon-info > .weapon-attr {
+	margin-top: 20px;
+}
+
+.weapon-card > .weapon-info > .weapon-attr > p {
+	display: flex;
+	align-items: center;
+	margin-bottom: 16px;
+}
+
+.weapon-card > .weapon-info > .weapon-attr > p:last-child {
+	margin-bottom: 0;
+}
+
+.weapon-card > .weapon-info > .weapon-attr > p > i {
+	font-size: 20px;
+}
+
+.weapon-card > .weapon-info > .weapon-attr > p > span {
+	margin-left: 20px;
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 24px;
+}
+
+/* 作者信息 */
+.author {
+	position: absolute;
+	bottom: 0;
+	left: 38%;
+	font-weight: 400;
+	font-size: 20px;
+	color: #fff;
+	text-shadow: 2px 2px 2px #000;
+}

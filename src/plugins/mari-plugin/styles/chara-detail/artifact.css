@@ -1,0 +1,63 @@
+.artifact {
+	width: 250px;
+	height: 330px;
+	color: #fff;
+}
+
+.artifact > .artifact-base {
+	display: flex;
+	align-items: center;
+	height: 102px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.artifact > .artifact-base > img {
+	margin-left: 5px;
+	width: 84px;
+	height: 84px;
+}
+
+.artifact > .artifact-base > .artifact-base-info {
+	margin-left: 2px;
+}
+
+.artifact > .artifact-base > .artifact-base-info > .artifact-name {
+	margin-bottom: 3px;
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 24px;
+}
+
+.artifact > .artifact-base > .artifact-base-info > .artifact-info {
+	display: flex;
+	align-items: center;
+}
+
+.artifact > .artifact-base > .artifact-base-info > .artifact-info > .level {
+	padding: 2px 3px 0;
+	margin-right: 2px;
+	background-color: rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 18px;
+	color: #F5DEB3;
+}
+
+.artifact > .list-item {
+	justify-content: space-between;
+	padding: 0 20px;
+}
+
+.artifact > .is-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	opacity: .2;
+}
+
+.artifact > .is-empty i {
+	font-size: 60px;
+}
