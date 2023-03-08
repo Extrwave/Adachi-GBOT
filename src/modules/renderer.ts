@@ -2,14 +2,7 @@ import { URL, URLSearchParams } from "url";
 import { RefreshCatch } from "@modules/management/refresh";
 import puppeteer from "puppeteer";
 import bot from "ROOT";
-import * as fs from "fs"
 import { Buffer } from "buffer";
-import { v4 } from 'uuid'
-
-interface RenderLocal {
-	code: "local";
-	data: fs.ReadStream
-}
 
 interface RenderBase64 {
 	code: "base64";
@@ -36,7 +29,7 @@ export interface PageFunction {
 	( page: puppeteer.Page ): Promise<Buffer | string | void>
 }
 
-export type RenderResult = RenderLocal | RenderBase64 | RenderUrl | RenderOther | RenderError;
+export type RenderResult = RenderBase64 | RenderUrl | RenderOther | RenderError;
 
 export class Renderer {
 	private readonly httpBase: string;
@@ -75,33 +68,6 @@ export class Renderer {
 			const err = <string>( <Error>error ).stack;
 			return { code: "error", data: err };
 		}
-	}
-	
-	public async asLocalImage(
-		route: string,
-		params: Record<string, any> = {},
-		viewPort: puppeteer.Viewport | null = null,
-		selector: string = this.defaultSelector
-	): Promise<RenderResult> {
-		return new Promise( async ( resolve, reject ) => {
-			try {
-				const fileName = bot.file.getFilePath( `${ v4() }.jpeg`, "data" );
-				const url: string = this.getURL( route, params );
-				await bot.renderer.screenshot( url, viewPort, selector, {
-					path: fileName,
-					type: 'jpeg'
-				} );
-				const imageStream = fs.createReadStream( fileName );
-				resolve( { code: "local", data: imageStream } );
-				setTimeout( () => {
-					fs.rmSync( fileName );
-				}, 10000 );
-			} catch ( error ) {
-				const err = <Error>error;
-				bot.logger.error( `图片渲染异常：` + err.stack );
-				resolve( { code: "error", data: `图片渲染异常，请联系开发者进行反馈` } );
-			}
-		} )
 	}
 	
 	public async asForFunction(

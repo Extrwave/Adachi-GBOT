@@ -24,13 +24,13 @@ export async function main(
 		} else {
 			const route: string = checked( typeData.artifact.suitNames ) ? "/info-artifact.html" : "/info.html";
 			await sendMessage( "获取成功，正在生成图片..." );
-			const res: RenderResult = await renderer.asLocalImage(
+			const res: RenderResult = await renderer.asBase64(
 				route,
 				{ name: result.info, skill: isSkillPage }
 			);
-			if ( res.code === "local" ) {
+			if ( res.code === "base64" ) {
 				await sendMessage( { file_image: res.data } );
-			} else if ( res.code === "other" ) {
+			} else if ( res.code === "url" ) {
 				await sendMessage( { image: res.data } );
 			} else {
 				await sendMessage( res.data );

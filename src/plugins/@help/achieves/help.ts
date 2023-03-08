@@ -79,7 +79,7 @@ async function cardStyle( i: InputParameter, commands: BasicConfig[], version: s
 		commands: cmdData
 	} ) );
 	
-	const res: RenderResult = await renderer.asLocalImage(
+	const res: RenderResult = await renderer.asBase64(
 		"/index.html" );
 	return res;
 }
@@ -125,19 +125,16 @@ export async function main( i: InputParameter ): Promise<void> {
 			.get( AuthLevel.Master, MessageScope.Both )
 			.filter( el => el.display );
 		const res = await cardStyle( i, allCommands, version );
-		if ( res.code === "local" ) {
+		if ( res.code === "base64" ) {
 			await i.sendMessage( { file_image: res.data } );
-			return;
 		} else if ( res.code === "url" ) {
 			await i.sendMessage( { image: res.data } );
-			return;
 		} else {
 			await i.sendMessage( res.data );
-			return;
 		}
 	}
 	
-	const title: string = `一碗牛杂 v${ version }~`;
+	const title: string = `Adachi-GBOT v${ version }~`;
 	let ID: number = 0;
 	if ( showKeys ) {
 		const keys: string = commands.reduce( ( pre, cur ) => {

@@ -60,10 +60,10 @@ export async function main(
 		}
 	}
 	await sendMessage( "获取成功，正在生成图片..." );
-	const res: RenderResult = await renderer.asLocalImage( "/ledger.html", { uid } );
-	if ( res.code === "local" ) {
+	const res: RenderResult = await renderer.asBase64( "/ledger.html", { uid } );
+	if ( res.code === "base64" ) {
 		await sendMessage( { file_image: res.data } );
-	} else if ( res.code === "other" ) {
+	} else if ( res.code === "url" ) {
 		await sendMessage( { image: res.data } );
 	} else {
 		await sendMessage( res.data );

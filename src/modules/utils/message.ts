@@ -1,12 +1,16 @@
 /**
 Author: Ethereal
 CreateTime: 2022/7/1
+由于官方SDK更新滞后，与最新API部分数据不匹配，此文件用于修正
  */
 
-import { ReadStream } from "fs";
-import { IMessage, IMessageRes, IUser, MessageReference } from "qq-guild-bot";
-import exp from "constants";
-/* 由于官方SDK更新滞后，与最新API部分数据不匹配，此文件用于修正 */
+import {
+	IMessage, IUser,
+	MessageReference, MessageToCreate
+} from "qq-guild-bot";
+import FormData from "form-data";
+import { Markdown } from "@modules/utils/markdown";
+import { Keyboard } from "@modules/utils/keyboard";
 
 /* ws监听到消息的类型 */
 export interface Message {
@@ -15,10 +19,11 @@ export interface Message {
 	msg: Msg
 }
 
+
 /* 此处是SDK摆烂没更新的部分 */
 export interface Msg extends IMessage {
-	direct_message?: boolean,
-	src_guild_id?: string,
+	direct_message: boolean,
+	src_guild_id: string,
 	message_reference?: MessageReference
 }
 
@@ -70,6 +75,27 @@ export enum MessageType {
 	Private,
 	Unknown
 }
+
+export interface MessageToSend extends MessageToCreate {
+	file_image?: string | {
+		data: string,
+		type: string
+	}
+	markdown?: Markdown;
+	keyboard?: Keyboard
+}
+
+interface MessageNormal {
+	type: "normal",
+	data: MessageToSend
+}
+
+interface MessageFormData {
+	type: "formData",
+	data: FormData
+}
+
+export type MessageEntity = MessageNormal | MessageFormData;
 
 /* SDK 消息其他返回类型 */
 export interface OthMessage {

@@ -6,8 +6,8 @@ import { RenderResult } from "@modules/renderer";
 import { mysInfoPromise } from "#genshin/utils/promise";
 import { getPrivateAccount } from "#genshin/utils/private";
 import { characterID, config, renderer } from "#genshin/init";
-import { MessageToSend } from "@modules/message";
 import { IMessage } from "qq-guild-bot";
+import { MessageToSend } from "@modules/utils/message";
 
 export async function main( i: InputParameter ): Promise<void> {
 	const { sendMessage, messageData } = i;
@@ -54,18 +54,18 @@ export async function mysQuery( userID: string, idMsg: string ) {
 	return { code: true, data: appointName };
 }
 
-export async function mysHandler( userID: string, appointName: string, sendMessage: ( content: MessageToSend | string, atUser?: string ) => Promise<IMessage | void> ) {
+export async function mysHandler( userID: string, appointName: string, sendMessage: ( content: MessageToSend | string, atUser?: boolean ) => Promise<IMessage | void> ) {
 	await sendMessage( "获取成功，正在生成图片..." );
-	const res: RenderResult = await renderer.asLocalImage(
+	const res: RenderResult = await renderer.asBase64(
 		"/card.html", {
 			qq: userID,
 			style: config.cardWeaponStyle,
 			profile: config.cardProfile,
 			appoint: appointName
 		} );
-	if ( res.code === "local" ) {
+	if ( res.code === "base64" ) {
 		await sendMessage( { file_image: res.data } );
-	} else if ( res.code === "other" ) {
+	} else if ( res.code === "url" ) {
 		await sendMessage( { image: res.data } );
 	} else {
 		await sendMessage( res.data );

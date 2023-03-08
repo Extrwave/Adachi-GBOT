@@ -93,7 +93,7 @@ const template = `<div class="chara-detail" :class="{ none: data.element === 'no
 			<artifact v-for="(a, aKey) of artifacts" :position="aKey" :key="aKey" :data="a" />
 		</div>
 	</div>
-	<div class="author">@Copyright 一碗牛杂</div>
+	<div class="author">@BOT Adachi-GBOT</div>
 </div>`;
 
 import { request, parseURL } from "../../public/js/src.js";

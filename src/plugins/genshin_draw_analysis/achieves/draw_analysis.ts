@@ -2,7 +2,6 @@ import bot from "ROOT";
 import fetch from "node-fetch";
 import { renderer } from "../init";
 import { IMessage } from "qq-guild-bot";
-import { MessageToSend } from "@modules/message";
 import { RenderResult } from "@modules/renderer";
 import { AuthLevel } from "@modules/management/auth";
 import { InputParameter, Order } from "@modules/command";
@@ -13,13 +12,14 @@ import { getGameBiz, sleep } from "#genshin_draw_analysis/util/util";
 import { generateAuthKey, getSToken, updatePoolId } from "#genshin_draw_analysis/util/api";
 import { cookie2Obj } from "@plugins/genshin/utils/cookie";
 import { obj2ParamsStr } from "@modules/utils";
+import { MessageToSend } from "@modules/utils/message";
 
-export async function analysisHandler( uid: string, style: string, sendMessage: ( content: MessageToSend | string, atUser?: string ) => Promise<IMessage | void> ) {
-	const res: RenderResult = await renderer.asLocalImage(
+export async function analysisHandler( uid: string, style: string, sendMessage: ( content: MessageToSend | string, atUser?: boolean ) => Promise<IMessage | void> ) {
+	const res: RenderResult = await renderer.asBase64(
 		style === "2" ? "/analysis.html" : "/analysis-phone.html",
 		{ uid: uid }
 	);
-	if ( res.code === "local" ) {
+	if ( res.code === "base64" ) {
 		await sendMessage( { file_image: res.data } );
 	} else if ( res.code === "url" ) {
 		await sendMessage( { image: res.data } );

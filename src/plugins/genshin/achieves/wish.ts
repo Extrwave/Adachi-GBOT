@@ -82,13 +82,13 @@ export async function main(
 			data: data.result,
 			name: nickname
 		} ) );
-		const res: RenderResult = await renderer.asLocalImage(
+		const res: RenderResult = await renderer.asBase64(
 			"/wish.html",
 			{ qq: userID }
 		);
-		if ( res.code === "local" ) {
+		if ( res.code === "base64" ) {
 			await sendMessage( { file_image: res.data } );
-		} else if ( res.code === "other" ) {
+		} else if ( res.code === "url" ) {
 			await sendMessage( { image: res.data } );
 		} else {
 			await sendMessage( res.data );
@@ -125,13 +125,13 @@ export async function main(
 		total: data.total,
 		nickname
 	} );
-	const res: RenderResult = await renderer.asLocalImage(
+	const res: RenderResult = await renderer.asBase64(
 		"/wish-statistic.html",
 		{ qq: userID }
 	);
-	if ( res.code === "local" ) {
+	if ( res.code === "base64" ) {
 		await sendMessage( { file_image: res.data } );
-	} else if ( res.code === "other" ) {
+	} else if ( res.code === "url" ) {
 		await sendMessage( { image: res.data } );
 	} else {
 		await sendMessage( res.data );

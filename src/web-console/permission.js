@@ -4,7 +4,7 @@ import { tokenSession } from "./utils/session.js";
 
 /* 设置当前网站标题 */
 function getPageTitle( pageTitle ) {
-	const defaultTitle = "一碗牛杂 - 后台面板";
+	const defaultTitle = "Adachi-GBOT - 后台面板";
 	if ( pageTitle ) {
 		return `${ pageTitle } | ${ defaultTitle }`;
 	}

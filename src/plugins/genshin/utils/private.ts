@@ -4,7 +4,7 @@ import { Order } from "@modules/command";
 import { AuthLevel } from "@modules/management/auth";
 import { privateClass } from "#genshin/init";
 import { getMemberInfo } from "@modules/utils/account";
-import { MessageToSend } from "../../../modules/message";
+import { MessageToSend } from "@modules/utils/message";
 
 function parseID( msg: string ): number {
 	if ( !msg ) {

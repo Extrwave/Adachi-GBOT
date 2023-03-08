@@ -2,7 +2,7 @@ const template = `<div class="help">
 	<header>
 		<img src="https://adachi-bot.oss-cn-beijing.aliyuncs.com/Version2/help/top-bg.png" alt="top-bg">
 		<div class="left-header">
-			<p>一碗牛杂</p>
+			<p>Adachi-GBOT</p>
 			<p>{{ model === "keys" ? "指令key值表" : "使用文档" }}</p>
 		</div>
 		<div class="right-header">
@@ -26,7 +26,7 @@ const template = `<div class="help">
 		</section>
 	</main>
 	<footer>
-		<p class="sign">@Copyright 一碗牛杂</p>
+		<p class="sign">@BOT Adachi-GBOT</p>
 	</footer>
 </div>`
 

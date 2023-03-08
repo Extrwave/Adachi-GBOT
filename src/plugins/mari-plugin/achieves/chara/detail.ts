@@ -109,9 +109,9 @@ export async function main( { sendMessage, messageData, redis, logger }: InputPa
 		element,
 		...currentChara
 	} ) );
-	const res: RenderResult = await renderer.asLocalImage(
+	const res: RenderResult = await renderer.asBase64(
 		"/chara-detail.html", { uid: uid } );
-	if ( res.code === "local" ) {
+	if ( res.code === "base64" ) {
 		await sendMessage( { file_image: res.data } );
 	} else if ( res.code === "url" ) {
 		await sendMessage( { image: res.data } );

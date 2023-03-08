@@ -6,7 +6,6 @@ import { resolve } from "path";
 import { Logger } from "log4js";
 import { randomSecret } from "@modules/utils";
 import { InputParameter, Order } from "@modules/command";
-import { MessageToSend } from "@modules/message";
 import {
 	convert2Lang,
 	convert2Readable,
@@ -26,11 +25,12 @@ import { IMessage } from "qq-guild-bot";
 import { gacha_config } from "../init";
 import { getPrivateAccount } from "@plugins/genshin/utils/private";
 import { AuthLevel } from "../../../modules/management/auth";
+import { MessageToSend } from "@modules/utils/message";
 
 
 const gacha_types = [ "301", "400", "302", "100", "200" ];
 
-async function sendExportResult( url: string, logger: Logger, sendMessage: ( content: MessageToSend | string, atUser?: string ) => Promise<void | IMessage> ) {
+async function sendExportResult( url: string, logger: Logger, sendMessage: ( content: MessageToSend | string, atUser?: boolean ) => Promise<void | IMessage> ) {
 	const QRCode = require( "qrcode" );
 	const options = {
 		errorCorrectionLevel: 'H',
@@ -42,16 +42,15 @@ async function sendExportResult( url: string, logger: Logger, sendMessage: ( con
 		type: 'png'
 	}
 	const fileName = await bot.file.getFilePath( `${ v4() }.png`, "data" );
-	QRCode.toFile( fileName, url, options, ( err: any ) => {
-		if ( err ) {
+	QRCode.toFile( fileName, url, options, async ( err: any, image: string ) => {
+		if ( err || !image ) {
 			logger.error( "二维码生成失败：", err );
-			sendMessage( `二维码生成失败：${ err }` );
+			await sendMessage( `二维码生成失败：${ err }` );
 			return;
 		}
 		//发送二维码
-		const imageStream = fs.createReadStream( fileName );
-		fs.unlinkSync( fileName );
-		sendMessage( { content: "请扫描二维码获取链接", file_image: imageStream } );
+		image = image.replace( "data:image/png;base64,", "" );
+		await sendMessage( { content: "请扫描二维码获取链接，可用于其他软件分析统计", file_image: image } );
 	} )
 }
 

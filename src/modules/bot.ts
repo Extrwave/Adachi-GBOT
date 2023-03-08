@@ -191,7 +191,7 @@ export class Adachi {
 		}
 		
 		const userID = messageData.msg.author.id;
-		const guildID: string = isPrivate ? "-1" : messageData.msg.guild_id; // -1 代表私聊使用
+		const guildID: string = messageData.msg.guild_id; //
 		const channelID = messageData.msg.channel_id;
 		
 		/* 适配Ban掉的频道 */

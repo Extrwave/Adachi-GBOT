@@ -72,7 +72,7 @@ export class DailySet {
 }
 
 async function getRenderResult( id: string, subState: boolean, week?: number ): Promise<RenderResult> {
-	return await renderer.asLocalImage( "/daily.html", {
+	return await renderer.asBase64( "/daily.html", {
 		id,
 		type: subState ? "sub" : "all",
 		week: week ?? "today"
@@ -122,7 +122,7 @@ export class DailyClass {
 			const groupData = new DailySet( this.getDataSet( week ), this.eventData );
 			await groupData.save( "0" );
 			const res: RenderResult = await getRenderResult( "0", false );
-			if ( res.code === "local" ) {
+			if ( res.code === "base64" ) {
 				for ( let id of groupIDs ) {
 					//暂时不推送，涉及到子频道
 				}
@@ -156,7 +156,7 @@ export class DailyClass {
 						bot.logger.error( "私信发送失败，检查成员是否退出频道 ID：" + userID );
 					} else {
 						const sendMessage = await bot.message.getSendPrivateFunc( userID, info.guildId, );
-						if ( res.code === "local" )
+						if ( res.code === "base64" )
 							await sendMessage( { content: "今日材料如下", file_image: res.data } );
 						if ( res.code === "other" )
 							await sendMessage( { content: "今日材料如下", image: res.data } );

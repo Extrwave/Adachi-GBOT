@@ -35,7 +35,7 @@ async function getNowNote( userID: string ): Promise<RenderResult[]> {
 		const uid: string = a.setting.uid;
 		const dbKey: string = `silvery-star.note-temp-${ uid }`;
 		await bot.redis.setString( dbKey, data );
-		const res: RenderResult = await renderer.asLocalImage(
+		const res: RenderResult = await renderer.asBase64(
 			"/note.html", { uid }
 		);
 		imageList.push( res );
@@ -48,9 +48,9 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 	const res: RenderResult[] = await getNowNote( userID );
 	
 	for ( let msg of res ) {
-		if ( msg.code === "local" )
+		if ( msg.code === "base64" )
 			await sendMessage( { file_image: msg.data } )
-		else if ( msg.code === "other" ) {
+		else if ( msg.code === "url" ) {
 			await sendMessage( { image: msg.data } );
 		} else {
 			await sendMessage( msg.data );

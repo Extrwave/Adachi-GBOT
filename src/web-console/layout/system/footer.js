@@ -1,7 +1,7 @@
 const template = `<div class="footer-view">
 	<div class="footer-content">
 		<span v-if="!isMobile">MIT Licensed | </span>
-		<span>一碗牛杂 - 管理面板</span>
+		<span>Adachi-GBOT - 管理面板</span>
 	</div>
 </div>`;
 

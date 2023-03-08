@@ -32,12 +32,12 @@ async function singleAchieves( abyss: Abyss, uid: string, userID: string, {
 	} );
 	
 	
-	const res: RenderResult = await renderer.asLocalImage(
+	const res: RenderResult = await renderer.asBase64(
 		"/abyss-single.html", { qq: userID }
 	);
-	if ( res.code === "local" ) {
+	if ( res.code === "base64" ) {
 		await sendMessage( { file_image: res.data } );
-	} else if ( res.code === "other" ) {
+	} else if ( res.code === "url" ) {
 		await sendMessage( { image: res.data } );
 	} else {
 		await sendMessage( res.data );

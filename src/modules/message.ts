@@ -3,24 +3,20 @@
  CreateTime: 2022/6/12
  */
 import bot from "ROOT";
-import * as fs from 'fs';
+import v4 from "uuid";
 import FormData from 'form-data';////需要自己安装
-import BotConfig from "@modules/config";
+import BotSetting from "@modules/config";
 import requests from "@modules/requests";
-import { IDirectMessage, IGuild, IMessage, IMessageRes, IOpenAPI, MessageToCreate } from 'qq-guild-bot';
+import {
+	IDirectMessage,
+	IGuild, IMessage,
+	IMessageRes, IOpenAPI
+} from 'qq-guild-bot';
 import Redis, { __RedisKey } from "@modules/redis";
-import { Markdown } from "@modules/utils/markdown";
-import { Keyboard } from "@modules/utils/keyboard";
-import { ErrorMsg, Message, MessageType } from "@modules/utils/message";
+import { ErrorMsg, Message, MessageEntity, MessageToSend, MessageType } from "@modules/utils/message";
 import { Account, getGuildBaseInfo, getMemberInfo } from "@modules/utils/account";
 
-export interface MessageToSend extends MessageToCreate {
-	file_image?: fs.ReadStream;
-	markdown?: Markdown;
-	keyboard?: Keyboard
-}
-
-export type SendFunc = ( content: MessageToSend | string, atUser?: string ) => Promise<IMessage | void>;
+export type SendFunc = ( content: MessageToSend | string, atUser?: boolean ) => Promise<IMessage>;
 
 interface MsgManagementMethod {
 	/* 已知频道私信发送方法 */
@@ -37,9 +33,9 @@ export default class MsgManager implements MsgManagementMethod {
 	
 	private readonly client: IOpenAPI;
 	private readonly redis: Redis;
-	private readonly config: BotConfig;
+	private readonly config: BotSetting;
 	
-	constructor( config: BotConfig, client: IOpenAPI, redis: Redis ) {
+	constructor( config: BotSetting, client: IOpenAPI, redis: Redis ) {
 		this.client = client;
 		this.redis = redis;
 		this.config = config;
@@ -64,10 +60,16 @@ export default class MsgManager implements MsgManagementMethod {
 		msgId = msgId ? msgId : "1000";//随时都可能失效，失效后删掉此行
 		const { guild_id } = await this.getPrivateSendParam( guildId, userId );
 		const guildInfo = <IGuild>await getGuildBaseInfo( guildId );
-		const guildName = guildInfo ? guildInfo.name : "神秘频道";
 		const userInfo = <Account>await getMemberInfo( userId, guildId );
-		const userName = userInfo ? userInfo.account.nick : "神秘用户";
-		return this.sendPrivateEntity( userName, guildName, guild_id, msgId );
+		const guildName = guildInfo.name;
+		const userName = userInfo.account.nick;
+		return this.sendMessageEntity( userId, userName, guildName, guild_id, true, msgId );
+	}
+	
+	/*私信回复发送方法*/
+	public async getReplyPrivateFunc( userId: string, guildId: string, userName: string, guildName: string, msgId?: string ): Promise<SendFunc> {
+		msgId = msgId ? msgId : "1000";//随时都可能失效，失效后删掉此行
+		return this.sendMessageEntity( userId, userName, guildName, guildId, true, msgId );
 	}
 	
 	/* 回复频道消息方法，主动、被动*/
@@ -77,7 +79,7 @@ export default class MsgManager implements MsgManagementMethod {
 		const guildName = guildInfo ? guildInfo.name : "神秘频道";
 		const userInfo = <Account>await getMemberInfo( userId, guildId );
 		const userName = userInfo ? userInfo.account.nick : "神秘用户";
-		return this.sendGuildEntity( userName, guildName, channelId, msgId );
+		return this.sendMessageEntity( userId, userName, guildName, channelId, false, msgId );
 	}
 	
 	
@@ -94,11 +96,6 @@ export default class MsgManager implements MsgManagementMethod {
 		const guilds: string[] = await bot.redis.getSet( `${ __RedisKey.USER_USED_GUILD }-${ userId }` );
 		
 		for ( let guildId of guilds ) {
-			/* 排除私聊使用场景 */
-			if ( guildId === "-1" ) {
-				continue;
-			}
-			
 			/* 判断用户是否退出频道 */
 			const userInfo = await getMemberInfo( userId, guildId );
 			if ( !userInfo ) {
@@ -135,78 +132,74 @@ export default class MsgManager implements MsgManagementMethod {
 		return response.data;
 	}
 	
-	sendPrivateEntity( userName: string, guildName: string, guildId: string, msgId?: string ) {
-		const client = this.client;
-		const sendFileImage = this.sendFileImageFunc( true );
-		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
-			if ( !content || typeof content === 'string' ) {
-				content = content ? content : `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
-				const response = await client.directMessageApi.postDirectMessage( guildId, {
-					content: atUser ? `<@!${ atUser }> ${ content }` : content,
-					msg_id: msgId
-				} );
-				bot.logger.info( `[Send] [Private] [A: ${ userName }] [G: ${ guildName }]: ` + content );
-				return response.data;
-			}
+	sendMessageEntity(
+		userId: string, userName: string, guildName: string,
+		targetId: string, isDirect: boolean, msgId?: string
+	): SendFunc {
+		const sendMessage = this.sendMessageFunc( targetId, isDirect );
+		return async function ( message: MessageToSend | string, atUser?: boolean ): Promise<IMessage> {
 			
-			if ( content.file_image ) {
-				let formData = new FormData();
-				formData.append( "file_image", content.file_image );
-				if ( msgId )
-					formData.append( "msg_id", msgId );
-				if ( content.content )
-					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
-				bot.logger.info( `[Send] [Private] [A: ${ userName }] [G: ${ guildName }]: ` + "[图片消息]" );
-				return sendFileImage( guildId, formData );
+			const formData = new FormData();
+			const logInfo: string[] = [ `[Send]`, `${ isDirect ? "[Private]" : "[Guild]" }`,
+				`[A: ${ userName }]`, `[G: ${ guildName }]`, ":" ];
+			/* 添加msg_id */
+			msgId ? formData.append( "msg_id", msgId ) : "";
+			if ( !message || typeof message === 'string' ) {
+				message = message ?
+					atUser ? `<@!${ atUser }> ${ message }` : message
+					: atUser ? `<@!${ atUser }>` : "" + `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
+				formData.append( "content", message );
+				logInfo.push( message );
+			} else if ( message.embed || message.ark || message.markdown || message.keyboard ) {
+				message.msg_id = msgId;
+				message.embed ? logInfo.push( "[EMBED]", message.embed.title ) : "";
+				message.ark ? logInfo.push( "[ARK]" ) : "";
+				message.markdown ? logInfo.push( "MARKDOWN" ) : "";
+				message.keyboard ? logInfo.push( "KEYBOARD" ) : "";
+				const data = await sendMessage( { type: 'normal', data: message } );
+				bot.logger.info( logInfo.join( " " ) );
+				return data;
+			} else {
+				/* 添加file_image */
+				if ( message.file_image ) {
+					let data, type = 'png';
+					if ( typeof message.file_image !== 'string' ) {
+						data = message.file_image.data;
+						type = message.file_image.type;
+					} else {
+						data = message.file_image;
+					}
+					formData.append( "file_image", Buffer.from( data, 'base64' ), {
+						contentType: `image/${ type }`,
+						filename: v4() + `.${ type }`
+					} );
+					logInfo.push( "[IMAGE]" );
+				}
+				/* image */
+				if ( message.image ) {
+					formData.append( "image", message.image );
+					logInfo.push( "[IMAGE]" );
+				}
+				/* message_reference */
+				if ( message.message_reference ) {
+					formData.append( "message_reference", message.message_reference );
+				}
+				/* 添加content */
+				if ( message.content ) {
+					message.content = atUser ? `<@!${ atUser }> ${ message.content }` : message.content;
+					formData.append( "content", message.content );
+					logInfo.push( message.content );
+				}
 			}
-			
-			content.msg_id = msgId;
-			if ( content.content ) {
-				content.content = atUser ? `<@!${ atUser } ${ content.content }>` : content.content;
-			}
-			const response = await client.directMessageApi.postDirectMessage( guildId, content );
-			bot.logger.info( `[Send] [Private] [A: ${ userName }] [G: ${ guildName }]: ` + "[其他消息]" );
-			return response.data;
+			const data = await sendMessage( { type: 'formData', data: formData } );
+			bot.logger.info( logInfo.join( " " ) );
+			return data;
 		}
 	}
 	
-	sendGuildEntity( userName: string, guildName: string, channelId: string, msgId?: string ) {
+	sendMessageFunc( targetId: string, isDirect: boolean ) {
 		const client = this.client;
-		const sendFileImage = this.sendFileImageFunc( false );
-		return async function ( content: MessageToSend | string, atUser?: string ): Promise<IMessage> {
-			if ( !content || typeof content === 'string' ) {
-				content = content ? content : `BOT尝试发送一条空消息，一般是没有正确返回错误信息，请记录时间点向开发者反馈 ~`;
-				const response = await client.messageApi.postMessage( channelId, {
-					content: atUser ? `<@!${ atUser }> ${ content }` : content,
-					msg_id: msgId
-				} );
-				bot.logger.info( `[Send] [Guild] [A: ${ userName }] [G: ${ guildName }]: ` + content );
-				return response.data;
-			}
-			
-			if ( content.file_image ) {
-				let formData = new FormData();
-				formData.append( "file_image", content.file_image );
-				if ( msgId )
-					formData.append( "msg_id", msgId );
-				if ( content.content )
-					formData.append( "content", atUser ? `<@!${ atUser }> ${ content.content }` : content.content );
-				bot.logger.info( `[Send] [Guild] [A: ${ userName }] [G: ${ guildName }]: ` + "[图片消息]" );
-				return sendFileImage( channelId, formData );
-			}
-			
-			content.msg_id = msgId;
-			if ( content.content ) {
-				content.content = atUser ? `<@!${ atUser } ${ content.content }>` : content.content;
-			}
-			const response = await client.messageApi.postMessage( channelId, content );
-			bot.logger.info( `[Send] [Guild] [A: ${ userName }] [G: ${ guildName }]: ` + "[其他消息]" );
-			return response.data;
-		}
-	}
-	
-	sendFileImageFunc( isDirect: boolean ) {
-		return async function ( targetId: string, formData: FormData ) {
+		return async function ( message: MessageEntity ): Promise<IMessage> {
 			const environment = {
 				sandbox: "https://sandbox.api.sgroup.qq.com",
 				online: "https://api.sgroup.qq.com"
@@ -219,15 +212,26 @@ export default class MsgManager implements MsgManagementMethod {
 				url = `${ apiUrl }/channels/${ targetId }/messages`;
 			}
 			
-			return await requests( {
-				url: url,
-				method: "POST",
-				headers: {
-					"Content-Type": formData.getHeaders()["content-type"],
-					"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
-				},
-				body: formData
-			} );
+			if ( message.type === "formData" ) {
+				const res = await requests( {
+					url: url,
+					method: "POST",
+					headers: {
+						"Content-Type": message.data.getHeaders()["content-type"],
+						"Authorization": `Bot ${ bot.config.appID }.${ bot.config.token }`
+					},
+					body: message.data
+				} );
+				return res.data;
+			} else {
+				if ( isDirect ) {
+					const res = await client.directMessageApi.postDirectMessage( targetId, message.data );
+					return res.data;
+				} else {
+					const res = await client.messageApi.postMessage( targetId, message.data );
+					return res.data;
+				}
+			}
 		}
 	}
 }

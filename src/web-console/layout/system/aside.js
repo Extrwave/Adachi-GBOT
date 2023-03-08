@@ -4,7 +4,7 @@ const template = `<aside class="aside-view">
 			<a class="logo-box" href="https://github.com/Extrwave/Adachi-GBOT" target="_blank">
         		<img src="../../public/image/logo-text.png" alt="ERROR" draggable="false">
         		<p>
-        			<span class="login-title">一碗牛杂</span>
+        			<span class="login-title">Adachi-GBOT</span>
         			<span class="login-desc">Admin</span>
 				</p>
       		</a>

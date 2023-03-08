@@ -1,5 +1,4 @@
 import { Logger } from "log4js";
-import GenshinConfig from "./module/config";
 import express from "express";
 import * as r from "./routes"
 

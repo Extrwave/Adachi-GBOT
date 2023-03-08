@@ -176,10 +176,6 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 	let nickname;
 	
 	for ( let el of usedGuilds ) {
-		if ( el === "-1" ) {
-			groupInfoList.push( "私聊方式使用" );
-			continue;
-		}
 		const memberAuth = await bot.auth.get( userID, el );
 		const guildBaseInfo = await getGuildBaseInfo( el );
 		const guildMemberInfo = await getMemberInfo( userID, el );
@@ -208,9 +204,7 @@ async function getUserInfo( userID: string ): Promise<UserInfo> {
 		avatar,
 		nickname,
 		botAuth,
-		guildUsed: usedGuilds.filter( value => {
-			return value !== "-1";
-		} ),
+		guildUsed: usedGuilds,
 		limits,
 		groupInfoList
 	}
